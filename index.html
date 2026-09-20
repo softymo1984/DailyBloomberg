@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>英語 単語帳</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0a0c11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#14181f; --bg2:#0a0c11;
+    --paper:#FBF6EA; --ink:#1b1d22; --ink-soft:#5d626c;
+    --amber:#c9761a; --teal:#1b5048; --cyan:#5bc8d6;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    box-sizing:border-box;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+    background:radial-gradient(120% 80% at 50% -10%, #222c3a 0%, var(--bg) 45%, var(--bg2) 100%);
+    color:var(--paper); min-height:100dvh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:30px 18px 40px;
+  }
+  header{max-width:560px;width:100%;text-align:center;margin-bottom:26px;}
+  .kicker{font-size:.7rem;letter-spacing:.3em;text-transform:uppercase;color:var(--cyan);font-weight:700;}
+  h1{font-family:"Lora",serif;font-weight:600;font-size:1.9rem;margin:.2em 0 .15em;}
+  .sub{font-size:.82rem;color:#a9b2c4;line-height:1.7;}
+
+  .cards{width:100%;max-width:560px;display:flex;flex-direction:column;gap:14px;}
+  a.app{
+    display:block;text-decoration:none;color:var(--ink);
+    background:linear-gradient(180deg,var(--paper),#efe6d2);
+    border-radius:16px;padding:20px 22px;
+    box-shadow:0 14px 30px rgba(0,0,0,.3), inset 0 1px 0 #fff;
+    border-left:6px solid var(--amber);
+    transition:.16s;
+  }
+  a.app.bep{border-left-color:var(--teal);}
+  a.app:active{transform:translateY(1px);}
+  .app h2{font-family:"Lora",serif;font-size:1.25rem;font-weight:600;margin-bottom:4px;}
+  .app .meta{font-size:.74rem;color:var(--amber);font-weight:700;letter-spacing:.06em;margin-bottom:8px;}
+  .app.bep .meta{color:var(--teal);}
+  .app p{font-size:.84rem;color:var(--ink-soft);line-height:1.6;}
+
+  .note{max-width:560px;width:100%;margin-top:26px;font-size:.78rem;color:#8892a4;line-height:1.8;}
+  .note b{color:var(--cyan);font-weight:700;}
+  .diag{
+    margin-top:18px;font-family:inherit;font-size:.78rem;padding:10px 16px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;
+  }
+  .diag:hover{background:rgba(255,255,255,.08);}
+  #out{max-width:560px;width:100%;margin-top:12px;font-size:.76rem;line-height:1.8;color:#a9b2c4;white-space:pre-wrap;}
+  .ok{color:#6ede9f;} .ng{color:#ff9b8a;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">English Flashcards</div>
+    <h1>英語 単語帳</h1>
+    <div class="sub">学習履歴はこの端末のブラウザに保存されます。</div>
+  </header>
+
+  <div class="cards">
+    <a class="app" href="./bloomberg.html">
+      <div class="meta">DAILY BLOOMBERG ／ 192枚</div>
+      <h2>ニュース英語</h2>
+      <p>市場・経済／政治・司法／テック・AI／慣用句。Bloomberg News Now から抽出した語彙と例文。</p>
+    </a>
+    <a class="app bep" href="./bep.html">
+      <div class="meta">BUSINESS ENGLISH POD ／ 193枚</div>
+      <h2>ビジネス英語</h2>
+      <p>プレゼン導入／アイデアのつなぎ／会議の進行・締め／口語・短縮。会議とプレゼンの実務表現。</p>
+    </a>
+  </div>
+
+  <div class="note">
+    <b>ホーム画面に追加</b>すると、アプリのように開けて履歴も消えにくくなります。<br>
+    iPhone: 共有ボタン → 「ホーム画面に追加」<br>
+    Android: メニュー → 「アプリをインストール」
+  </div>
+
+  <button class="diag" onclick="diag()">動作診断</button>
+  <div id="out"></div>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+function diag(){
+  const L=[];
+  const row=(k,ok,v)=>L.push(k+'： <span class="'+(ok?'ok':'ng')+'">'+v+'</span>');
+
+  row('プロトコル', location.protocol==='https:'||location.hostname==='localhost',
+      location.protocol);
+  row('安全なオリジン', window.isSecureContext===true, window.isSecureContext?'はい':'いいえ');
+
+  let st='使えません';
+  try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); st='使えます'; }catch(e){}
+  row('履歴の保存', st==='使えます', st);
+
+  const sp = 'speechSynthesis' in window;
+  row('読み上げ', sp, sp?'使えます':'使えません');
+  if(sp){
+    const v=speechSynthesis.getVoices().filter(x=>/^en/i.test(x.lang));
+    row('英語の音声', v.length>0, v.length? v.length+'種類': '0種類（端末設定で追加が必要）');
+  }
+  const sw = 'serviceWorker' in navigator;
+  row('オフライン対応', sw, sw?'使えます':'使えません');
+
+  // 保存済みの進捗
+  try{
+    const b=JSON.parse(localStorage.getItem('bbg_known')||'[]').length;
+    const p=JSON.parse(localStorage.getItem('bep_known')||'[]').length;
+    L.push('保存済み： ニュース英語 '+b+'語 ／ ビジネス英語 '+p+'語');
+  }catch(e){}
+
+  document.getElementById('out').innerHTML=L.join('<br>');
+}
+if('speechSynthesis' in window) speechSynthesis.onvoiceschanged=()=>{};
+</script>
+</body>
+</html>
