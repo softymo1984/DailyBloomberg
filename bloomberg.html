@@ -112,6 +112,60 @@
     color:var(--gold);letter-spacing:.04em;}
   .reset{margin-top:14px;font-family:inherit;font-size:.72rem;background:none;border:none;
     color:#6f7a8c;text-decoration:underline;cursor:pointer;}
+
+  .judge .btn{font-size:.88rem;padding:13px 6px;}
+  .recall{font-size:1.5rem;font-weight:700;line-height:1.45;color:var(--ink);}
+  .recall-hint{margin-top:10px;font-size:.8rem;color:var(--ink-soft);}
+
+  .searchwrap{width:100%;max-width:620px;margin-top:10px;position:relative;}
+  #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
+  #q::placeholder{color:#8892a4;}
+  #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;
+    border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
+  .hits.on{display:block;}
+  .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
+  .hit:last-child{border-bottom:none;}
+  .hit:hover{background:rgba(255,255,255,.07);}
+  .hit .he{font-family:"Lora",serif;font-size:.95rem;color:var(--paper);}
+  .hit .hj{font-size:.76rem;color:#a9b2c4;margin-top:2px;}
+  .hit .hd{font-size:.64rem;color:var(--gold);letter-spacing:.08em;}
+  .nohit{padding:12px;text-align:center;font-size:.8rem;color:#8892a4;}
+
+  .statsBtn{margin-top:10px;font-family:inherit;font-size:.82rem;padding:10px 18px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .statsBtn:hover{background:rgba(255,255,255,.1);}
+  .sheet{position:fixed;inset:0;background:rgba(5,7,11,.92);z-index:999;overflow-y:auto;
+    padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px));display:none;}
+  .sheet.on{display:block;}
+  .sheet-in{max-width:620px;margin:0 auto;}
+  .sheet h2{font-family:"Lora",serif;font-size:1.3rem;margin-bottom:4px;color:var(--paper);}
+  .sheet .close{position:sticky;top:0;float:right;background:none;border:none;color:#a9b2c4;
+    font-size:1.6rem;cursor:pointer;line-height:1;}
+  .kpis{display:flex;gap:9px;margin:14px 0 18px;flex-wrap:wrap;}
+  .kpi{flex:1 1 30%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:12px 10px;text-align:center;}
+  .kpi b{display:block;font-family:"Lora",serif;font-size:1.5rem;color:var(--gold);line-height:1.1;}
+  .kpi span{font-size:.68rem;color:#a9b2c4;letter-spacing:.05em;}
+  .sec{margin-top:22px;}
+  .sec h3{font-size:.8rem;color:var(--gold);letter-spacing:.1em;margin-bottom:9px;font-weight:700;}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);}
+  .bar{flex:1;min-width:3px;background:var(--gold);border-radius:2px 2px 0 0;opacity:.85;position:relative;}
+  .bar.zero{background:rgba(255,255,255,.1);height:2px !important;}
+  .bar.today{background:var(--accent);opacity:1;}
+  .barlab{display:flex;justify-content:space-between;font-size:.62rem;color:#8892a4;margin-top:5px;}
+  .drow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:.78rem;color:#cfd6e2;}
+  .drow .nm{width:6.5em;flex:none;color:#a9b2c4;font-size:.72rem;}
+  .dbar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+  .dbar i{display:block;height:100%;background:var(--gold);}
+  .drow .vl{width:4.5em;flex:none;text-align:right;font-size:.7rem;color:#8892a4;}
+  .weak{font-size:.8rem;color:#cfd6e2;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+  .weak .w-ja{font-size:.72rem;color:#8892a4;}
+  .weak .w-n{float:right;color:var(--accent);font-weight:700;font-size:.74rem;}
+  .empty-s{font-size:.78rem;color:#8892a4;padding:10px 0;}
 </style>
 </head>
 <body>
@@ -122,6 +176,12 @@
   </header>
 
   <div class="decks" id="decks"></div>
+
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="🔍 英語・日本語・メモから検索" oninput="doSearch()" autocomplete="off">
+    <button id="qclear" onclick="clearSearch(event)">✕</button>
+  </div>
+  <div class="hits" id="hits"></div>
 
   <div class="meta">
     <span id="count">0 / 0</span>
@@ -159,11 +219,14 @@
   </div>
 
   <div class="judge" id="judgeRow">
-    <button class="btn bad" onclick="judge(false,event)">✗ あいまい</button>
-    <button class="btn good" onclick="judge(true,event)">✓ 言えた</button>
+    <button class="btn bad" onclick="judge(0,event)">もう一度</button>
+    <button class="btn" onclick="judge(1,event)">わかった</button>
+    <button class="btn good" onclick="judge(2,event)">余裕</button>
   </div>
 
   <div class="row2">
+    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">🔀 交互</button>
+    <button class="toolbtn" id="dirBtn" onclick="toggleDir(event)">EN→JA</button>
     <button class="toolbtn" id="modeBtn" onclick="toggleMode(event)">📖 通し</button>
     <button class="toolbtn" id="knowBtn" onclick="toggleKnown(event)">この語を「覚えた」</button>
     <button class="toolbtn" onclick="shuffle(event)">🔀 シャッフル</button>
@@ -192,6 +255,16 @@
     <button class="spd" onclick="importProgress(event)">⬆ 進捗を読み込む</button>
     <a class="spd" href="./index.html" style="text-decoration:none;">🏠 メニュー</a>
   </div>
+  <button class="statsBtn" onclick="openStats(event)">📊 学習記録</button>
+
+  <div class="sheet" id="statsSheet">
+    <div class="sheet-in">
+      <button class="close" onclick="closeStats(event)">×</button>
+      <h2>学習記録</h2>
+      <div id="statsBody"></div>
+    </div>
+  </div>
+
   <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
 
 <script>
@@ -411,15 +484,70 @@ const BUILTIN = [
   {d:"慣用句", en:"off the coast of ~", ja:"〜の沖合に", ex:"Their boats aren't off the coast of Greenland.", exja:"彼らの船はグリーンランド沖にはいない。", note:"off = 岸から離れて。"},
   {d:"慣用句", en:"part of a pattern", ja:"一連の流れの一部", ex:"This is part of a pattern with attacks against the press.", exja:"これは報道機関への攻撃という一連の流れの一部だ。", note:"単発でなく継続的傾向だと示す。"},
   {d:"慣用句", en:"desperately want ~", ja:"切実に〜を欲しがる", ex:"This island desperately wants investment.", exja:"この島は切実に投資を求めている。", note:"desperate = 必死の。"},
+
+  // ===== 9/21 US-China Talks, Iran War Conditions =====
+  {d:"市場・経済", en:"have a lot of ground to cover", ja:"話し合うことが山ほどある", ex:"The two have a lot of ground to cover.", exja:"両者には協議すべきことが山ほどある。", note:"ground=扱う範囲。会議の冒頭で頻出。"},
+  {d:"市場・経済", en:"deliverables", ja:"成果物・目に見える成果", ex:"They are meeting to find some deliverables for their presidents.", exja:"首脳に示す成果を探るため会談している。", note:"交渉や案件で「持ち帰れる成果」。"},
+  {d:"市場・経済", en:"find common ground", ja:"共通点を見いだす", ex:"It's a long list to find common ground on trade.", exja:"通商で共通点を探るには課題が多い。", note:"合意できる土台を探す。"},
+  {d:"市場・経済", en:"borrowing costs", ja:"資金調達コスト・借入金利", ex:"The war has been a key factor pushing up borrowing costs.", exja:"戦争が調達コスト上昇の主因となってきた。", note:"金利上昇の言い換えとして頻出。"},
+  {d:"市場・経済", en:"push up ~", ja:"〜を押し上げる", ex:"A key factor pushing up consumer prices.", exja:"消費者物価を押し上げる主因。", note:"push down が対。"},
+  {d:"市場・経済", en:"efforts are underway", ja:"取り組みが進行中だ", ex:"Efforts are underway to end the conflict.", exja:"紛争終結に向けた取り組みが進行中だ。", note:"underway=進行中。受け身にしない。"},
+  {d:"市場・経済", en:"frozen funds", ja:"凍結資産", ex:"Iran's conditions include the release of frozen funds.", exja:"イランの条件には凍結資産の解除が含まれる。", note:"制裁でよく出る。freeze assets。"},
+  {d:"市場・経済", en:"naval blockade", ja:"海上封鎖", ex:"An end to the US naval blockade in the Strait of Hormuz.", exja:"ホルムズ海峡での米海上封鎖の解除。", note:"naval=海軍の。"},
+  {d:"市場・経済", en:"box office", ja:"興行収入", ex:"The film broke a franchise record at the box office.", exja:"その作品は興行収入で記録を更新した。", note:"映画の売上。"},
+  {d:"市場・経済", en:"rake in ~", ja:"（大金を）稼ぐ", ex:"The original raked in about 48 million dollars.", exja:"前作は約4,800万ドルを稼いだ。", note:"熊手でかき集めるイメージ。口語。"},
+  {d:"市場・経済", en:"way above expectations", ja:"予想を大きく上回って", ex:"That's way above expectations.", exja:"それは予想を大きく上回っている。", note:"way=強調の副詞。"},
+  {d:"市場・経済", en:"lucrative", ja:"儲かる・収益性の高い", ex:"Their most advanced and most lucrative models.", exja:"最も先進的で最も収益性の高いモデル。", note:"profitable より強い語感。"},
+  {d:"市場・経済", en:"consumer value", ja:"消費者にとっての価値", ex:"The suit argues it reduces consumer value for paid subscriptions.", exja:"訴訟は有料契約の消費者価値を損なうと主張する。", note:"独禁法の論点で使われる。"},
+  {d:"政治・司法", en:"denounce", ja:"公然と非難する", ex:"CNN and Politico have all denounced the ban.", exja:"CNNもPoliticoもその禁止措置を非難した。", note:"公式・強い非難。"},
+  {d:"政治・司法", en:"slam", ja:"激しく非難する", ex:"Its spokesman slammed the President for his decision.", exja:"報道官は大統領の決定を激しく非難した。", note:"見出しで多用される強い語。"},
+  {d:"政治・司法", en:"take any and all steps necessary", ja:"必要なあらゆる手段を取る", ex:"It plans to take any and all steps necessary to protect its reporters.", exja:"記者を守るためあらゆる手段を取る方針だ。", note:"法的措置を示唆する定型句。"},
+  {d:"政治・司法", en:"settlement talks", ja:"和解協議", ex:"Settlement talks between the two sides continue.", exja:"両者の和解協議は続いている。", note:"settle の名詞＋talks。"},
+  {d:"政治・司法", en:"terms being considered", ja:"検討中の条件", ex:"Other terms being considered include an editorial board.", exja:"検討中の他の条件には編集委員会の設置が含まれる。", note:"terms=契約・和解の条件。"},
+  {d:"政治・司法", en:"editorial board", ja:"編集委員会", ex:"An editorial board to monitor the network's coverage.", exja:"報道を監視する編集委員会。", note:"報道機関の論説・編集方針を決める組織。"},
+  {d:"政治・司法", en:"open Pandora's box", ja:"取り返しのつかない事態を招く", ex:"Once you open the Pandora's box of censorship, you can never close it.", exja:"検閲という箱を一度開けたら二度と閉じられない。", note:"ギリシャ神話由来。悪いものが出る。"},
+  {d:"政治・司法", en:"censorship", ja:"検閲", ex:"Once you open the Pandora's box of censorship.", exja:"検閲という箱を一度開けてしまえば。", note:"censor=検閲する。"},
+  {d:"政治・司法", en:"spokesman / spokesperson", ja:"報道官・広報担当", ex:"Dr. Alansari is a spokesman for the Ministry of Foreign Affairs.", exja:"アランサリ氏は外務省の報道官だ。", note:"組織を代表して話す人。"},
+  {d:"政治・司法", en:"resume negotiations", ja:"交渉を再開する", ex:"Tehran sent conditions to resume negotiations.", exja:"テヘランは交渉再開の条件を送った。", note:"resume=再開する。発音はリズューム。"},
+  {d:"政治・司法", en:"hostilities", ja:"戦闘行為・敵対行為", ex:"We've been working since the return of hostilities to the region.", exja:"地域で戦闘が再開して以来取り組んでいる。", note:"複数形で「交戦状態」。"},
+  {d:"政治・司法", en:"go back and forth over ~", ja:"〜をめぐって議論を往復させる", ex:"We've been going back and forth over different ideas.", exja:"様々な案をめぐって議論を重ねてきた。", note:"行ったり来たりの交渉。"},
+  {d:"政治・司法", en:"in-person meeting", ja:"対面での会談", ex:"This will be their third in-person meeting.", exja:"これが3回目の対面会談となる。", note:"オンラインでない直接の面会。"},
+  {d:"政治・司法", en:"grip on power", ja:"権力の掌握", ex:"The vote is set to strengthen the Kremlin's grip on power.", exja:"投票は政権の権力掌握を強めるとみられる。", note:"grip=握り。"},
+  {d:"政治・司法", en:"barrage", ja:"集中攻撃・弾幕", ex:"The refinery got hit by the largest barrage this year.", exja:"製油所は今年最大の集中攻撃を受けた。", note:"質問の集中砲火にも使う。"},
+  {d:"政治・司法", en:"press ahead with ~", ja:"〜を押し進める", ex:"The Chancellor has vowed to press ahead with reforms.", exja:"首相は改革を押し進めると明言した。", note:"反対を押し切って進める。"},
+  {d:"政治・司法", en:"vow to ~", ja:"〜すると誓う・明言する", ex:"He has vowed to press ahead with reforms.", exja:"彼は改革を進めると明言した。", note:"pledge より強い決意。"},
+  {d:"政治・司法", en:"exit polls", ja:"出口調査", ex:"Exit polls show his party received just 5%.", exja:"出口調査では同党の得票は5%にとどまった。", note:"投票直後の調査。"},
+  {d:"政治・司法", en:"preoccupied with ~", ja:"〜に気を取られている", ex:"The President has been preoccupied with the midterm elections.", exja:"大統領は中間選挙に気を取られてきた。", note:"他に手が回らない状態。"},
+  {d:"政治・司法", en:"midterm elections", ja:"中間選挙", ex:"The midterm elections are coming up.", exja:"中間選挙が近づいている。", note:"大統領任期の中間に行う議会選。"},
+  {d:"政治・司法", en:"high-profile", ja:"注目度の高い", ex:"Just days before the high-profile summit.", exja:"注目度の高い首脳会談の数日前。", note:"low-profile が対。"},
+  {d:"テック・AI", en:"slow the development pace", ja:"開発ペースを緩める", ex:"Top leaders have been warning that it's time to slow the development pace.", exja:"首脳らは開発ペースを緩める時だと警告してきた。", note:"pace=速度。"},
+  {d:"テック・AI", en:"escalating risks", ja:"増大するリスク", ex:"They cite escalating risks of the technology.", exja:"その技術の増大するリスクを挙げている。", note:"escalate=段階的に強まる。"},
+  {d:"テック・AI", en:"industry-wide cooperation", ja:"業界全体での協調", ex:"His essay urged industry-wide cooperation.", exja:"その論考は業界全体での協調を促した。", note:"-wide=全体にわたる。"},
+  {d:"テック・AI", en:"urge ~", ja:"〜を強く促す", ex:"The essay urged cooperation amid safety risks.", exja:"その論考は安全上のリスクの中で協調を促した。", note:"強い要請。"},
+  {d:"テック・AI", en:"amid ~", ja:"〜のさなかに", ex:"Cooperation amid escalating safety risks.", exja:"安全リスクが高まるさなかの協調。", note:"during より報道向き。"},
+  {d:"テック・AI", en:"violate antitrust laws", ja:"独占禁止法に違反する", ex:"The suit argues that coordination violates antitrust laws.", exja:"訴訟は協調が独禁法違反だと主張する。", note:"violate=違反する。"},
+  {d:"テック・AI", en:"coordination", ja:"（企業間の）協調・談合", ex:"The suit argues that coordination reduces consumer value.", exja:"訴訟は協調が消費者価値を損なうと主張する。", note:"文脈により「談合」の含み。"},
+  {d:"テック・AI", en:"file a suit in ~", ja:"〜で訴訟を起こす", ex:"The suit filed in California argues that.", exja:"カリフォルニアで起こされた訴訟はこう主張する。", note:"file=提出する。"},
+  {d:"慣用句", en:"sink one's teeth into ~", ja:"〜に食い込む・本腰を入れる", ex:"The film sank its teeth into 60 million dollars in ticket sales.", exja:"その作品はチケット売上6,000万ドルに食い込んだ。", note:"歯を立てるイメージ。本気で取り組む意味も。"},
+  {d:"慣用句", en:"in solidarity with ~", ja:"〜と連帯して", ex:"His supporting acts withdrew in solidarity with the opener.", exja:"前座に連帯して共演者が降板した。", note:"solidarity=連帯。"},
+  {d:"慣用句", en:"be dropped from ~", ja:"〜から外される", ex:"He was dropped from the tour after his comments on stage.", exja:"舞台での発言後、ツアーから外された。", note:"drop=降ろす。"},
+  {d:"慣用句", en:"the controversy that unfolded", ja:"巻き起こった騒動", ex:"He addressed the controversy that unfolded last week.", exja:"彼は先週巻き起こった騒動に言及した。", note:"unfold=展開する。"},
+  {d:"慣用句", en:"address the controversy", ja:"騒動について釈明する", ex:"The singer addressed the controversy on stage.", exja:"その歌手は舞台で騒動について釈明した。", note:"address=（問題に）対処・言及する。"},
+  {d:"慣用句", en:"alternate between A and B", ja:"AとBを行き来する", ex:"A relationship that's alternated between cooperation and public clashes.", exja:"協調と公然の衝突を行き来してきた関係。", note:"alternate=交互になる。"},
+  {d:"慣用句", en:"an unlikely relationship", ja:"意外な関係", ex:"The pair continue an unlikely relationship.", exja:"二人は意外な関係を続けている。", note:"unlikely=ありそうにない。"},
+  {d:"慣用句", en:"catastrophic and unjustifiable", ja:"破滅的で正当化できない", ex:"He said what's happening there is catastrophic and unjustifiable.", exja:"そこで起きていることは破滅的で正当化できないと述べた。", note:"強い非難の定型。"},
+  {d:"慣用句", en:"wrap a third day of ~", ja:"〜の3日目を終える", ex:"Russia wrapped a third and final day of elections.", exja:"ロシアは選挙の最終3日目を終えた。", note:"wrap=締めくくる。"},
+  {d:"慣用句", en:"set to ~", ja:"〜することになっている", ex:"The vote is set to strengthen the government's grip.", exja:"投票は政権の掌握を強めることになっている。", note:"予定・見込みを表す。"},
 ];
 let CARDS = BUILTIN.slice();
 
 // ============ 設定（Repeat Drill 仕様書の出題ロジックを流用） ============
 const NS = 'bbg';
-const GAP_FAIL = 5;    // 間違えた語は最低5問あけて再出題
-const GAP_RETRY = 20;  // 1回正解しても20問後に再確認
-const CLEAR_AT = 2;    // 連続2回正解で卒業
+const GAP_FAIL = 5;    // 同一セッション内で間違えた語を戻す間隔（問数）
 const NO_REPEAT = 12;  // 直近12問は引かない
+// 日付ベースの復習間隔（日）。3択判定で伸び方が変わる。
+const STEPS_OK   = [1,3,7,16,35,75];   // 「わかった」で進む
+const STEPS_EASY = [3,7,16,35,75,150]; // 「余裕」で進む（1段飛ばし相当）
 
 // ============ 保存（localStorage。使えない環境では黙って無効化） ============
 function lsGet(k,d){ try{const v=localStorage.getItem(NS+'_'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} }
@@ -454,10 +582,32 @@ let streak = lsGet('streak',{});
 let seen   = new Set(lsGet('seen',[]));
 let total  = lsGet('total',0);
 let mode   = lsGet('mode','browse');
+let dir    = lsGet('dir','en');
+let interleaveOn = lsGet('il',1)===1;   // デッキ交互出題   // 'en'=英→日（再認） / 'ja'=日→英（想起）
 let speed  = lsGet('sp',1);
 let voiceName = lsGet('vo','');
 let day = lsGet('day',''), cnt = lsGet('cnt',0), okCnt = lsGet('ok',0);
 if(day!==jstDay()){ day=jstDay(); cnt=0; okCnt=0; lsSet('day',day); lsSet('cnt',0); lsSet('ok',0); }
+
+
+// ---- 学習データ（日付ベース）----
+// rec[見出し語] = {d:次回復習日(YYYY-MM-DD), n:段階, f:連続失敗}
+let rec = lsGet('rec', null);
+if(rec === null){
+  // 旧データ（問番号ベース）からの移行。卒業済みは1日後、要再挑戦は今日に置く。
+  rec = {};
+  const old = lsGet('sched',{});
+  for(const w of lsGet('known',[])) rec[w] = {d:addDays(jstDay(),1), n:1, f:0};
+  for(const w of Object.keys(old))  rec[w] = {d:jstDay(), n:0, f:1};
+  lsSet('rec', rec); lsSet('hist', hist);
+}
+function addDays(ymd, n){
+  const t = new Date(ymd+'T00:00:00Z').getTime() + n*86400000;
+  return new Date(t).toISOString().slice(0,10);
+}
+function isDue(w){ const r=rec[w]; return r && r.d <= jstDay(); }
+function isNew(w){ return !rec[w]; }
+function graduated(w){ const r=rec[w]; return r && r.n>=3; }   // 1週間以上の間隔に乗った語
 
 let onlyUnknown=false, order=[], pos=0, cur=null, isFlipped=false;
 let playing=false, repeatMode=0, history=[], playToken=0;
@@ -466,8 +616,9 @@ const card = document.getElementById('card');
 function persist(){
   lsSet('known',[...known]); lsSet('sched',sched); lsSet('streak',streak);
   lsSet('seen',[...seen]); lsSet('total',total);
+  lsSet('rec', rec);
   lsSet('day',day); lsSet('cnt',cnt); lsSet('ok',okCnt);
-  lsSet('deck',activeDeck); lsSet('mode',mode); lsSet('sp',speed); lsSet('vo',voiceName);
+  lsSet('deck',activeDeck); lsSet('mode',mode); lsSet('dir',dir); lsSet('il', interleaveOn?1:0); lsSet('sp',speed); lsSet('vo',voiceName);
 }
 
 // ============ 読み上げ ============
@@ -541,6 +692,57 @@ function paintSpeed(){
   document.querySelectorAll('.spd').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.sp)===speed));
 }
 
+
+// ============ 検索 ============
+function doSearch(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const box=document.getElementById('hits');
+  document.getElementById('qclear').style.display = q?'block':'none';
+  if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+  const hits=[];
+  for(let i=0;i<CARDS.length && hits.length<40;i++){
+    const c=CARDS[i];
+    const hay=(c.en+' '+c.ja+' '+(c.ex||'')+' '+(c.exja||'')+' '+(c.note||'')+' '+c.d).toLowerCase();
+    if(hay.includes(q)) hits.push(i);
+  }
+  if(!hits.length){ box.innerHTML='<div class="nohit">見つかりません</div>'; box.classList.add('on'); return; }
+  box.innerHTML = hits.map(i=>{
+    const c=CARDS[i];
+    return '<div class="hit" onclick="jumpTo('+i+')">'
+      + '<div class="hd">'+c.d+'</div>'
+      + '<div class="he">'+esc(c.en)+'</div>'
+      + '<div class="hj">'+esc(c.ja)+'</div></div>';
+  }).join('');
+  box.classList.add('on');
+}
+function esc(t){ return (t||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function clearSearch(e){
+  if(e) e.stopPropagation();
+  document.getElementById('q').value='';
+  doSearch();
+}
+function jumpTo(i){                       // 検索結果からそのカードへ
+  clearSearch();
+  cur=i;
+  if(mode==='browse'){
+    activeDeck='すべて'; onlyUnknown=false; renderDecks();
+    order=workingList(); pos=Math.max(0, order.indexOf(i));
+  }
+  render();
+  try{ document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+}
+
+// ---- インターリービング（デッキを意図的に交互に出す）----
+// 同じデッキが3枚続いたら、別デッキの候補を優先する。
+// ブロック練習より交互練習の方が長期保持に有利、という知見に基づく。
+function interleave(cands){
+  if(!interleaveOn || cands.length<2) return null;
+  const last = history.slice(-2).map(i=>CARDS[i] && CARDS[i].d);
+  if(last.length<2 || last[0]!==last[1]) return null;   // 直近2枚が同デッキのときだけ介入
+  const other = cands.filter(i=>CARDS[i].d!==last[1]);
+  return other.length ? other[Math.floor(Math.random()*other.length)] : null;
+}
+
 // ============ 出題 ============
 function workingList(){
   let list = CARDS.map((c,i)=>i);
@@ -551,39 +753,151 @@ function workingList(){
 function pick(){
   const pool = workingList();
   if(!pool.length) return null;
-  let cut = Math.min(NO_REPEAT, Math.max(0, pool.length-2));   // プールが小さいときは除外幅を縮める
+  let cut = Math.min(NO_REPEAT, Math.max(0, pool.length-2));
   const excl = new Set(history.slice(-cut));
   let use = pool.filter(i=>!excl.has(i)); if(!use.length) use = pool;
   const rnd = a => a[Math.floor(Math.random()*a.length)];
-  const due = use.filter(i=>sched[CARDS[i].en]!=null && sched[CARDS[i].en]<=total);
-  if(due.length) return rnd(due);                               // ①期限の来た要再挑戦
-  const fresh = use.filter(i=>!seen.has(CARDS[i].en));
-  if(fresh.length) return rnd(fresh);                           // ②未出題
-  return rnd(use);                                              // ③卒業済みから復習
+  // ①同一セッションで間違えた語（すぐ戻す）
+  const again = use.filter(i=>sched[CARDS[i].en]!=null && sched[CARDS[i].en]<=total);
+  if(again.length) return rnd(again);
+  // ②今日が復習日の語
+  const due = use.filter(i=>isDue(CARDS[i].en));
+  if(due.length) return interleave(due) || rnd(due);
+  // ③未出題
+  const fresh = use.filter(i=>isNew(CARDS[i].en));
+  if(fresh.length) return interleave(fresh) || rnd(fresh);
+  // ④前倒し復習（期日が近い順）
+  const rest = use.slice().sort((a,b)=>(rec[CARDS[a].en]?.d||'9') < (rec[CARDS[b].en]?.d||'9') ? -1 : 1);
+  return rest[0];
 }
 function nextDrill(){
   cur = pick();
   if(cur!=null){ history.push(cur); if(history.length>60) history.shift(); }
   render();
 }
-function judge(good,e){
+function judge(grade,e){     // grade: 0=もう一度 1=わかった 2=余裕
   if(e) e.stopPropagation();
   if(cur==null) return;
   const w = CARDS[cur].en;
-  total++; cnt++; if(good) okCnt++;
+  total++; cnt++; if(grade>0) okCnt++;
+  logDay(grade>0);
   seen.add(w);
-  if(!good){
-    streak[w]=0; sched[w]=total+GAP_FAIL; known.delete(w);
-  } else if(sched[w]!=null){
-    streak[w]=(streak[w]||0)+1;
-    if(streak[w]>=CLEAR_AT){ delete sched[w]; delete streak[w]; known.add(w); }
-    else sched[w]=total+GAP_RETRY;
-  } else {
-    sched[w]=total+GAP_RETRY; streak[w]=1;
+  const r = rec[w] || {d:jstDay(), n:0, f:0};
+  if(grade===0){
+    r.n = 0; r.f = (r.f||0)+1;
+    r.d = jstDay();                                  // 今日のうちにもう一度
+    sched[w] = total + GAP_FAIL;                     // セッション内で戻す
+    known.delete(w);
+  }else{
+    delete sched[w];
+    const steps = grade===2 ? STEPS_EASY : STEPS_OK;
+    const idx = Math.min(r.n, steps.length-1);
+    r.d = addDays(jstDay(), steps[idx]);
+    r.n = Math.min(r.n+1, steps.length);
+    r.f = 0;
+    if(r.n>=3) known.add(w);                         // 1週間間隔に乗ったら「覚えた」扱い
   }
+  rec[w] = r;
   persist(); nextDrill();
   if(playing) playCard();
 }
+
+
+// ============ 学習記録 ============
+// hist[YYYY-MM-DD] = {n:枚数, ok:正解数}
+let hist = lsGet('hist',{});
+function logDay(good){
+  const d=jstDay();
+  const h=hist[d]||{n:0,ok:0};
+  h.n++; if(good) h.ok++;
+  hist[d]=h;
+  const keys=Object.keys(hist).sort();
+  while(keys.length>120){ delete hist[keys.shift()]; }   // 120日分だけ残す
+  lsSet('hist',hist);
+}
+function streakDays(){
+  let n=0, d=jstDay();
+  while(hist[d] && hist[d].n>0){ n++; d=addDays(d,-1); }
+  return n;
+}
+function dueBuckets(){
+  const t=jstDay(), t1=addDays(t,1), t7=addDays(t,7);
+  const b={today:0,tomorrow:0,week:0,later:0,none:0};
+  for(const c of CARDS){
+    const r=rec[c.en];
+    if(!r){ b.none++; continue; }
+    if(r.d<=t) b.today++;
+    else if(r.d===t1) b.tomorrow++;
+    else if(r.d<=t7) b.week++;
+    else b.later++;
+  }
+  return b;
+}
+function openStats(e){
+  if(e) e.stopPropagation();
+  const box=document.getElementById('statsBody');
+  const days=[]; for(let i=29;i>=0;i--) days.push(addDays(jstDay(),-i));
+  const vals=days.map(d=>hist[d]?hist[d].n:0);
+  const max=Math.max(10,...vals);
+  const tot30=vals.reduce((a,b)=>a+b,0);
+  const活=vals.filter(v=>v>0).length;
+  const b=dueBuckets();
+  const done=CARDS.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+
+  // デッキ別
+  const decksAll=Array.from(new Set(CARDS.map(c=>c.d)));
+  const drows=decksAll.map(d=>{
+    const cs=CARDS.filter(c=>c.d===d);
+    const ok=cs.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+    return {d, ok, all:cs.length, pct:Math.round(ok/cs.length*100)};
+  }).sort((a,b)=>a.pct-b.pct);
+
+  // 苦手な語（失敗回数の多い順）
+  const weak=CARDS.filter(c=>rec[c.en]&&(rec[c.en].f||0)>0)
+    .sort((a,b)=>(rec[b.en].f||0)-(rec[a.en].f||0)).slice(0,8);
+
+  box.innerHTML =
+   '<div class="kpis">'
+   + '<div class="kpi"><b>'+streakDays()+'</b><span>連続日数</span></div>'
+   + '<div class="kpi"><b>'+done+'</b><span>定着（1週間超）</span></div>'
+   + '<div class="kpi"><b>'+b.today+'</b><span>今日の復習</span></div>'
+   + '</div>'
+
+   + '<div class="sec"><h3>直近30日</h3>'
+   + '<div class="bars">'
+   + days.map((d,i)=>{
+       const v=vals[i], h=v?Math.max(4,Math.round(v/max*100)):0;
+       return '<div class="bar'+(v?'':' zero')+(i===29?' today':'')+'" style="height:'+h+'%" title="'+d+' '+v+'枚"></div>';
+     }).join('')
+   + '</div>'
+   + '<div class="barlab"><span>'+days[0].slice(5)+'</span><span>30日で '+tot30+'枚 ／ 学習 '+活+'日</span><span>今日</span></div></div>'
+
+   + '<div class="sec"><h3>復習の予定</h3>'
+   + row('今日', b.today) + row('明日', b.tomorrow) + row('今週中', b.week)
+   + row('それ以降', b.later) + row('未学習', b.none)
+   + '</div>'
+
+   + '<div class="sec"><h3>デッキ別の定着</h3>'
+   + drows.map(r=>'<div class="drow"><span class="nm">'+r.d+'</span>'
+       +'<span class="dbar"><i style="width:'+r.pct+'%"></i></span>'
+       +'<span class="vl">'+r.ok+'/'+r.all+'</span></div>').join('')
+   + '</div>'
+
+   + '<div class="sec"><h3>つまずいた語</h3>'
+   + (weak.length ? weak.map(c=>'<div class="weak"><span class="w-n">'+(rec[c.en].f||0)+'回</span>'
+       +esc(c.en)+'<div class="w-ja">'+esc(c.ja)+'</div></div>').join('')
+     : '<div class="empty-s">まだありません</div>')
+   + '</div>';
+
+  document.getElementById('statsSheet').classList.add('on');
+  function row(lab,n){
+    const pct=CARDS.length?Math.round(n/CARDS.length*100):0;
+    return '<div class="drow"><span class="nm">'+lab+'</span>'
+      +'<span class="dbar"><i style="width:'+pct+'%"></i></span>'
+      +'<span class="vl">'+n+'枚</span></div>';
+  }
+}
+function closeStats(e){ if(e) e.stopPropagation(); document.getElementById('statsSheet').classList.remove('on'); }
 
 // ============ 表示 ============
 function setBrowse(keep){
@@ -614,9 +928,15 @@ function render(){
   }
   isFlipped=false; card.classList.remove('flipped');
   const c=CARDS[cur];
-  document.getElementById('frontDeck').textContent=c.d;
-  document.getElementById('frontEn').textContent=c.en;
-  document.getElementById('backJa').textContent=c.ja;
+  document.getElementById('frontDeck').textContent=c.d + (dir==='ja'?' ／ 日→英':'');
+  if(dir==='ja'){
+    document.getElementById('frontEn').innerHTML =
+      '<div class="recall">'+c.ja+'</div><div class="recall-hint">英語で言ってからめくる</div>';
+    document.getElementById('backJa').textContent=c.en;
+  }else{
+    document.getElementById('frontEn').textContent=c.en;
+    document.getElementById('backJa').textContent=c.ja;
+  }
   document.getElementById('backEx').textContent=c.ex||"";
   document.getElementById('backExJa').textContent=c.exja||"";
   document.getElementById('backNote').textContent=c.note||"";
@@ -652,6 +972,25 @@ function paintMode(){
   document.getElementById('browseRow').style.display = drill?'none':'flex';
   document.getElementById('judgeRow').classList.toggle('on', drill);
   document.getElementById('knowBtn').style.display = drill?'none':'';
+}
+function toggleIL(e){
+  if(e) e.stopPropagation();
+  interleaveOn=!interleaveOn; persist(); paintIL();
+}
+function paintIL(){
+  const b=document.getElementById('ilBtn');
+  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'🔀 交互 ON':'🔀 交互 OFF'; }
+}
+function toggleDir(e){
+  if(e) e.stopPropagation();
+  dir = dir==='en' ? 'ja' : 'en';
+  persist(); paintDir(); render();
+}
+function paintDir(){
+  const b=document.getElementById('dirBtn');
+  if(!b) return;
+  b.textContent = dir==='ja' ? 'JA→EN' : 'EN→JA';
+  b.classList.toggle('on', dir==='ja');
 }
 function toggleMode(e){
   if(e) e.stopPropagation();
@@ -691,9 +1030,10 @@ function playCard(){
   const my = ++playToken;
   const c = CARDS[cur];
   isFlipped=false; card.classList.remove('flipped');
-  speakSeq(c.en, ()=>{
+  speakSeq(dir==='ja' ? '' : c.en, ()=>{
     if(!playing || my!==playToken) return;
     isFlipped=true; card.classList.add('flipped');
+    if(dir==='ja') speak(c.en);
     speakSeq(c.ex, ()=>{
       if(!playing || my!==playToken) return;
       setTimeout(()=>{ if(playing && my===playToken) afterCard(); },1000);
@@ -718,7 +1058,8 @@ function cycleRepeat(e){
 }
 
 document.addEventListener('keydown',(e)=>{
-  if(e.target.tagName==='SELECT') return;
+  const tg=e.target.tagName;
+  if(tg==='SELECT'||tg==='INPUT'||tg==='TEXTAREA') return;
   if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); flip(); }
   else if(e.code==='ArrowRight'){ next(); }
   else if(e.code==='ArrowLeft'){ prev(); }
@@ -770,7 +1111,7 @@ function clearExtras(e){
 function exportProgress(e){
   if(e) e.stopPropagation();
   const dump={ns:NS, saved:new Date().toISOString(),
-    known:[...known], sched, streak, seen:[...seen], total, cnt, okCnt, day};
+    known:[...known], sched, streak, seen:[...seen], total, cnt, okCnt, day, rec, hist};
   const blob=new Blob([JSON.stringify(dump,null,1)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
@@ -789,6 +1130,8 @@ function importProgress(e){
         if(d.ns && d.ns!==NS && !confirm('別のアプリの進捗ファイルに見えます。読み込みますか？')) return;
         known=new Set(d.known||[]); sched=d.sched||{}; streak=d.streak||{};
         seen=new Set(d.seen||[]); total=d.total||0;
+        if(d.rec) rec=d.rec;
+        if(d.hist) hist=Object.assign({}, hist, d.hist);
         if(d.day===jstDay()){ cnt=d.cnt||0; okCnt=d.okCnt||0; }
         persist();
         if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
@@ -800,7 +1143,7 @@ function importProgress(e){
   inp.click();
 }
 
-renderDecks(); paintSpeed(); paintMode();
+renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL();
 if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
 </script>
 </body>

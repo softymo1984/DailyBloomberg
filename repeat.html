@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<title>Repeat Drill</title>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Repeat Drill" />
+<meta name="theme-color" content="#0a0a0f" />
+<link rel="manifest" href="manifest.json" />
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%230a0a0f'/%3E%3Ctext x='90' y='118' font-size='84' text-anchor='middle' fill='%2366d9a0' font-family='monospace' font-weight='bold'%3ER%3C/text%3E%3C/svg%3E" />
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;min-height:100vh;background:#0a0a0f;color:#e6e6e6;
+ font-family:-apple-system,'SF Pro Text','Hiragino Sans',sans-serif;
+ display:flex;flex-direction:column;align-items:center;
+ padding:16px 14px calc(16px + env(safe-area-inset-bottom));
+ padding-top:calc(14px + env(safe-area-inset-top));
+ user-select:none;-webkit-user-select:none}
+.wrap{width:100%;max-width:440px}
+h1{font-size:12px;letter-spacing:5px;text-transform:uppercase;color:#66d9a0;
+ margin:0 0 3px;font-weight:400;text-align:center}
+.sub{font-size:11px;color:#555;text-align:center;margin:0 0 14px}
+.bar{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-bottom:12px}
+.chip{padding:5px 11px;border-radius:16px;border:1px solid #242424;background:transparent;
+ color:#5a5a5a;font-size:11px;cursor:pointer;font-family:inherit}
+.chip.on{border-color:#66d9a0;background:#12251c;color:#66d9a0}
+.stage{background:#12151a;border:1px solid #23282f;border-radius:18px;
+ padding:22px 18px;min-height:340px;display:flex;flex-direction:column;
+ align-items:center;justify-content:center;position:relative}
+.meta{position:absolute;top:13px;left:16px;font-size:10px;color:#3f3f3f;font-variant-numeric:tabular-nums}
+.tierbadge{position:absolute;top:13px;right:16px;font-size:10px;color:#4a5a52;
+ border:1px solid #263029;border-radius:7px;padding:2px 7px}
+.play{width:104px;height:104px;border-radius:50%;border:1px solid #2a4a3a;
+ background:#132019;color:#66d9a0;font-size:34px;cursor:pointer;
+ display:flex;align-items:center;justify-content:center;transition:transform .12s,background .2s}
+.play:active{transform:scale(.94)}
+.play.done{border-color:#242424;background:#141414;color:#3a3a3a}
+.timer{font-size:44px;font-weight:200;font-variant-numeric:tabular-nums;
+ letter-spacing:2px;margin:14px 0 2px;transition:color .3s}
+.timerlabel{font-size:11px;color:#4a4a4a;margin-bottom:14px}
+.instr{font-size:12px;color:#4f4f4f;text-align:center;line-height:1.7;margin-top:16px}
+.sentence{font-size:19px;line-height:1.65;text-align:center;color:#fff;margin-bottom:12px}
+.sentence-ja{font-size:13px;color:#7a7a7a;text-align:center;line-height:1.7;margin-bottom:18px}
+.srcword{font-size:10px;color:#4a4a4a;letter-spacing:1px;margin-bottom:14px}
+.jargon{font-size:10px;color:#c9a227;border:1px solid #3d3416;background:#1d1a0c;
+ border-radius:6px;padding:3px 8px;margin-bottom:12px}
+.judge{display:flex;gap:9px;width:100%;margin-top:6px}
+.jbtn{flex:1;padding:13px 0;border-radius:11px;border:1px solid #262626;
+ background:#141414;color:#8a8a8a;font-size:13px;cursor:pointer;font-family:inherit}
+.jbtn.ok{border-color:#2a4a3a;color:#66d9a0}
+.jbtn.ng{border-color:#4a2a2a;color:#e07a7a}
+.ctrl{display:flex;gap:10px;justify-content:center;margin-top:14px;align-items:center}
+.sbtn{padding:9px 15px;border-radius:19px;border:1px solid #242424;background:#131313;
+ color:#6a6a6a;font-size:12px;cursor:pointer;font-family:inherit}
+.rec-slot{margin-top:12px;padding:11px;border:1px solid #2a2a2a;border-radius:10px;}
+.rec-row{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;align-items:center;}
+.rbtn{font:600 12px/1 -apple-system,sans-serif;padding:9px 12px;border-radius:9px;
+  border:1px solid #333;background:#161616;color:#ddd;cursor:pointer;}
+.rbtn:active{transform:translateY(1px);}
+.rbtn.me{background:#1d3a2c;border-color:#2f6b4f;color:#9fe3bf;}
+.rbtn.model{background:#1b2b3a;border-color:#2f5674;color:#9fc9e3;}
+.rbtn.elsa{background:#3a2440;border-color:#6b3f74;color:#dfb6e8;}
+.rbtn[disabled]{opacity:.35;}
+.recdot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#e05555;
+  margin-right:5px;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.rec-note{margin-top:7px;font:400 11px/1.6 -apple-system,sans-serif;color:#777;text-align:center;}
+.rec-note b{color:#66d9a0;}
+.rec-slot-old{margin-top:12px;padding:11px;border:1px dashed #2a2a2a;border-radius:10px;
+ text-align:center;font-size:11px;color:#3d3d3d;line-height:1.6}
+.stats{display:flex;gap:8px;margin-top:14px}
+.stat{flex:1;background:#111418;border:1px solid #1e2228;border-radius:10px;
+ padding:10px 6px;text-align:center}
+.stat b{display:block;font-size:19px;color:#66d9a0;font-weight:500;font-variant-numeric:tabular-nums}
+.stat span{font-size:10px;color:#4a4a4a}
+.foot{font-size:10px;color:#333;text-align:center;margin-top:14px;line-height:1.7}
+.setpanel{background:#111;border:1px solid #222;border-radius:12px;padding:14px;
+ margin-bottom:12px;display:none}
+.setpanel.show{display:block}
+.setlabel{font-size:10px;color:#5a5a5a;margin-bottom:7px}
+.row{display:flex;gap:5px;margin-bottom:12px}
+.row .chip{flex:1;text-align:center}
+.vlist{max-height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Repeat Drill</h1>
+<p class="sub" id="sub">Part B 復唱ドリル</p>
+<div class="bar">
+  <button class="chip" data-t="0">全部</button>
+  <button class="chip" data-t="1">短文 5-8語</button>
+  <button class="chip" data-t="2">中文 9-12語</button>
+  <button class="chip" data-t="3">長文 13語+</button>
+  <button class="chip" id="gear">⚙</button>
+</div>
+<div class="bar" style="margin-top:-6px">
+  <button class="chip" data-r="d">日常・職場</button>
+  <button class="chip" data-r="n">ニュース</button>
+  <button class="chip" data-r="a">両方</button>
+</div>
+<div class="setpanel" id="setpanel">
+  <div class="setlabel">再生速度</div>
+  <div class="row" id="speeds"></div>
+  <div class="setlabel">声</div>
+  <div class="vlist" id="voices"></div>
+</div>
+<div class="stage" id="stage"></div>
+<div class="ctrl">
+  <button class="sbtn" id="skip">スキップ</button>
+  <button class="sbtn" id="reset">記録リセット</button>
+  <button class="sbtn" onclick="micCheck()">マイク診断</button>
+  <button class="sbtn" id="autorecBtn" onclick="toggleAutoRec()">自動録音: ON</button>
+</div>
+<div class="stats">
+  <div class="stat"><b id="st1">0</b><span>本日</span></div>
+  <div class="stat"><b id="st2">0</b><span>正答率</span></div>
+  <div class="stat"><b id="st3">0</b><span>要再挑戦</span></div>
+</div>
+<p class="foot">音声は1回のみ再生 ・ 言い直しなし<br>本番は6秒以内に開始、15秒以内に解答</p>
+</div>
+<script>
+const S=[
+{e:"The meeting starts at nine sharp.",j:"会議は9時ちょうどに始まります。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Please send me the file today.",j:"今日そのファイルを送ってください。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"I left my umbrella at home.",j:"傘を家に忘れました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"She works in the London office.",j:"彼女はロンドン支店で働いています。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The train was delayed by snow.",j:"電車が雪で遅れました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"We need more chairs for tomorrow.",j:"明日に向けて椅子がもっと必要です。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"He forgot to sign the form.",j:"彼は書類に署名するのを忘れました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Let's meet in the lobby downstairs.",j:"下のロビーで会いましょう。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The report is due on Friday.",j:"報告書の締切は金曜です。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"My flight leaves early Monday morning.",j:"私の便は月曜の朝早くに出発します。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Could you turn the lights off?",j:"電気を消してもらえますか。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"They moved the office last month.",j:"彼らは先月オフィスを移転しました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The printer is out of paper.",j:"プリンターの紙が切れています。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"She takes the bus to work.",j:"彼女はバスで通勤しています。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Our team meets every Tuesday morning.",j:"うちのチームは毎週火曜の朝に集まります。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The restaurant closes at ten tonight.",j:"レストランは今夜10時に閉まります。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Please leave your bags at reception.",j:"荷物は受付に置いてください。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The parking lot was completely full.",j:"駐車場は満車でした。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"He asked for a window seat.",j:"彼は窓側の席を希望しました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The store opens at eight thirty.",j:"店は8時半に開きます。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"My laptop battery died during lunch.",j:"昼食中にノートパソコンの電池が切れました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"They cancelled the trip last week.",j:"彼らは先週その旅行を取りやめました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The elevator is under repair today.",j:"エレベーターは本日修理中です。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"I need to renew my passport.",j:"パスポートを更新する必要があります。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The weather looks better this afternoon.",j:"午後は天気が良くなりそうです。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"He works from home on Wednesdays.",j:"彼は水曜は在宅勤務です。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Please sign here and date it.",j:"ここに署名して日付を書いてください。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The package arrived earlier than expected.",j:"荷物は思ったより早く届きました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"I can't find my reading glasses.",j:"老眼鏡が見つかりません。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The hotel is near the station.",j:"そのホテルは駅の近くです。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"We ran out of coffee again.",j:"またコーヒーを切らしてしまいました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"Traffic was heavy on the highway.",j:"高速道路は渋滞していました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"She left a message for you.",j:"彼女があなたに伝言を残しました。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"The keys are on my desk.",j:"鍵は私の机の上にあります。",s:"daily",w:6,t:1,g:false,r:"d"},
+{e:"I forgot my password again this morning.",j:"今朝もまたパスワードを忘れました。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"We finished the project ahead of schedule.",j:"予定より早くプロジェクトを終えました。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"Could you please repeat the last question?",j:"最後の質問をもう一度言ってもらえますか。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"The manager wants to see you now.",j:"課長が今あなたに会いたがっています。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"I'll send the invitation later this evening.",j:"今晩あとで招待状を送ります。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"She brought her lunch from home today.",j:"彼女は今日お弁当を持ってきました。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"The copier on this floor is broken.",j:"このフロアのコピー機は壊れています。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"Please put your name on the list.",j:"名簿に名前を書いてください。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"He called in sick again this morning.",j:"彼は今朝また病欠の連絡をしました。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"The office will be closed next Monday.",j:"来週の月曜はオフィスが休みです。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"I usually take the earlier train home.",j:"私はたいてい早い方の電車で帰ります。",s:"daily",w:7,t:1,g:false,r:"d"},
+{e:"The meeting was moved to the third floor conference room.",j:"会議は3階の会議室に変更になりました。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"Please let me know if you need anything else.",j:"他に必要なものがあれば知らせてください。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"I tried calling twice but nobody answered the phone.",j:"2回電話しましたが誰も出ませんでした。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"She has been working at the company for six years.",j:"彼女はその会社で6年働いています。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"We should probably leave now to avoid the traffic.",j:"渋滞を避けるためそろそろ出た方がいいでしょう。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"The train to the airport runs every fifteen minutes.",j:"空港行きの電車は15分ごとに出ています。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"He said he would send the documents by Friday.",j:"彼は金曜までに書類を送ると言いました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"Could you tell me where the nearest bank is?",j:"一番近い銀行がどこか教えてもらえますか。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"I forgot to bring the report to the meeting.",j:"会議に報告書を持ってくるのを忘れました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"They are looking for someone with a little more experience.",j:"彼らはもう少し経験のある人を探しています。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"The hotel offers free breakfast between seven and ten.",j:"そのホテルは7時から10時まで朝食が無料です。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"My colleague will cover for me while I'm away.",j:"私が不在の間は同僚が代わりに対応します。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"Would you mind moving your car to the other lot?",j:"車を別の駐車場に移してもらえませんか。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"The presentation lasted about an hour and a half.",j:"プレゼンは1時間半ほど続きました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"I've been trying to reach him since yesterday afternoon.",j:"昨日の午後から彼に連絡を取ろうとしています。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"We decided to postpone the decision until next week.",j:"私たちは決定を来週まで延期することにしました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"The doctor said I should rest for a few days.",j:"医者から数日休むように言われました。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"She asked whether the deadline could be extended slightly.",j:"彼女は締切を少し延ばせないか尋ねました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"Most of the staff have already left for the day.",j:"スタッフのほとんどはもう帰りました。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"There's a small cafe just around the corner from here.",j:"ここの角を曲がったところに小さなカフェがあります。",s:"daily",w:10,t:2,g:false,r:"d"},
+{e:"Please make sure the windows are closed before leaving.",j:"帰る前に窓が閉まっているか確認してください。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"He mentioned that the schedule might change next month.",j:"彼は来月スケジュールが変わるかもしれないと言いました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"I'd like to book a table for four people.",j:"4人でテーブルを予約したいのですが。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"The new system is much easier to use.",j:"新しいシステムはずっと使いやすいです。",s:"daily",w:8,t:1,g:false,r:"d"},
+{e:"We have been waiting here for almost thirty minutes.",j:"私たちはここで30分近く待っています。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"Could you email me the details when you get a chance?",j:"時間のあるときに詳細をメールしてもらえますか。",s:"daily",w:11,t:2,g:false,r:"d"},
+{e:"The company is planning to hire ten more people.",j:"会社はあと10人採用する予定です。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"She usually arrives about fifteen minutes before the meeting.",j:"彼女はたいてい会議の15分前に到着します。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"I think we should ask someone else about this.",j:"これについては別の人に聞いた方がいいと思います。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"The library is closed on Sundays and public holidays.",j:"図書館は日曜と祝日は閉館です。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"He apologized for the delay and offered to help.",j:"彼は遅れを詫びて手伝いを申し出ました。",s:"daily",w:9,t:2,g:false,r:"d"},
+{e:"Nobody told me the meeting had been cancelled.",j:"会議が中止になったと誰も教えてくれませんでした。",s:"daily",w:8,t:1,g:false,r:"d"},
+{e:"I would appreciate it if you could send me the final version tomorrow.",j:"最終版を明日送っていただけると助かります。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The company announced that it would open three new stores in the area.",j:"その会社はこの地域に3店舗新しく開くと発表しました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"She told me she had already spoken to the manager about the problem.",j:"彼女はその問題について既に課長と話したと言いました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"If you have any questions about the schedule, please call the front desk.",j:"スケジュールについて質問があればフロントに電話してください。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"We were told the delivery would arrive sometime between two and four o'clock.",j:"配達は2時から4時の間に来ると聞いています。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"He explained that the training would take place over the next three weeks.",j:"彼は研修が今後3週間にわたって行われると説明しました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I'm not sure whether the report needs to be finished by this Friday.",j:"報告書を今週の金曜までに仕上げる必要があるのかわかりません。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The hotel staff apologized and offered us a room on a higher floor.",j:"ホテルのスタッフは謝罪し、上の階の部屋を提供してくれました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Please remember to bring a copy of your identification to the appointment.",j:"予約の際は身分証のコピーを持参するのを忘れないでください。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"They asked us to arrive at least twenty minutes before the presentation starts.",j:"プレゼンの開始少なくとも20分前に到着するよう言われました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"My manager suggested that we should meet again after the holiday weekend.",j:"上司は連休明けにまた会おうと提案しました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The instructions said to keep the receipt in case there was a problem.",j:"説明書には問題があった場合に備えて領収書を保管するよう書いてありました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I didn't realize the office had moved to a different building last year.",j:"去年オフィスが別のビルに移転していたとは知りませんでした。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"She wanted to know how long the repairs were expected to take.",j:"彼女は修理にどれくらいかかる見込みか知りたがっていました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"We should probably confirm the reservation before we drive all the way there.",j:"わざわざ車で行く前に予約を確認した方がいいでしょう。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The email said the system would be unavailable on Saturday and Sunday morning.",j:"メールにはシステムが土曜と日曜の午前中は使えないと書いてありました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"He told me that his flight had been delayed by almost four hours.",j:"彼は自分の便が4時間近く遅れたと言いました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"If the weather gets worse, they may decide to cancel the outdoor event.",j:"天気が悪化すれば、屋外イベントを中止すると判断するかもしれません。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Could you please explain again how to submit the form online?",j:"オンラインでの申請方法をもう一度説明してもらえますか。",s:"daily",w:11,t:2,g:false,r:"d"},
+{e:"The doctor recommended that I take a few days off and rest properly.",j:"医者から数日休んでしっかり休養するよう勧められました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Everyone in the department was asked to complete the survey by Wednesday afternoon.",j:"部署の全員が水曜の午後までにアンケートに回答するよう求められました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"There seems to be some confusion about who is responsible for the budget.",j:"誰が予算の責任者なのかについて少し混乱があるようです。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I'll check the schedule and get back to you before the end of the day.",j:"スケジュールを確認して今日中に折り返します。",s:"daily",w:15,t:3,g:false,r:"d"},
+{e:"The new employees will spend their first week learning about company procedures.",j:"新入社員は最初の1週間で社内手続きについて学びます。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"She mentioned that the client had requested several changes to the original plan.",j:"彼女は顧客が当初の計画にいくつか変更を求めていると言いました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"We had to wait outside because the meeting room was still being used.",j:"会議室がまだ使用中だったので外で待たなければなりませんでした。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Please make sure that everyone receives a copy of the updated schedule.",j:"全員に更新後のスケジュールが行き渡るようにしてください。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The manager said he would look into the matter and reply by Thursday.",j:"課長はその件を調べて木曜までに返答すると言いました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I was surprised to hear that the branch would be closing at the end of March.",j:"支店が3月末に閉鎖されると聞いて驚きました。",s:"daily",w:16,t:3,g:false,r:"d"},
+{e:"If you can't attend the session, someone else from your team should go.",j:"その説明会に出られないなら、チームの誰か別の人が行くべきです。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"They have been discussing the proposal for several weeks without reaching a decision.",j:"彼らは数週間その提案を議論していますが結論に至っていません。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The receptionist explained that visitors need to wear a badge at all times.",j:"受付係は来訪者は常にバッジを着ける必要があると説明しました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I'd rather take the train because parking downtown is always so difficult.",j:"中心街の駐車はいつも大変なので電車で行きたいです。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"He asked me to remind him about the appointment on Tuesday morning.",j:"彼は火曜の朝の予約について念を押してほしいと言いました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The report should include all the figures from the last three months.",j:"報告書には直近3ヶ月の数字をすべて含めるべきです。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"We'll need to order more supplies before the end of this month.",j:"今月末までに備品を追加で発注する必要があります。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"She said the package should arrive within five to seven business days.",j:"彼女は荷物は5〜7営業日以内に届くはずだと言いました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"Please let the team know if you plan to work from home tomorrow.",j:"明日在宅勤務にする予定ならチームに知らせてください。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The instructions were not very clear, so I had to ask for help.",j:"説明が分かりにくかったので手助けを求めなければなりませんでした。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Most people agreed that the new arrangement was better than the old one.",j:"ほとんどの人が新しい体制の方が以前より良いと同意しました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I'm afraid the item you ordered is currently out of stock.",j:"申し訳ありませんが、ご注文の品は現在在庫切れです。",s:"daily",w:11,t:2,g:false,r:"d"},
+{e:"Could you check whether there are any seats left on the later flight?",j:"後の便に空席が残っているか確認してもらえますか。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The building will be closed for maintenance during the first week of August.",j:"ビルは8月の第1週にメンテナンスのため閉鎖されます。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"She has agreed to take over the project while he is on leave.",j:"彼が休暇中の間、彼女がそのプロジェクトを引き継ぐことに同意しました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"We were asked to provide feedback on the training within two weeks.",j:"2週間以内に研修についての意見を提出するよう求められました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The customer complained that nobody had returned his call from last week.",j:"その客は先週の電話に誰も折り返さなかったと苦情を言いました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"Before you leave, please make sure your computer is completely shut down.",j:"帰る前に、パソコンが完全に終了しているか確認してください。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"It looks like we won't have enough time to cover everything today.",j:"今日は全部を扱う時間が足りなさそうです。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"They decided to hold the conference at a hotel closer to the airport.",j:"彼らは会議を空港により近いホテルで開くことにしました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I've attached the file, but let me know if you can't open it.",j:"ファイルを添付しましたが、開けなければ知らせてください。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"The team leader asked everyone to submit their reports by noon on Friday.",j:"チームリーダーは金曜の正午までに全員に報告書を出すよう求めました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"She wasn't able to find the document, so she asked her colleague.",j:"彼女は書類を見つけられなかったので同僚に尋ねました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The company has offered to cover the cost of the training course.",j:"会社は研修費用を負担すると申し出ました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"You should probably arrive early because the room fills up very quickly.",j:"部屋はすぐ満員になるので早めに来た方がいいです。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"He said he'd rather discuss the details in person than over email.",j:"彼は詳細をメールより直接会って話したいと言いました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"There will be a short break before the second half of the session.",j:"後半のセッションの前に短い休憩があります。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"I understand the deadline has been moved, but nobody informed our department.",j:"締切が変わったのは理解していますが、うちの部署には誰も知らせませんでした。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"Please confirm your attendance by replying to the invitation before Friday afternoon.",j:"金曜の午後までに招待状に返信して出席を確認してください。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The train service was suspended for two hours because of the storm.",j:"嵐のため電車の運行が2時間見合わせられました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"We need someone who can handle customer calls in both English and Japanese.",j:"英語と日本語の両方で顧客対応できる人が必要です。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"She explained the procedure carefully so that everyone would understand it clearly.",j:"彼女は全員が明確に理解できるよう手順を丁寧に説明しました。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"If there's anything you don't understand, please ask before the session ends.",j:"分からないことがあれば、セッションが終わる前に質問してください。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"The office supplies were delivered yesterday, but two boxes were still missing.",j:"事務用品は昨日届きましたが、2箱がまだ足りません。",s:"daily",w:12,t:2,g:false,r:"d"},
+{e:"He wants to know whether the contract has already been signed and returned.",j:"彼は契約書が既に署名されて返送されたか知りたがっています。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"They said the results would be available on the website by Monday morning.",j:"結果は月曜の朝までにウェブサイトで見られるようになると言われました。",s:"daily",w:13,t:3,g:false,r:"d"},
+{e:"Higher-for-longer squeezes rate-sensitive sectors.",j:"高金利長期化が金利感応セクターを圧迫。",s:"higher for longer",w:4,t:1,g:false,r:"n"},
+{e:"Revenue grew 8% quarter-over-quarter.",j:"売上高が前四半期比8%増加した。",s:"quarter-over-quarter",w:4,t:1,g:false,r:"n"},
+{e:"Airstrikes targeted military installations overnight.",j:"夜間の空爆が軍事施設を標的にした。",s:"airstrike",w:5,t:1,g:false,r:"n"},
+{e:"The ruling checked executive overreach.",j:"判決が行政権の越権に歯止め。",s:"executive overreach",w:5,t:1,g:false,r:"n"},
+{e:"Better-than-expected earnings lifted shares 5%.",j:"予想を上回る決算で株価が5%上昇。",s:"better-than-expected",w:5,t:1,g:false,r:"n"},
+{e:"ASML supplies cutting-edge chipmaking machines.",j:"ASMLが最先端のチップ製造装置を供給している。",s:"cutting-edge",w:5,t:1,g:false,r:"n"},
+{e:"Stocks rallied on strong earnings.",j:"好決算で株価が反発した。",s:"rally",w:5,t:1,g:false,r:"n"},
+{e:"The 10-year yield hit 4.8%.",j:"10年債利回りが4.8%に達した。",s:"yield",w:5,t:1,g:false,r:"n"},
+{e:"Fears spread across European markets.",j:"懸念が欧州市場全体に広がった。",s:"spread",w:5,t:1,g:false,r:"n"},
+{e:"Operating margins narrowed to 12%.",j:"営業利益率が12%に縮小した。",s:"margin",w:5,t:1,g:false,r:"n"},
+{e:"Yen appreciation hurt Japanese exporters.",j:"円高が日本の輸出企業を圧迫した。",s:"appreciation",w:5,t:1,g:false,r:"n"},
+{e:"The fragile truce collapsed within hours.",j:"脆い休戦は数時間で崩壊した。",s:"truce",w:6,t:1,g:false,r:"n"},
+{e:"The cross-border incursion drew international condemnation.",j:"越境侵入が国際社会の非難を招いた。",s:"incursion",w:6,t:1,g:false,r:"n"},
+{e:"The benchmark 10-year yield hit 4.8%.",j:"指標となる10年債利回りが4.8%に達した。",s:"benchmark",w:6,t:1,g:false,r:"n"},
+{e:"The appropriations bill stalled in committee.",j:"歳出法案が委員会で停滞。",s:"appropriations",w:6,t:1,g:false,r:"n"},
+{e:"Tariff-driven price hikes fuel stagflation fears.",j:"関税物価上昇がスタグフレ懸念を助長。",s:"stagflation",w:6,t:1,g:false,r:"n"},
+{e:"Latest CPI showed a disinflationary trend.",j:"直近CPIがディスインフレ傾向を示した。",s:"disinflationary",w:6,t:1,g:false,r:"n"},
+{e:"Cost-cutting low-hanging fruit has been picked.",j:"簡単なコスト削減はやり尽くした。",s:"low-hanging fruit",w:6,t:1,g:false,r:"n"},
+{e:"The AI-driven melt-up left valuations stretched.",j:"AI主導のメルトアップでバリュエーションが割高に。",s:"melt-up",w:6,t:1,g:false,r:"n"},
+{e:"Rising energy costs stoked inflation fears.",j:"エネルギーコスト上昇がインフレ懸念を煽った。",s:"stoke",w:6,t:1,g:false,r:"n"},
+{e:"The vote is slated for Friday.",j:"投票は金曜に予定されている。",s:"slated for",w:6,t:1,g:false,r:"n"},
+{e:"Buoyant consumer spending defied recession predictions.",j:"活況な消費支出がリセッション予測を裏切った。",s:"buoyant",w:6,t:1,g:false,r:"n"},
+{e:"Hormuz chaos disrupted global energy flows.",j:"ホルムズの大混乱がグローバルなエネルギー流通を混乱させた。",s:"chaos",w:6,t:1,g:false,r:"n"},
+{e:"SCOTUS rejected Virginia's Democratic redistricting map.",j:"最高裁がバージニア州の民主党の選挙区地図を却下した。",s:"SCOTUS",w:6,t:1,g:false,r:"n"},
+{e:"She won by a razor-thin margin.",j:"彼女は僅差で勝利した。",s:"margin",w:6,t:1,g:false,r:"n"},
+{e:"The fund's leverage ratio exceeded 10x.",j:"ファンドのレバレッジ比率が10倍を超えた。",s:"leverage",w:6,t:1,g:false,r:"n"},
+{e:"T+1 settlement goes live next month.",j:"T+1決済が来月から稼働。",s:"settlement",w:6,t:1,g:false,r:"n"},
+{e:"Investors risk losing their entire principal.",j:"投資家は元本すべてを失うリスクがある。",s:"principal",w:6,t:1,g:false,r:"n"},
+{e:"SpaceX eyes a record IPO filing.",j:"スペースXが記録的なIPO申請を検討。",s:"eye",w:6,t:1,g:false,r:"n"},
+{e:"Trump and Xi project Hormuz alignment.",j:"トランプと習がホルムズでの連携を演出。",s:"project",w:6,t:1,g:false,r:"n"},
+{e:"Both sides agreed to a 72-hour ceasefire.",j:"双方が72時間の停戦に合意した。",s:"ceasefire",w:7,t:1,g:false,r:"n"},
+{e:"Insurgents seized control of two provincial capitals.",j:"反乱勢力が2つの州都を制圧した。",s:"insurgent",w:7,t:1,g:false,r:"n"},
+{e:"The Fed's hawkish tone sent stocks lower.",j:"FRBのタカ派トーンが株安を招いた。",s:"hawkish",w:7,t:1,g:false,r:"n"},
+{e:"Markets rallied on the dovish policy statement.",j:"ハト派的声明で市場が反発。",s:"dovish",w:7,t:1,g:false,r:"n"},
+{e:"The president's trade rhetoric rattled Asian markets.",j:"大統領の通商に関する発言がアジア市場を動揺させた。",s:"rhetoric",w:7,t:1,g:false,r:"n"},
+{e:"Russia vetoed the UN Security Council resolution.",j:"ロシアが安保理決議に拒否権を行使。",s:"veto",w:7,t:1,g:false,r:"n"},
+{e:"Earnings beat consensus by a wide margin.",j:"決算がコンセンサスを大幅に上回った。",s:"consensus",w:7,t:1,g:false,r:"n"},
+{e:"The incumbent faces a tough reelection battle.",j:"現職は厳しい再選戦に直面。",s:"incumbent",w:7,t:1,g:false,r:"n"},
+{e:"Congress earmarked $50 billion for infrastructure repairs.",j:"議会がインフラ修繕に500億ドルを紐付け。",s:"earmark",w:7,t:1,g:false,r:"n"},
+{e:"Pension funds scrambled to hedge duration risk.",j:"年金基金がデュレーションリスクのヘッジに奔走。",s:"duration risk",w:7,t:1,g:true,r:"n"},
+{e:"Cov-lite loan surge raised credit quality concerns.",j:"コブライト融資急増が信用の質への懸念を高めた。",s:"covenant-lite",w:7,t:1,g:true,r:"n"},
+{e:"PE firms sit on record dry powder.",j:"PE各社が過去最高の待機資金を保有。",s:"dry powder",w:7,t:1,g:false,r:"n"},
+{e:"Quarter-end window dressing inflated the fund's performance.",j:"四半期末のお化粧買いでファンド成績を水増し。",s:"window dressing",w:7,t:1,g:false,r:"n"},
+{e:"Back-channels between the two nations remain open.",j:"両国間の外交裏チャネルは依然開通。",s:"diplomatic back-channel",w:7,t:1,g:false,r:"n"},
+{e:"Civilian casualties are dismissed as collateral damage.",j:"民間人犠牲が巻き添え被害として片付けられている。",s:"collateral damage",w:7,t:1,g:false,r:"n"},
+{e:"A shutdown looms as budget talks stall.",j:"予算協議停滞で政府閉鎖が迫る。",s:"government shutdown",w:7,t:1,g:false,r:"n"},
+{e:"Both candidates campaign aggressively in swing states.",j:"両候補が激戦州で精力的に選挙活動。",s:"swing state",w:7,t:1,g:false,r:"n"},
+{e:"Beijing is playing hardball on trade negotiations.",j:"北京が貿易交渉で強硬姿勢。",s:"play hardball",w:7,t:1,g:false,r:"n"},
+{e:"Investors remain on the sidelines amid uncertainty.",j:"不透明感の中、投資家は様子見。",s:"on the sidelines",w:7,t:1,g:false,r:"n"},
+{e:"Warnings about overleveraging fell on deaf ears.",j:"過剰レバレッジの警告は無視された。",s:"fall on deaf ears",w:7,t:1,g:false,r:"n"},
+{e:"The committee rubber-stamped the merger without debate.",j:"委員会が議論なしに合併を形式承認。",s:"rubber-stamp",w:7,t:1,g:false,r:"n"},
+{e:"The Fed insisted price pressures were transitory.",j:"FRBは物価上昇圧力は一時的と主張した。",s:"transitory",w:7,t:1,g:false,r:"n"},
+{e:"The Consumer Financial Protection Bureau was gutted.",j:"消費者金融保護局が骨抜きにされた。",s:"gut",w:7,t:1,g:false,r:"n"},
+{e:"Environmental rollbacks drew criticism from green groups.",j:"環境規制の撤回が環境団体からの批判を招いた。",s:"rollback",w:7,t:1,g:false,r:"n"},
+{e:"Robust hiring data pushed back rate-cut expectations.",j:"堅調な雇用データが利下げ期待を後退させた。",s:"robust",w:7,t:1,g:false,r:"n"},
+{e:"The bond auction met with tepid demand.",j:"国債入札は低調な需要にとどまった。",s:"tepid",w:7,t:1,g:false,r:"n"},
+{e:"Lackluster guidance sent shares tumbling after hours.",j:"精彩を欠くガイダンスで時間外に株が急落。",s:"lackluster",w:7,t:1,g:false,r:"n"},
+{e:"The labor market has proven remarkably resilient.",j:"労働市場は驚くほど底堅いことが判明した。",s:"resilient",w:7,t:1,g:false,r:"n"},
+{e:"Auditors flagged irregularities in the company's accounts.",j:"監査人が同社の会計の不正を指摘した。",s:"flag",w:7,t:1,g:false,r:"n"},
+{e:"New regulations aim to curb speculative trading.",j:"新規制が投機的取引の抑制を狙っている。",s:"curb",w:7,t:1,g:false,r:"n"},
+{e:"Refiners scrambled to secure alternative crude supplies.",j:"製油所が代替原油の確保に奔走した。",s:"scramble",w:7,t:1,g:false,r:"n"},
+{e:"Tesla's earnings beat lifted shares after hours.",j:"テスラの決算上振れで時間外に株価が上昇。",s:"earnings beat",w:7,t:1,g:false,r:"n"},
+{e:"Trump indefinitely extended the ceasefire with Iran.",j:"トランプがイランとの停戦を無期限延長した。",s:"indefinitely",w:7,t:1,g:false,r:"n"},
+{e:"Skyrocketing energy prices are hitting consumers worldwide.",j:"エネルギー価格の急騰が世界中の消費者を直撃。",s:"skyrocketing",w:7,t:1,g:false,r:"n"},
+{e:"Details of any potential deal remained murky.",j:"潜在的な合意の詳細は不透明なまま。",s:"murky",w:7,t:1,g:false,r:"n"},
+{e:"Analysts warn of an increasingly K-shaped market.",j:"アナリストがますますK字型化する市場に警鐘を鳴らす。",s:"K-shaped",w:7,t:1,g:false,r:"n"},
+{e:"Big media upfronts kicked off this week.",j:"大手メディアのアップフロント商談が今週開始。",s:"upfront",w:7,t:1,g:false,r:"n"},
+{e:"Skepticism is growing from the semiconductor industry.",j:"半導体業界からの懐疑論が高まっている。",s:"skepticism",w:7,t:1,g:false,r:"n"},
+{e:"US futures fell overnight on Asian selling.",j:"アジア時間の売りで米先物が夜間に下落。",s:"overnight",w:7,t:1,g:false,r:"n"},
+{e:"The overnight rate held steady at 5.25%.",j:"翌日物金利は5.25%で据え置き。",s:"overnight",w:7,t:1,g:false,r:"n"},
+{e:"Beijing refused to yield on trade demands.",j:"北京は通商要求に対し譲歩を拒否した。",s:"yield",w:7,t:1,g:false,r:"n"},
+{e:"Crop yields fell sharply due to drought.",j:"干ばつで作物の収量が急減した。",s:"yield",w:7,t:1,g:false,r:"n"},
+{e:"Credit spreads widened by 30 basis points.",j:"クレジットスプレッドが30bp拡大した。",s:"spread",w:7,t:1,g:false,r:"n"},
+{e:"Sanctions give the US leverage over Iran.",j:"制裁が米国にイランへの交渉力を与えている。",s:"leverage",w:7,t:1,g:false,r:"n"},
+{e:"She announced her run for the Senate.",j:"彼女が上院選への出馬を表明した。",s:"run",w:7,t:1,g:false,r:"n"},
+{e:"The principal concern is supply chain disruption.",j:"最大の懸念はサプライチェーンの混乱。",s:"principal",w:7,t:1,g:false,r:"n"},
+{e:"There's growing appreciation for the risks involved.",j:"関連リスクへの認識が高まっている。",s:"appreciation",w:7,t:1,g:false,r:"n"},
+{e:"Higher tariffs are becoming the default policy.",j:"高関税が既定の政策になりつつある。",s:"default",w:7,t:1,g:false,r:"n"},
+{e:"Foreign policy hawks called for military action.",j:"外交タカ派が軍事行動を求めた。",s:"hawk",w:7,t:1,g:false,r:"n"},
+{e:"Funds are unwinding long positions in oil.",j:"ファンドが原油のロングポジションを解消中。",s:"position",w:7,t:1,g:false,r:"n"},
+{e:"The party softened its position on immigration.",j:"党は移民に関する立場を軟化させた。",s:"position",w:7,t:1,g:false,r:"n"},
+{e:"The EU extended its oil embargo on Russia.",j:"EUがロシアへの石油禁輸を延長した。",s:"embargo",w:8,t:1,g:false,r:"n"},
+{e:"The dispute centers on sovereignty over the islands.",j:"争いは島嶼の主権を巡るもの。",s:"sovereignty",w:8,t:1,g:false,r:"n"},
+{e:"Aid agencies warned of a deepening humanitarian crisis.",j:"援助機関が人道危機の深刻化を警告。",s:"humanitarian",w:8,t:1,g:false,r:"n"},
+{e:"The Senate voted to ratify the climate accord.",j:"上院が気候合意の批准を可決。",s:"ratify",w:8,t:1,g:false,r:"n"},
+{e:"The BOJ tweaked its forward guidance on rates.",j:"日銀が金利のフォワードガイダンスを微修正。",s:"forward guidance",w:8,t:1,g:false,r:"n"},
+{e:"The military buildup is aimed at strengthening deterrence.",j:"軍備増強は抑止力強化が目的。",s:"deterrence",w:8,t:1,g:false,r:"n"},
+{e:"Beijing imposed retaliatory duties on US agricultural exports.",j:"北京が米農産物に報復関税を課した。",s:"retaliatory duties",w:8,t:1,g:true,r:"n"},
+{e:"Fiscal deficits are pushing the term premium higher.",j:"財政赤字がタームプレミアムを押し上げ。",s:"term premium",w:8,t:1,g:true,r:"n"},
+{e:"Oil majors reported windfall profits as crude surged.",j:"原油急騰で石油大手が棚ぼた利益を計上。",s:"windfall",w:8,t:1,g:false,r:"n"},
+{e:"Unrealized mark-to-market losses on the bond portfolio widened.",j:"債券ポートフォリオの時価評価含み損が拡大。",s:"mark-to-market",w:8,t:1,g:true,r:"n"},
+{e:"Geopolitical tail risks are not priced into equities.",j:"地政学的テールリスクが株式に未織り込み。",s:"tail risk",w:8,t:1,g:true,r:"n"},
+{e:"No full capitulation yet — more downside likely.",j:"完全な投げ売りはまだ — さらなる下落の可能性。",s:"capitulation",w:8,t:1,g:false,r:"n"},
+{e:"Apple sits on a $160 billion war chest.",j:"アップルが1,600億ドルの軍資金を保有。",s:"war chest",w:8,t:1,g:false,r:"n"},
+{e:"Bondholders took a 40% haircut in the restructuring.",j:"債権者がリストラで40%の元本削減を受け入れた。",s:"take a haircut",w:8,t:1,g:false,r:"n"},
+{e:"Markets shrugged off the sabre-rattling as talks resumed.",j:"協議再開で市場は武力威嚇を無視。",s:"sabre-rattling",w:8,t:1,g:false,r:"n"},
+{e:"Brinkmanship over the debt ceiling rattled bond markets.",j:"債務上限の瀬戸際外交が債券市場を動揺。",s:"brinkmanship",w:8,t:1,g:false,r:"n"},
+{e:"Both sides signaled de-escalation after weeks of hostilities.",j:"数週間の敵対後、双方が緊張緩和を示唆。",s:"de-escalation",w:8,t:1,g:false,r:"n"},
+{e:"Officials insist regime change is not the objective.",j:"当局者は体制転換が目的ではないと主張。",s:"regime change",w:8,t:1,g:false,r:"n"},
+{e:"Democrats threatened a filibuster to block the nominee.",j:"民主党がフィリバスターで人事阻止を予告。",s:"filibuster",w:8,t:1,g:false,r:"n"},
+{e:"Republicans plan to push tax cuts through reconciliation.",j:"共和党が財政調整手続きで減税を通す方針。",s:"reconciliation",w:8,t:1,g:false,r:"n"},
+{e:"The omnibus bill includes defense, healthcare, and infrastructure.",j:"包括法案に防衛・医療・インフラを含む。",s:"omnibus bill",w:8,t:1,g:false,r:"n"},
+{e:"A CR keeps the government funded through March.",j:"つなぎ予算で政府機関は3月まで運営継続。",s:"continuing resolution",w:8,t:1,g:false,r:"n"},
+{e:"Massive Treasury issuance risks crowding out corporate borrowers.",j:"大量国債発行が民間借入を圧迫するリスク。",s:"crowding out",w:8,t:1,g:false,r:"n"},
+{e:"Bailouts create moral hazard by rewarding reckless behavior.",j:"救済が無謀な行動を報いモラルハザードを生む。",s:"moral hazard",w:8,t:1,g:false,r:"n"},
+{e:"The tax plan is rooted in supply-side economics.",j:"税制プランはサプライサイド経済学に基づく。",s:"supply-side",w:8,t:1,g:false,r:"n"},
+{e:"The administration keeps moving the goalposts on exemptions.",j:"政権が免除条件を次々と変更。",s:"move the goalposts",w:8,t:1,g:false,r:"n"},
+{e:"The surprise tariff threw a curveball at markets.",j:"サプライズ関税が市場に不意打ち。",s:"throw a curveball",w:8,t:1,g:false,r:"n"},
+{e:"The new Treasury Secretary hit the ground running.",j:"新財務長官が着任即始動。",s:"hit the ground running",w:8,t:1,g:false,r:"n"},
+{e:"The central bank moved to rein in inflation.",j:"中銀がインフレ抑制に動いた。",s:"rein in",w:8,t:1,g:false,r:"n"},
+{e:"Regulators are zeroing in on private credit risks.",j:"規制当局がプライベートクレジットのリスクに照準を合わせている。",s:"zero in on",w:8,t:1,g:true,r:"n"},
+{e:"Investors snapped up Treasuries after the dovish surprise.",j:"ハト派サプライズ後、投資家が米国債をすかさず買い占めた。",s:"snap up",w:8,t:1,g:false,r:"n"},
+{e:"Supply chain disruptions fueled shortages and price spikes.",j:"サプライチェーンの混乱が品不足と価格高騰を引き起こした。",s:"supply chain disruption",w:8,t:1,g:false,r:"n"},
+{e:"A whistleblower exposed the fraud within the agency.",j:"内部告発者が機関内の不正を暴露した。",s:"whistleblower",w:8,t:1,g:false,r:"n"},
+{e:"The insurer was declared insolvent after massive claims.",j:"保険会社が巨額の保険金請求後に支払不能と宣告された。",s:"insolvent",w:8,t:1,g:false,r:"n"},
+{e:"Traders front-ran the tariff announcement by dumping equities.",j:"トレーダーが関税発表を先回りして株を投げ売り。",s:"front-run",w:8,t:1,g:false,r:"n"},
+{e:"An overnight onslaught of missiles targeted Ukrainian cities.",j:"夜間のミサイル猛攻がウクライナの都市を標的にした。",s:"onslaught",w:8,t:1,g:false,r:"n"},
+{e:"Boardroom reshuffles are accelerating across the banking sector.",j:"銀行セクター全体で経営陣の入れ替えが加速している。",s:"boardroom",w:8,t:1,g:false,r:"n"},
+{e:"Powell's tenure as Fed chair is winding down.",j:"パウエルのFRB議長としての任期が終わりに近づいている。",s:"tenure",w:8,t:1,g:false,r:"n"},
+{e:"Russia launched in excess of 40 ballistic missiles.",j:"ロシアが40発を超える弾道ミサイルを発射した。",s:"in excess of",w:8,t:1,g:false,r:"n"},
+{e:"Oil surged amid fears of a wider conflict.",j:"紛争拡大懸念のさなかに原油が急騰した。",s:"amid",w:8,t:1,g:false,r:"n"},
+{e:"The index is up 12% year to date.",j:"同指数は年初来12%上昇している。",s:"year to date",w:8,t:1,g:false,r:"n"},
+{e:"Oil was little changed near $91 a barrel.",j:"原油は1バレル91ドル付近でほぼ横ばい。",s:"little changed",w:8,t:1,g:false,r:"n"},
+{e:"Equities shrugged off the weak data and rallied.",j:"株式は弱い指標を意に介さず反発した。",s:"shrug off",w:8,t:1,g:false,r:"n"},
+{e:"A slew of lawsuits challenged the tariffs' legality.",j:"大量の訴訟が関税の合法性に異議を唱えた。",s:"a slew of",w:8,t:1,g:false,r:"n"},
+{e:"A spate of bank failures rattled investor confidence.",j:"銀行破綻の頻発が投資家の信頼を揺るがした。",s:"a spate of",w:8,t:1,g:false,r:"n"},
+{e:"Disappointing retail sales data weighed on consumer stocks.",j:"期待外れの小売売上高データが消費関連株を圧迫した。",s:"disappointing",w:8,t:1,g:false,r:"n"},
+{e:"Sluggish demand in China dragged commodity prices lower.",j:"中国の需要低迷がコモディティ価格を押し下げた。",s:"sluggish",w:8,t:1,g:false,r:"n"},
+{e:"The embattled CEO resigned amid a fraud investigation.",j:"苦境に立たされたCEOが不正調査のさなかに辞任。",s:"embattled",w:8,t:1,g:false,r:"n"},
+{e:"Oil remained volatile as ceasefire talks dragged on.",j:"停戦協議が長引く中、原油は不安定な動きが続いた。",s:"volatile",w:8,t:1,g:false,r:"n"},
+{e:"The beleaguered airline filed for Chapter 11 protection.",j:"苦境にある航空会社がチャプター11の保護を申請。",s:"beleaguered",w:8,t:1,g:false,r:"n"},
+{e:"Markets are bracing for a volatile earnings season.",j:"市場が波乱含みの決算シーズンに備えている。",s:"brace for",w:8,t:1,g:false,r:"n"},
+{e:"The central bank unveiled a new lending facility.",j:"中銀が新たな貸出制度を発表した。",s:"unveil",w:8,t:1,g:false,r:"n"},
+{e:"G7 leaders pledged to coordinate on energy security.",j:"G7首脳がエネルギー安全保障での連携を誓約した。",s:"pledge",w:8,t:1,g:false,r:"n"},
+{e:"A government shutdown looms as the deadline approaches.",j:"期限が迫る中、政府機関閉鎖が差し迫っている。",s:"loom",w:8,t:1,g:false,r:"n"},
+{e:"Tax incentives spurred a wave of corporate investment.",j:"税制優遇が企業投資の波に拍車をかけた。",s:"spur",w:8,t:1,g:false,r:"n"},
+{e:"Warsh's confirmation hearing is scheduled for this week.",j:"ウォーシュの承認公聴会が今週予定されている。",s:"confirmation hearing",w:8,t:1,g:false,r:"n"},
+{e:"Market turmoil intensified as Iran talks broke down.",j:"イラン交渉の決裂で市場の混乱が激化した。",s:"turmoil",w:8,t:1,g:false,r:"n"},
+{e:"Oil held gains even as peace talks faltered.",j:"和平交渉が失速する中でも原油は上昇を維持。",s:"falter",w:8,t:1,g:false,r:"n"},
+{e:"AI demand fuels growth across the chip sector.",j:"AI需要がチップセクター全体の成長を牽引している。",s:"fuel growth",w:8,t:1,g:false,r:"n"},
+{e:"Banks cut their exposure to commercial real estate.",j:"銀行が商業用不動産へのエクスポージャーを削減。",s:"exposure",w:8,t:1,g:false,r:"n"},
+{e:"The investigation led to exposure of the fraud.",j:"調査が不正の暴露につながった。",s:"exposure",w:8,t:1,g:false,r:"n"},
+{e:"Margin calls forced hedge funds to liquidate positions.",j:"マージンコールでヘッジファンドがポジション解消を強いられた。",s:"margin",w:8,t:1,g:false,r:"n"},
+{e:"The bank agreed to a $2 billion settlement.",j:"銀行が20億ドルの和解に合意。",s:"settlement",w:8,t:1,g:false,r:"n"},
+{e:"The bill includes a provision banning stock buybacks.",j:"法案に自社株買い禁止の条項が含まれている。",s:"provision",w:8,t:1,g:false,r:"n"},
+{e:"The bill was debated on the Senate floor.",j:"法案が上院本会議で審議された。",s:"floor",w:8,t:1,g:false,r:"n"},
+{e:"Congress must raise the debt ceiling by June.",j:"議会は6月までに債務上限を引き上げなければならない。",s:"ceiling",w:8,t:1,g:false,r:"n"},
+{e:"Oil hit a ceiling near $130 before retreating.",j:"原油は130ドル付近の天井に達してから反落。",s:"ceiling",w:8,t:1,g:false,r:"n"},
+{e:"Airlines use fuel hedges to lock in prices.",j:"航空各社が燃料ヘッジで価格を固定している。",s:"hedge",w:8,t:1,g:false,r:"n"},
+{e:"Bitcoin is not legal tender in the US.",j:"ビットコインは米国では法定通貨ではない。",s:"tender",w:8,t:1,g:false,r:"n"},
+{e:"The market has reached a level of maturity.",j:"市場は一定の成熟度に達した。",s:"maturity",w:8,t:1,g:false,r:"n"},
+{e:"The antitrust case against Google went to trial.",j:"グーグルに対する独禁法訴訟が審理に入った。",s:"case",w:8,t:1,g:false,r:"n"},
+{e:"In the worst case, GDP could contract 2%.",j:"最悪の場合、GDPが2%縮小する可能性。",s:"case",w:8,t:1,g:false,r:"n"},
+{e:"All eyes are on the Fed's next move.",j:"全ての注目がFRBの次の一手に。",s:"eye",w:8,t:1,g:false,r:"n"},
+{e:"Goldman projects GDP growth of 1.8% this year.",j:"ゴールドマンは今年のGDP成長率を1.8%と予想。",s:"project",w:8,t:1,g:false,r:"n"},
+{e:"The Terafab project is Musk's most ambitious yet.",j:"テラファブ計画はマスク史上最も野心的なものだ。",s:"project",w:8,t:1,g:false,r:"n"},
+{e:"Traders are betting on a Fed pivot by September.",j:"9月までのFRB方針転換にトレーダーが賭けている。",s:"pivot",w:9,t:2,g:false,r:"n"},
+{e:"Beijing rolled out a fresh round of stimulus measures.",j:"北京が新たな景気刺激策を打ち出した。",s:"stimulus",w:9,t:2,g:false,r:"n"},
+{e:"Voters rejected years of austerity at the ballot box.",j:"有権者が投票で長年の緊縮財政を否定した。",s:"austerity",w:9,t:2,g:false,r:"n"},
+{e:"Banking turmoil could spill over into the broader economy.",j:"銀行の混乱がより広い経済に波及する可能性。",s:"spill over",w:9,t:2,g:false,r:"n"},
+{e:"The administration unveiled reciprocal tariffs matching each partner's rates.",j:"政権が各相手国の税率に合わせた相互関税を発表。",s:"reciprocal tariff",w:9,t:2,g:true,r:"n"},
+{e:"Lawmakers are pushing for a carve-out for semiconductor imports.",j:"議員らが半導体輸入の適用除外を要求。",s:"carve-out",w:9,t:2,g:false,r:"n"},
+{e:"Markets are undergoing a dramatic repricing of rate-cut expectations.",j:"利下げ期待の大幅な再評価が進行中。",s:"repricing",w:9,t:2,g:false,r:"n"},
+{e:"The 10-year auction drew a weak bid-to-cover of 2.2.",j:"10年債入札の応札倍率は2.2倍と低調。",s:"bid-to-cover ratio",w:9,t:2,g:true,r:"n"},
+{e:"Hedge funds are circling distressed debt in real estate.",j:"ヘッジファンドが不動産のディストレスト債を物色。",s:"distressed debt",w:9,t:2,g:true,r:"n"},
+{e:"Regional banks face a fire sale of CRE assets.",j:"地方銀行が商業用不動産の投げ売りに直面。",s:"fire sale",w:9,t:2,g:false,r:"n"},
+{e:"The yen carry trade unwind sent shockwaves through markets.",j:"円キャリーの巻き戻しが市場に衝撃。",s:"unwind",w:9,t:2,g:false,r:"n"},
+{e:"The new CEO is kitchen-sinking Q4 to reset expectations.",j:"新CEOがQ4で悪材料を一括計上し期待値リセット。",s:"kitchen-sinking",w:9,t:2,g:true,r:"n"},
+{e:"Analysts dismissed the rally as a dead cat bounce.",j:"アナリストがこの反発をデッドキャットバウンスと一蹴。",s:"dead cat bounce",w:9,t:2,g:false,r:"n"},
+{e:"The conflict risks devolving into a broader proxy war.",j:"紛争がより広範な代理戦争に発展するリスク。",s:"proxy war",w:9,t:2,g:false,r:"n"},
+{e:"Russia views Ukraine as within its sphere of influence.",j:"ロシアがウクライナを勢力圏と認識。",s:"sphere of influence",w:9,t:2,g:false,r:"n"},
+{e:"Congress rarely passes major bills in a lame-duck session.",j:"レームダック会期に大法案を通すのは稀。",s:"lame duck",w:9,t:2,g:false,r:"n"},
+{e:"The court struck down the plan as partisan gerrymandering.",j:"裁判所が党派的ゲリマンダーとして無効に。",s:"gerrymandering",w:9,t:2,g:false,r:"n"},
+{e:"Rank and file pushed back against the leadership's deal.",j:"一般党員が指導部の合意に反発。",s:"rank and file",w:9,t:2,g:false,r:"n"},
+{e:"The Fed is still betting on a soft landing.",j:"FRBは依然ソフトランディングに賭けている。",s:"soft landing",w:9,t:2,g:false,r:"n"},
+{e:"Without a deal, the economy faces a fiscal cliff.",j:"合意なければ財政の崖に直面。",s:"fiscal cliff",w:9,t:2,g:false,r:"n"},
+{e:"Regulators moved to prevent contagion from the bank failure.",j:"規制当局が銀行破綻からの危機伝染を防止。",s:"contagion",w:9,t:2,g:false,r:"n"},
+{e:"The collapse raised systemic risk questions in shadow banking.",j:"破綻がシャドーバンキングのシステミックリスクに疑問を投じた。",s:"systemic risk",w:9,t:2,g:false,r:"n"},
+{e:"Dollar strength is a double-edged sword for US multinationals.",j:"ドル高は米多国籍企業にとって諸刃の剣。",s:"a double-edged sword",w:9,t:2,g:false,r:"n"},
+{e:"Big Tech is in the crosshairs of antitrust regulators.",j:"ビッグテックが独禁法規制の標的に。",s:"in the crosshairs",w:9,t:2,g:false,r:"n"},
+{e:"Both parties are passing the buck on the deficit.",j:"両党が財政赤字の責任を転嫁し合う。",s:"pass the buck",w:9,t:2,g:false,r:"n"},
+{e:"The board pulled the plug on the $8B acquisition.",j:"取締役会が80億ドルの買収を中止。",s:"pull the plug",w:9,t:2,g:false,r:"n"},
+{e:"The ballpark figure for cleanup costs is $3 billion.",j:"浄化コストの概算は30億ドル。",s:"ballpark figure",w:9,t:2,g:false,r:"n"},
+{e:"Management has skin in the game with 15% equity.",j:"経営陣は15%の株式保有でリスクを負っている。",s:"skin in the game",w:9,t:2,g:false,r:"n"},
+{e:"The nomination must run the gauntlet of Senate confirmation.",j:"指名は上院承認の厳しい試練を通過必要。",s:"run the gauntlet",w:9,t:2,g:false,r:"n"},
+{e:"Rising energy costs continue to weigh on consumer spending.",j:"エネルギーコスト上昇が消費支出を圧迫し続けている。",s:"weigh on",w:9,t:2,g:false,r:"n"},
+{e:"Anthropic scaled back its expansion plans amid funding concerns.",j:"アンソロピックが資金懸念の中、拡大計画を縮小した。",s:"scale back",w:9,t:2,g:false,r:"n"},
+{e:"The president doubled down on tariffs despite market turmoil.",j:"大統領は市場混乱にも関わらず関税方針を強化した。",s:"double down",w:9,t:2,g:false,r:"n"},
+{e:"The Fed began to wind down its balance sheet.",j:"FRBがバランスシートの段階的縮小を開始した。",s:"wind down",w:9,t:2,g:false,r:"n"},
+{e:"Officials dialed back their hawkish rhetoric after the selloff.",j:"急落後、当局者がタカ派的な発言をトーンダウンさせた。",s:"dial back",w:9,t:2,g:false,r:"n"},
+{e:"Friday's jobs report tees up a pivotal Fed decision.",j:"金曜の雇用統計が重要なFRBの決定をお膳立てする。",s:"tee up",w:9,t:2,g:false,r:"n"},
+{e:"Analysts chalked up the miss to one-off restructuring charges.",j:"アナリストは未達を一時的なリストラ費用のせいにした。",s:"chalk up",w:9,t:2,g:false,r:"n"},
+{e:"The Department of Education was largely dismantled under DOGE.",j:"DOGEの下で教育省がほぼ解体された。",s:"dismantle",w:9,t:2,g:false,r:"n"},
+{e:"Sweeping tariffs are set to take effect this week.",j:"広範な関税が今週発効予定。",s:"sweeping",w:9,t:2,g:false,r:"n"},
+{e:"The Pentagon ramped up military operations in the region.",j:"国防総省が同地域の軍事作戦を増強した。",s:"ramp up",w:9,t:2,g:false,r:"n"},
+{e:"The Artemis II crew splashed down in the Pacific.",j:"アルテミスII乗組員が太平洋に着水した。",s:"splash down",w:9,t:2,g:false,r:"n"},
+{e:"The Iran war triggered an energy shock felt globally.",j:"イラン戦争が世界規模のエネルギーショックを引き起こした。",s:"energy shock",w:9,t:2,g:false,r:"n"},
+{e:"The order stripped collective bargaining rights from federal workers.",j:"大統領令が連邦職員の団体交渉権を剥奪した。",s:"collective bargaining",w:9,t:2,g:false,r:"n"},
+{e:"The Senate acquittal cleared the official of all charges.",j:"上院の無罪判決で同当局者の全罪状が晴れた。",s:"acquittal",w:9,t:2,g:false,r:"n"},
+{e:"The US imposed a naval blockade on Iranian ports.",j:"米国がイランの港に海上封鎖を敷いた。",s:"naval blockade",w:9,t:2,g:false,r:"n"},
+{e:"Trump's pressure on Powell raised concerns about Fed independence.",j:"トランプのパウエルへの圧力がFRBの独立性への懸念を高めた。",s:"Fed independence",w:9,t:2,g:false,r:"n"},
+{e:"Pimco moved from underweight to overweight on European bonds.",j:"ピムコが欧州債をアンダーウェイトからオーバーウェイトに転換。",s:"underweight",w:9,t:2,g:false,r:"n"},
+{e:"The country is on the brink of sovereign default.",j:"同国はソブリンデフォルトの瀬戸際にある。",s:"on the brink of",w:9,t:2,g:false,r:"n"},
+{e:"Soaring electric bills stoke voter fury ahead of midterms.",j:"電気代高騰が中間選挙を前に有権者の怒りを煽っている。",s:"voter fury",w:9,t:2,g:false,r:"n"},
+{e:"Warnings suggest the US-Iran war will linger for months.",j:"米イラン戦争が数カ月長引くとの警告。",s:"linger",w:9,t:2,g:false,r:"n"},
+{e:"Markets brushed aside geopolitical warnings and hit record highs.",j:"市場が地政学的警告を無視して史上最高値を更新。",s:"brush aside",w:9,t:2,g:false,r:"n"},
+{e:"The bill passed the Senate by a narrow margin.",j:"法案が僅差で上院を通過した。",s:"by a narrow margin",w:9,t:2,g:false,r:"n"},
+{e:"US stocks held onto record highs despite war headlines.",j:"米株は戦争のヘッドラインにも関わらず最高値を維持。",s:"hold onto",w:9,t:2,g:false,r:"n"},
+{e:"The S&P closed within sight of a fresh record.",j:"S&Pが新記録に迫って引けた。",s:"within sight of",w:9,t:2,g:false,r:"n"},
+{e:"A flurry of executive orders marked Trump's first week.",j:"矢継ぎ早の大統領令がトランプの初週を特徴づけた。",s:"a flurry of",w:9,t:2,g:false,r:"n"},
+{e:"A wave of layoffs swept through the tech sector.",j:"テックセクター全体にレイオフの波が押し寄せた。",s:"a wave of",w:9,t:2,g:false,r:"n"},
+{e:"A string of weak data points raised recession fears.",j:"弱い経済指標の連続がリセッション懸念を高めた。",s:"a string of",w:9,t:2,g:false,r:"n"},
+{e:"Emerging markets bore the brunt of the dollar rally.",j:"新興国市場がドル高の矢面に立った。",s:"the brunt of",w:9,t:2,g:false,r:"n"},
+{e:"Trading volumes remained subdued ahead of the Fed decision.",j:"FRBの決定を前に売買高は低調なまま。",s:"subdued",w:9,t:2,g:false,r:"n"},
+{e:"The contentious trade bill divided Congress along party lines.",j:"物議を醸す通商法案が党派に沿って議会を二分した。",s:"contentious",w:9,t:2,g:false,r:"n"},
+{e:"The central bank took unprecedented steps to stabilize markets.",j:"中銀が市場安定のため前例のない措置を講じた。",s:"unprecedented",w:9,t:2,g:false,r:"n"},
+{e:"The data paints a mixed picture of the recovery.",j:"データは回復のまだら模様を描いている。",s:"paint a picture",w:9,t:2,g:false,r:"n"},
+{e:"The administration touted the deal as a historic win.",j:"政権がこの合意を歴史的勝利と喧伝した。",s:"tout",w:9,t:2,g:false,r:"n"},
+{e:"The surprise move sparked a sharp selloff in bonds.",j:"サプライズの動きが債券の急落を引き起こした。",s:"spark",w:9,t:2,g:false,r:"n"},
+{e:"Strong exports bolstered the case for a rate hike.",j:"堅調な輸出が利上げの論拠を強化した。",s:"bolster",w:9,t:2,g:false,r:"n"},
+{e:"Dropping the probe cleared a path to Warsh's confirmation.",j:"捜査打ち切りがウォーシュの承認への道を開いた。",s:"clear a path",w:9,t:2,g:false,r:"n"},
+{e:"The Fed's Inspector General will take over the investigation.",j:"FRBの監察総監が調査を引き継ぐ。",s:"Inspector General",w:9,t:2,g:false,r:"n"},
+{e:"Intel delivered a forecast that shattered Wall Street expectations.",j:"インテルがウォール街の期待を大幅に上回る予想を示した。",s:"shatter expectations",w:9,t:2,g:false,r:"n"},
+{e:"Eurasia Group warned of insider trading threats in Washington.",j:"ユーラシアグループがワシントンでのインサイダー取引の脅威を警告。",s:"insider trading",w:9,t:2,g:false,r:"n"},
+{e:"Private credit turmoil has retail investors eyeing the exits.",j:"プライベートクレジットの混乱で個人投資家が撤退を検討。",s:"eye the exits",w:9,t:2,g:true,r:"n"},
+{e:"Trump walked back threats to resume fighting with Iran.",j:"トランプがイランとの戦闘再開の脅しを撤回した。",s:"walk back",w:9,t:2,g:false,r:"n"},
+{e:"Virginia voters backed a plan to redraw congressional districts.",j:"バージニア州の有権者が連邦議会選挙区の再編計画を支持。",s:"redraw",w:9,t:2,g:false,r:"n"},
+{e:"The Hormuz closure caused energy shortages and gas lines.",j:"ホルムズ封鎖がエネルギー不足とガソリン行列を引き起こした。",s:"shortages",w:9,t:2,g:false,r:"n"},
+{e:"Iran insists it has the right to enrich uranium.",j:"イランはウラン濃縮の権利を主張している。",s:"enrich uranium",w:9,t:2,g:false,r:"n"},
+{e:"Trump and Xi projected alignment on the Hormuz crisis.",j:"トランプと習がホルムズ危機での連携を演出した。",s:"alignment",w:9,t:2,g:false,r:"n"},
+{e:"Moody's sees potential for a bounce back in sentiment.",j:"ムーディーズはセンチメント回復の可能性を見ている。",s:"bounce back",w:9,t:2,g:false,r:"n"},
+{e:"The global crisis is deepening as every day passes.",j:"日を追うごとに世界的な危機が深刻化している。",s:"deepen",w:9,t:2,g:false,r:"n"},
+{e:"Musk is kicking his Terafab plan into high gear.",j:"マスクがテラファブ計画を本格化させている。",s:"kick into high gear",w:9,t:2,g:false,r:"n"},
+{e:"The president held a rally in a swing state.",j:"大統領が激戦州で集会を開いた。",s:"rally",w:9,t:2,g:false,r:"n"},
+{e:"The company plans to leverage AI to streamline operations.",j:"同社はAIを活用して業務を効率化する計画。",s:"leverage",w:9,t:2,g:false,r:"n"},
+{e:"The UN condemned new settlements in the West Bank.",j:"国連がヨルダン川西岸の新入植地を非難。",s:"settlement",w:9,t:2,g:false,r:"n"},
+{e:"A bank run on SVB triggered a broader crisis.",j:"SVBへの取り付け騒ぎがより広範な危機を引き起こした。",s:"run",w:9,t:2,g:false,r:"n"},
+{e:"The bank set aside $1.2 billion in loan-loss provisions.",j:"銀行が12億ドルの貸倒引当金を積んだ。",s:"provision",w:9,t:2,g:false,r:"n"},
+{e:"The hawks on the FOMC pushed for another hike.",j:"FOMCのタカ派が追加利上げを主張。",s:"hawk",w:9,t:2,g:false,r:"n"},
+{e:"Earnings per share came in at $2.15, beating estimates.",j:"1株当たり利益は2.15ドルで予想を上回った。",s:"earnings",w:9,t:2,g:false,r:"n"},
+{e:"Real earnings have failed to keep pace with inflation.",j:"実質所得がインフレに追いついていない。",s:"earnings",w:9,t:2,g:false,r:"n"},
+{e:"Strong data bolstered the case for a rate hike.",j:"堅調なデータが利上げの論拠を強化した。",s:"case",w:9,t:2,g:false,r:"n"},
+{e:"The ECB signaled it would begin to taper bond purchases.",j:"ECBが債券購入のテーパリング開始を示唆。",s:"taper",w:10,t:2,g:false,r:"n"},
+{e:"The former official faces a federal indictment on fraud charges.",j:"元当局者が詐欺容疑で連邦起訴に直面。",s:"indictment",w:10,t:2,g:false,r:"n"},
+{e:"The IMF flagged downside risks to the global growth outlook.",j:"IMFが世界成長見通しの下振れリスクを指摘。",s:"downside risk",w:10,t:2,g:false,r:"n"},
+{e:"Macro funds put on steepener trades ahead of the Fed.",j:"マクロファンドがFRB会合前にスティープナーを仕掛け。",s:"steepener",w:10,t:2,g:true,r:"n"},
+{e:"A melt-up from here would be the ultimate pain trade.",j:"ここからの急騰が最大のペイントレードに。",s:"pain trade",w:10,t:2,g:true,r:"n"},
+{e:"A flight to quality pushed Treasury yields to 3-month lows.",j:"質への逃避で米国債利回りが3カ月ぶり低水準に。",s:"flight to quality",w:10,t:2,g:false,r:"n"},
+{e:"The Taiwan Strait remains the most dangerous flashpoint in Asia.",j:"台湾海峡はアジアで最も危険な火種。",s:"flashpoint",w:10,t:2,g:false,r:"n"},
+{e:"Steel tariffs have knock-on effects across the auto supply chain.",j:"鉄鋼関税が自動車サプライチェーンに波及。",s:"knock-on effect",w:10,t:2,g:false,r:"n"},
+{e:"A 25bp cut won't move the needle on housing affordability.",j:"25bp利下げでは住宅の手頃さに影響なし。",s:"move the needle",w:10,t:2,g:false,r:"n"},
+{e:"Critics call global tax competition a race to the bottom.",j:"世界的税競争を底辺への競争と批判。",s:"race to the bottom",w:10,t:2,g:false,r:"n"},
+{e:"The $35 trillion debt is the elephant in the room.",j:"35兆ドルの債務は誰もが無視している問題。",s:"the elephant in the room",w:10,t:2,g:false,r:"n"},
+{e:"A recession is baked into the cake at this point.",j:"リセッションは既に織り込み済み。",s:"baked into the cake",w:10,t:2,g:false,r:"n"},
+{e:"Rising card delinquencies are a canary in the coal mine.",j:"カード延滞率上昇は危険の前兆。",s:"canary in the coal mine",w:10,t:2,g:false,r:"n"},
+{e:"The senator reached across the aisle to build a coalition.",j:"上院議員が党派を超えて連立構築。",s:"across the aisle",w:10,t:2,g:false,r:"n"},
+{e:"The bull market proved a rising tide lifts all boats.",j:"強気相場が全体を押し上げることを証明。",s:"a rising tide lifts all boats",w:10,t:2,g:false,r:"n"},
+{e:"The rally hinges on whether the Fed signals a pause.",j:"反発はFRBが据え置きを示唆するかどうかにかかっている。",s:"hinge on",w:10,t:2,g:false,r:"n"},
+{e:"The government injected capital to shore up the banking system.",j:"政府が銀行システムのてこ入れに資本注入した。",s:"shore up",w:10,t:2,g:false,r:"n"},
+{e:"Hiring has started to taper off in the tech sector.",j:"テック業界の採用が徐々に減速し始めた。",s:"taper off",w:10,t:2,g:false,r:"n"},
+{e:"The bailout was meant to stave off a systemic crisis.",j:"救済措置はシステミック危機を食い止めるためだった。",s:"stave off",w:10,t:2,g:false,r:"n"},
+{e:"Beijing is propping up the yuan through state bank intervention.",j:"北京が国有銀行の介入で人民元を下支えしている。",s:"prop up",w:10,t:2,g:false,r:"n"},
+{e:"If the soft landing pans out, equities could rally further.",j:"ソフトランディングがうまくいけば株はさらに上昇する可能性。",s:"pan out",w:10,t:2,g:false,r:"n"},
+{e:"Animal spirits drove markets to all-time highs before the correction.",j:"アニマルスピリッツが調整前に市場を史上最高値に押し上げた。",s:"animal spirits",w:10,t:2,g:false,r:"n"},
+{e:"The administration vowed to cut red tape for infrastructure projects.",j:"政権がインフラ事業の規制手続き簡素化を誓った。",s:"red tape",w:10,t:2,g:false,r:"n"},
+{e:"Congress is debating a major overhaul of the tax code.",j:"議会が税制の抜本的改革を審議中。",s:"overhaul",w:10,t:2,g:false,r:"n"},
+{e:"Beijing clamped down on tech giants with new antitrust rules.",j:"北京が新たな独禁法規制でテック大手を取り締まった。",s:"clamp down",w:10,t:2,g:false,r:"n"},
+{e:"Bloomberg filed a FOIA request to obtain the internal memos.",j:"ブルームバーグが内部メモ入手のためFOIA請求を提出。",s:"FOIA",w:10,t:2,g:false,r:"n"},
+{e:"NYC doormen authorized a strike after contract talks broke down.",j:"契約交渉決裂後、NYC ドアマンがストライキを承認した。",s:"authorize",w:10,t:2,g:false,r:"n"},
+{e:"The fund went overweight on Treasuries as a safe haven.",j:"ファンドが安全資産として米国債をオーバーウェイトに。",s:"overweight",w:10,t:2,g:false,r:"n"},
+{e:"The S&P erased its war-driven losses in a sharp rebound.",j:"S&Pが急反発で戦争による下落分を帳消しにした。",s:"erase",w:10,t:2,g:false,r:"n"},
+{e:"Investors piled into the battery maker on green energy optimism.",j:"グリーンエネルギー楽観論で投資家がバッテリーメーカーに殺到。",s:"pile into",w:10,t:2,g:false,r:"n"},
+{e:"Markets tumbled in the wake of the surprise rate hike.",j:"サプライズ利上げを受けて市場が急落した。",s:"in the wake of",w:10,t:2,g:false,r:"n"},
+{e:"Apple's foldable phone is on track to launch in September.",j:"アップルの折りたたみスマホは9月発売の見通し。",s:"on track to",w:10,t:2,g:false,r:"n"},
+{e:"CATL shares climbed as much as 11% in Hong Kong.",j:"CATLの香港株が11%も上昇した。",s:"as much as",w:10,t:2,g:false,r:"n"},
+{e:"Years of underinvestment left the grid vulnerable to demand spikes.",j:"長年の投資不足が電力網を需要急増に脆弱にした。",s:"years of",w:10,t:2,g:false,r:"n"},
+{e:"The bulk of the losses came from the energy sector.",j:"損失の大半はエネルギーセクターからだった。",s:"the bulk of",w:10,t:2,g:false,r:"n"},
+{e:"The CEO struck an upbeat tone on the earnings call.",j:"CEOが決算説明会で楽観的なトーンを示した。",s:"upbeat",w:10,t:2,g:false,r:"n"},
+{e:"The IMF painted a bleak picture of the global economy.",j:"IMFが世界経済の暗い見通しを示した。",s:"bleak",w:10,t:2,g:false,r:"n"},
+{e:"The Fed is mulling changes to its balance sheet strategy.",j:"FRBがバランスシート戦略の変更を検討中。",s:"mull",w:10,t:2,g:false,r:"n"},
+{e:"The DOJ deferred the investigation to the Fed's Inspector General.",j:"司法省が調査をFRBの監察総監に委ねた。",s:"defer",w:10,t:2,g:false,r:"n"},
+{e:"Stocks can handle a stalemate situation in Iran, Yardeni says.",j:"ヤルデニ氏曰く、株式市場はイランの膠着状態に耐えられる。",s:"stalemate",w:10,t:2,g:false,r:"n"},
+{e:"The S&P notched a second straight loss in regular trading.",j:"S&Pが通常取引で2日連続の下落を記録した。",s:"notch",w:10,t:2,g:false,r:"n"},
+{e:"DOJ dropping the probe smoothed the path for Warsh's nomination.",j:"司法省の捜査打ち切りがウォーシュの指名への道を整えた。",s:"smooth the path for",w:10,t:2,g:false,r:"n"},
+{e:"The White House addressed the upcoming ceasefire deadline with Iran.",j:"ホワイトハウスがイランとの停戦期限に言及した。",s:"ceasefire deadline",w:10,t:2,g:false,r:"n"},
+{e:"Trump and Iranian officials offered disparate views on peace talks.",j:"トランプとイラン当局者が和平交渉について全く異なる見解を示した。",s:"disparate",w:10,t:2,g:false,r:"n"},
+{e:"The US seized a cargo ship linked to sanctions evasion.",j:"米国が制裁回避に関連する貨物船を拿捕した。",s:"seize",w:10,t:2,g:false,r:"n"},
+{e:"The deal was struck at a valuation of $350 billion.",j:"この取引は3,500億ドルの評価額で合意された。",s:"struck at a valuation of",w:10,t:2,g:false,r:"n"},
+{e:"Professor Portes discussed global imbalances and US debt from abroad.",j:"ポーテス教授がグローバルインバランスと対外債務について議論。",s:"global imbalances",w:10,t:2,g:false,r:"n"},
+{e:"Investors think the government will always run to the rescue.",j:"投資家は政府が常に救済に駆けつけると考えている。",s:"run to the rescue",w:10,t:2,g:false,r:"n"},
+{e:"There are reasons for investors to feel apprehensive right now.",j:"今、投資家が不安に感じる理由は数多くある。",s:"apprehensive",w:10,t:2,g:false,r:"n"},
+{e:"Consumer sentiment hit a multi-year low amid the trade war.",j:"貿易戦争の中、消費者心理が数年来の低水準に。",s:"consumer sentiment",w:10,t:2,g:false,r:"n"},
+{e:"There's a difference between having money and having money authority.",j:"お金を持つことと、お金の決定権を持つことは違う。",s:"money authority",w:10,t:2,g:false,r:"n"},
+{e:"Powell exits with a legacy built on central bank independence.",j:"パウエルは中銀独立性を礎とした功績を残して退任。",s:"legacy",w:10,t:2,g:false,r:"n"},
+{e:"Tech stocks extended their run to a fifth straight week.",j:"ハイテク株が5週連続の上昇を続けた。",s:"run",w:10,t:2,g:false,r:"n"},
+{e:"The central bank set a floor under the exchange rate.",j:"中銀が為替レートに下限を設定した。",s:"floor",w:10,t:2,g:false,r:"n"},
+{e:"The Fed Chair hedged on the timing of rate cuts.",j:"FRB議長は利下げ時期について言質を避けた。",s:"hedge",w:10,t:2,g:false,r:"n"},
+{e:"The company launched a tender offer at a 30% premium.",j:"30%のプレミアムで公開買付けを開始した。",s:"tender",w:10,t:2,g:false,r:"n"},
+{e:"Earnings season kicks off next week with big banks reporting.",j:"来週大手銀行の発表で決算シーズンが始まる。",s:"earnings",w:10,t:2,g:false,r:"n"},
+{e:"OPEC+ agreed to ramp up production by 500k barrels a day.",j:"OPEC+が日量50万バレルの増産で合意。",s:"ramp up",w:11,t:2,g:false,r:"n"},
+{e:"The central bank resorted to jawboning to talk down the currency.",j:"中銀が通貨押し下げのため口先介入に頼った。",s:"jawboning",w:11,t:2,g:true,r:"n"},
+{e:"The president is grasping for an off-ramp as the conflict spirals.",j:"紛争拡大の中、大統領が出口を模索。",s:"off-ramp",w:11,t:2,g:false,r:"n"},
+{e:"Oil spiked on fears Iran could block the Strait of Hormuz.",j:"イランのホルムズ海峡封鎖懸念で原油急騰。",s:"Strait of Hormuz",w:11,t:2,g:false,r:"n"},
+{e:"Critics say the Fed is behind the curve on cutting rates.",j:"FRBが利下げで後手に回っていると批判。",s:"behind the curve",w:11,t:2,g:false,r:"n"},
+{e:"Congress is kicking the can down the road on entitlement reform.",j:"議会が社会保障改革を先送り。",s:"kick the can down the road",w:11,t:2,g:false,r:"n"},
+{e:"Restructuring the BS without fixing revenue is lipstick on a pig.",j:"収益改善なしのBS組み替えは見せかけ。",s:"put lipstick on a pig",w:11,t:2,g:false,r:"n"},
+{e:"The EU plans to phase out fossil fuel subsidies by 2030.",j:"EUが2030年までに化石燃料補助金を段階的に廃止する計画。",s:"phase out",w:11,t:2,g:false,r:"n"},
+{e:"Markets haven't fully factored in the risk of a trade war.",j:"市場は貿易戦争のリスクを完全には織り込んでいない。",s:"factor in",w:11,t:2,g:false,r:"n"},
+{e:"The board adopted a poison pill to block the hostile bid.",j:"取締役会が敵対的買収を阻止するためポイズンピルを導入。",s:"poison pill",w:11,t:2,g:false,r:"n"},
+{e:"A liquidity crunch in repo markets forced the Fed to intervene.",j:"レポ市場の流動性逼迫でFRBが介入を余儀なくされた。",s:"liquidity crunch",w:11,t:2,g:false,r:"n"},
+{e:"Pimco saw mispricing driven by the sudden unwinding of popular trades.",j:"ピムコは人気取引の急な巻き戻しによるミスプライシングを認識。",s:"mispricing",w:11,t:2,g:false,r:"n"},
+{e:"CATL plans to expand in critical minerals amid the energy transition.",j:"CATLがエネルギー転換の中で重要鉱物事業を拡大する計画。",s:"critical minerals",w:11,t:2,g:false,r:"n"},
+{e:"The Fed is poised to cut rates at the next meeting.",j:"FRBは次回会合で利下げする態勢にある。",s:"poised to",w:11,t:2,g:false,r:"n"},
+{e:"A ceasefire extension is being discussed, according to a person familiar.",j:"事情に詳しい関係者によると停戦延長が協議されている。",s:"a person familiar with the matter",w:11,t:2,g:false,r:"n"},
+{e:"The CEO faced a barrage of questions on the earnings call.",j:"CEOが決算説明会で矢のような質問を浴びた。",s:"a barrage of",w:11,t:2,g:false,r:"n"},
+{e:"A surge of buying pushed the index to a new high.",j:"買いの急増が指数を新高値に押し上げた。",s:"a surge of",w:11,t:2,g:false,r:"n"},
+{e:"Beijing cut rates in a bid to revive the housing market.",j:"北京が住宅市場の復活を目指し利下げした。",s:"in a bid to",w:11,t:2,g:false,r:"n"},
+{e:"The selloff came on the heels of a disappointing jobs report.",j:"期待外れの雇用統計の直後に急落が起きた。",s:"on the heels of",w:11,t:2,g:false,r:"n"},
+{e:"The bank raised capital requirements in a move to curb risk.",j:"リスク抑制のための措置として銀行が自己資本要件を引き上げた。",s:"in a move to",w:11,t:2,g:false,r:"n"},
+{e:"The Fed cited persistent inflation as the reason for holding rates.",j:"FRBが金利据え置きの理由として根強いインフレを挙げた。",s:"cite",w:11,t:2,g:false,r:"n"},
+{e:"The DOJ dropped its probe into the Fed's building-renovation cost overruns.",j:"司法省がFRBのビル改修費用超過に関する捜査を打ち切った。",s:"probe",w:11,t:2,g:false,r:"n"},
+{e:"SpaceX is widening its competitive moat ahead of a record IPO.",j:"スペースXが記録的IPOを前に競争優位を拡大中。",s:"widen its moat",w:11,t:2,g:false,r:"n"},
+{e:"Tesla unveiled a larger capex plan to support Musk's AI ambitions.",j:"テスラがマスクのAI野望を支える大型設備投資計画を発表。",s:"capex",w:11,t:2,g:false,r:"n"},
+{e:"Conflicting signals cast uncertainty over the next stage of the war.",j:"矛盾するシグナルが戦争の次の段階に不透明感を投げかけた。",s:"cast uncertainty over",w:11,t:2,g:false,r:"n"},
+{e:"LNG tankers made a U-turn as Iran kept the Strait shut.",j:"イランが海峡を閉鎖し続ける中、LNGタンカーが引き返した。",s:"U-turn",w:11,t:2,g:false,r:"n"},
+{e:"Trump denied the US would release any frozen funds to Iran.",j:"トランプは米国がイランへの凍結資産を解除することを否定。",s:"frozen funds",w:11,t:2,g:false,r:"n"},
+{e:"The Fed is less inclined to cut rates amid the chaos.",j:"混乱の中、FRBは利下げに前向きではない。",s:"inclined to",w:11,t:2,g:false,r:"n"},
+{e:"Starz is focused on remaining independent in a time of consolidation.",j:"業界再編の時代にStarzは独立維持を重視している。",s:"consolidation",w:11,t:2,g:false,r:"n"},
+{e:"A wall of maturities hits the corporate bond market in 2027.",j:"2027年に社債市場で大量の満期が到来する。",s:"maturity",w:11,t:2,g:false,r:"n"},
+{e:"The board seeks a white knight to fend off the hostile bid.",j:"取締役会が敵対買収を退けるためホワイトナイトを模索。",s:"white knight",w:12,t:2,g:false,r:"n"},
+{e:"The CEO threw the CFO under the bus for the earnings miss.",j:"CEOが決算未達の責任をCFOに転嫁。",s:"throw under the bus",w:12,t:2,g:false,r:"n"},
+{e:"The Fed Chair needs to read the room before signaling more hikes.",j:"FRB議長は追加利上げ示唆前に空気を読む必要。",s:"read the room",w:12,t:2,g:false,r:"n"},
+{e:"A deal was reached at the eleventh hour to avert a shutdown.",j:"閉鎖回避の合意が土壇場で成立。",s:"at the eleventh hour",w:12,t:2,g:false,r:"n"},
+{e:"The board adopted a poison pill to fend off a hostile takeover.",j:"取締役会が敵対的買収を退けるためポイズンピルを導入。",s:"fend off",w:12,t:2,g:false,r:"n"},
+{e:"The deal is near completion, according to people briefed on the talks.",j:"交渉について説明を受けた関係者によると、合意は最終段階。",s:"according to people briefed on",w:12,t:2,g:false,r:"n"},
+{e:"The S&P had one of its worst starts to a presidency ever.",j:"S&Pは大統領就任後史上最悪のスタートの一つを記録。",s:"worst start to a presidency",w:12,t:2,g:false,r:"n"},
+{e:"Tariffs are set to snap back into force after the pause expires.",j:"猶予期間終了後に関税が再発動される見通し。",s:"snap back",w:12,t:2,g:false,r:"n"},
+{e:"A bout of volatility wiped out gains from earlier in the week.",j:"一時的なボラティリティの急上昇が週前半の上げを帳消しにした。",s:"a bout of",w:12,t:2,g:false,r:"n"},
+{e:"Tesla launched the Cybercab at a time when global sales have slumped.",j:"世界販売が不振の中テスラがサイバーキャブを投入した。",s:"slump",w:12,t:2,g:false,r:"n"},
+{e:"Trump said the US would hold off on fresh attacks on Iran.",j:"トランプは米国がイランへの新たな攻撃を控えると発言。",s:"hold off on",w:12,t:2,g:false,r:"n"},
+{e:"Amazon invested $5 billion in Anthropic and may inject $20 billion more.",j:"アマゾンがアンソロピックに50億ドルを投資し、さらに200億ドル追加の可能性。",s:"inject",w:12,t:2,g:false,r:"n"},
+{e:"Anthropic rebuffed investors' efforts to back the company at a higher valuation.",j:"アンソロピックがより高い評価額での出資打診を拒絶した。",s:"rebuff",w:12,t:2,g:false,r:"n"},
+{e:"Trump signed a record number of executive orders in his first 100 days.",j:"トランプは就任100日間で記録的な数の大統領令に署名。",s:"executive order",w:13,t:3,g:false,r:"n"},
+{e:"Nasdaq posted a 10th straight day of gains — its longest streak since 2021.",j:"ナスダックが10日連騰を記録 — 2021年以来最長の連続上昇。",s:"streak",w:14,t:3,g:false,r:"n"}];
+const SPEEDS=[{l:"0.9x",r:0.9},{l:"1.0x",r:1.0},{l:"1.1x",r:1.1}];
+const LS={sched:"rd_sched",streak:"rd_streak",seen:"rd_seen",day:"rd_day",
+ cnt:"rd_cnt",ok:"rd_ok",sp:"rd_sp",vo:"rd_vo",reg:"rd_reg"};
+
+const GAP_FAIL=5;    // 誤答は最低5問あけて再出題
+const GAP_RETRY=20;  // 1回正解しても20問後にもう一度確認
+const CLEAR_AT=2;    // 連続2回正解で卒業
+const NO_REPEAT=12;  // 直近12問は引かない
+
+let tier=0, cur=null, phase="ready", played=false, timer=null, left=15;
+let voices=[], spIdx=+(localStorage.getItem(LS.sp)??1), voIdx=+(localStorage.getItem(LS.vo)??0);
+let reg=localStorage.getItem(LS.reg)||"d";
+let sched=JSON.parse(localStorage.getItem(LS.sched)||"{}");   // 文 -> 再出題可能になる通算問番号
+let streak=JSON.parse(localStorage.getItem(LS.streak)||"{}"); // 文 -> 連続正解数
+let seen=new Set(JSON.parse(localStorage.getItem(LS.seen)||"[]"));
+let history=[];  // 直近に出した文（セッション内のみ）
+let total=+(localStorage.getItem("rd_total")||0); // 通算問番号
+
+function jstDay(){const d=new Date(Date.now()+9*3600*1000);return d.toISOString().slice(0,10);}
+const today=jstDay();
+if(localStorage.getItem(LS.day)!==today){localStorage.setItem(LS.day,today);
+ localStorage.setItem(LS.cnt,"0");localStorage.setItem(LS.ok,"0");}
+let cnt=+(localStorage.getItem(LS.cnt)||0), okCnt=+(localStorage.getItem(LS.ok)||0);
+
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem(LS.sched,JSON.stringify(sched));
+ localStorage.setItem(LS.streak,JSON.stringify(streak));
+ localStorage.setItem(LS.seen,JSON.stringify([...seen]));
+ localStorage.setItem(LS.cnt,cnt);localStorage.setItem(LS.ok,okCnt);
+ localStorage.setItem("rd_total",total);}
+
+function loadVoices(){const v=speechSynthesis.getVoices().filter(x=>x.lang.startsWith("en"));
+ if(v.length){voices=v;if(voIdx>=v.length)voIdx=0;renderSet();}}
+loadVoices(); speechSynthesis.onvoiceschanged=loadVoices;
+
+let warmed=false;
+function speak(t){speechSynthesis.cancel();
+ if(!warmed){const w=new SpeechSynthesisUtterance(" ");w.volume=0;speechSynthesis.speak(w);warmed=true;}
+ const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=SPEEDS[spIdx].r;
+ if(voices[voIdx])u.voice=voices[voIdx];speechSynthesis.speak(u);}
+
+function pool(){return S.filter(s=>(tier===0||s.t===tier)&&(reg==="a"||s.r===reg));}
+
+function pick(){
+ const p=pool(); if(!p.length)return null;
+ // 直近履歴は除外。ただしプールが小さいときは除外幅を縮める
+ const hn=Math.max(0,Math.min(NO_REPEAT,p.length-2));
+ const recent=new Set(history.slice(-hn));
+ let avail=p.filter(s=>!recent.has(s.e));
+ if(!avail.length)avail=p;
+ // 1. 再出題の期限が来た誤答
+ const due=avail.filter(s=>sched[s.e]!==undefined&&sched[s.e]<=total);
+ if(due.length)return due[Math.random()*due.length|0];
+ // 2. 未出題
+ const fresh=avail.filter(s=>!seen.has(s.e)&&sched[s.e]===undefined);
+ if(fresh.length)return fresh[Math.random()*fresh.length|0];
+ // 3. 卒業済みから復習
+ const rest=avail.filter(s=>sched[s.e]===undefined);
+ return (rest.length?rest:avail)[Math.random()*(rest.length?rest.length:avail.length)|0];
+}
+
+function stopTimer(){if(timer){clearInterval(timer);timer=null;}}
+function startTimer(){left=15;stopTimer();
+ timer=setInterval(()=>{left--;const el=$("tm"),lb=$("tl");
+  if(el){el.textContent=left;el.style.color=left<=5?"#e07a7a":left<=9?"#c9a227":"#e6e6e6";}
+  if(lb)lb.textContent=left<=9?"秒 ・ 本番ならもう話し始めている":"秒";
+  if(left<=0){stopTimer();phase="reveal";render();}},1000);}
+
+
+/* ================= 録音・聴き比べ ================= */
+/* 音声は IndexedDB に保存する。localStorage はテキスト専用で容量が足りないため。 */
+const REC_KEEP = 60;                       // 直近60件だけ残す
+let autoRec = (localStorage.getItem('rd_autorec')||'1')==='1';
+let mediaRec=null, recChunks=[], recStream=null, recTimer=null;
+let recState='idle';                       // idle | rec | has
+let curBlobURL=null, curKey=null;
+
+let RDB=null;
+function idb(){
+  return new Promise((res,rej)=>{
+    if(RDB) return res(RDB);
+    const q=indexedDB.open('rd_audio',1);
+    q.onupgradeneeded=()=>{ const db=q.result;
+      if(!db.objectStoreNames.contains('clips')) db.createObjectStore('clips',{keyPath:'k'}); };
+    q.onsuccess=()=>{ RDB=q.result; res(RDB); };
+    q.onerror=()=>rej(q.error);
+  });
+}
+async function idbPut(k,blob,text){
+  const db=await idb();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('clips','readwrite');
+    tx.objectStore('clips').put({k,blob,text,at:Date.now()});
+    tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+  });
+}
+async function idbGet(k){
+  const db=await idb();
+  return new Promise((res)=>{
+    const tx=db.transaction('clips','readonly');
+    const r=tx.objectStore('clips').get(k);
+    r.onsuccess=()=>res(r.result||null); r.onerror=()=>res(null);
+  });
+}
+async function idbTrim(){                  // 古い録音から消す
+  const db=await idb();
+  const tx=db.transaction('clips','readwrite'); const st=tx.objectStore('clips');
+  const all=[]; 
+  st.openCursor().onsuccess=(e)=>{
+    const c=e.target.result;
+    if(c){ all.push({k:c.value.k,at:c.value.at}); c.continue(); }
+    else{ all.sort((a,b)=>a.at-b.at);
+      const over=all.length-REC_KEEP;
+      for(let i=0;i<over;i++) st.delete(all[i].k); }
+  };
+}
+function keyOf(sent){ return sent.slice(0,80); }
+
+async function startRec(){
+  try{
+    if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){ alert('この環境では録音できません'); return; }
+    recStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    recChunks=[];
+    const mt = MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+             : MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+    mediaRec = mt ? new MediaRecorder(recStream,{mimeType:mt}) : new MediaRecorder(recStream);
+    mediaRec.ondataavailable=e=>{ if(e.data&&e.data.size) recChunks.push(e.data); };
+    mediaRec.onstop=async ()=>{
+      const blob=new Blob(recChunks,{type:mediaRec.mimeType||'audio/mp4'});
+      if(recStream){ recStream.getTracks().forEach(t=>t.stop()); recStream=null; }
+      if(blob.size>0 && cur){
+        curKey=keyOf(cur.e);
+        if(curBlobURL) URL.revokeObjectURL(curBlobURL);
+        curBlobURL=URL.createObjectURL(blob);
+        try{ await idbPut(curKey,blob,cur.e); idbTrim(); }catch(e){}
+        recState='has';
+      } else recState='idle';
+      paintRec();
+    };
+    mediaRec.start();
+    recState='rec'; paintRec();
+    clearTimeout(recTimer);
+    recTimer=setTimeout(()=>{ if(recState==='rec') stopRec(); },20000);   // 保険の自動停止
+  }catch(e){ alert('マイクを使えませんでした。ブラウザの許可を確認してください。'); recState='idle'; paintRec(); }
+}
+function stopRec(){
+  clearTimeout(recTimer);
+  try{ if(mediaRec&&mediaRec.state!=='inactive') mediaRec.stop(); }catch(e){}
+}
+function playMine(){
+  if(!curBlobURL) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const a=new Audio(curBlobURL); a.play().catch(()=>{});
+}
+function dlMine(){
+  if(!curBlobURL||!cur) return;
+  const a=document.createElement('a');
+  a.href=curBlobURL;
+  a.download='repeat-'+jstDay()+'-'+cur.e.slice(0,24).replace(/[^A-Za-z0-9]+/g,'_')+'.m4a';
+  a.click();
+}
+async function loadMine(){                 // 裏面を開いたとき、過去の録音があれば出す
+  if(!cur) return;
+  const k=keyOf(cur.e);
+  if(curKey===k && curBlobURL){ recState='has'; paintRec(); return; }
+  const row=await idbGet(k);
+  if(curBlobURL){ URL.revokeObjectURL(curBlobURL); curBlobURL=null; }
+  if(row&&row.blob){ curKey=k; curBlobURL=URL.createObjectURL(row.blob); recState='has'; }
+  else { curKey=null; recState='idle'; }
+  paintRec();
+}
+function elsaCopy(){
+  if(!cur) return;
+  const t=cur.e;
+  const done=()=>{ const b=document.getElementById('elsaBtn'); if(b){ b.textContent='✓ コピー済み'; setTimeout(()=>{ if(b) b.textContent='ELSA用にコピー'; },1600); } };
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done).catch(()=>prompt('コピーしてください',t)); }
+  else prompt('コピーしてください',t);
+}
+function toggleAutoRec(){
+  autoRec=!autoRec;
+  localStorage.setItem('rd_autorec', autoRec?'1':'0');
+  const b=document.getElementById('autorecBtn');
+  if(b) b.textContent='自動録音: '+(autoRec?'ON':'OFF');
+}
+function paintRec(){
+  const el=document.getElementById('recSlot'); if(!el) return;
+  const rec = recState==='rec';
+  el.innerHTML =
+    '<div class="rec-row">'
+    + '<button class="rbtn '+(rec?'':'me')+'" id="recBtn">'+(rec?'<span class="recdot"></span>停止':'● 録音')+'</button>'
+    + '<button class="rbtn model" id="modelBtn">🔊 お手本</button>'
+    + '<button class="rbtn me" id="mineBtn"'+(recState==='has'?'':' disabled')+'>▶ 自分</button>'
+    + '<button class="rbtn" id="dlBtn"'+(recState==='has'?'':' disabled')+'>⬇</button>'
+    + '<button class="rbtn elsa" id="elsaBtn">ELSA用にコピー</button>'
+    + '</div>'
+    + '<div class="rec-note">'+(recState==='has'
+        ? '<b>お手本 → 自分</b>の順に聞いて、語尾・強勢・間の置き方を比べる'
+        : '復唱を録音して聴き比べる。ELSAは<b>読み上げの発音</b>採点用')+'</div>';
+  const b=document.getElementById('recBtn');
+  if(b) b.onclick=()=> rec ? stopRec() : startRec();
+  const m=document.getElementById('modelBtn'); if(m) m.onclick=()=>speak(cur.e);
+  const mi=document.getElementById('mineBtn'); if(mi) mi.onclick=playMine;
+  const d=document.getElementById('dlBtn'); if(d) d.onclick=dlMine;
+  const el2=document.getElementById('elsaBtn'); if(el2) el2.onclick=elsaCopy;
+}
+
+function render(){
+ const ab=document.getElementById('autorecBtn');
+ if(ab) ab.textContent='自動録音: '+(autoRec?'ON':'OFF');
+ const st=$("stage");
+ if(!cur){st.innerHTML='<p class="instr">この条件で出題できる文がありません。<br>上のタブを変えてください。</p>';updStats();return;}
+ const tierName={1:"短文",2:"中文",3:"長文"}[cur.t];
+ const isReview=sched[cur.e]!==undefined;
+ let h=`<div class="meta">${cnt+1}問目 ・ ${cur.w}語</div>
+        <div class="tierbadge">${isReview?"再挑戦 ・ ":""}${tierName}</div>`;
+ if(phase==="ready"){
+   h+=`<button class="play${played?" done":""}" id="play">${played?"✓":"▶"}</button>
+       <div class="instr">${played?"復唱してください":"タップで再生（1回のみ）"}</div>`;
+   if(played)h+=`<div class="timer" id="tm">${left}</div><div class="timerlabel" id="tl">秒</div>
+      <button class="sbtn" id="showBtn" style="margin-top:4px">答えを見る</button>`;
+ }else{
+   if(cur.g)h+=`<div class="jargon">専門語彙あり・難度が語彙側で上振れ</div>`;
+   h+=`<div class="sentence">${cur.e}</div>
+       <div class="sentence-ja">${cur.j}</div>
+       <div class="srcword">${cur.r==="d"?"日常・職場":"from: "+cur.s}</div>
+       <button class="sbtn" id="replay">🔊 もう一度聞く</button>
+       <div class="judge">
+         <button class="jbtn ng" id="ng">崩れた</button>
+         <button class="jbtn ok" id="ok">言えた</button>
+       </div>
+       <div class="rec-slot" id="recSlot"></div>`;
+ }
+ st.innerHTML=h;
+ if(phase==="ready"){
+   $("play").onclick=()=>{if(played)return;speak(cur.e);played=true;startTimer();render();
+     if(autoRec) setTimeout(startRec,1200);};
+   const sb=$("showBtn"); if(sb)sb.onclick=()=>{stopTimer();phase="reveal";render();};
+ }else{
+   if(recState==='rec') stopRec();
+   paintRec(); loadMine();
+   $("replay").onclick=()=>speak(cur.e);
+   $("ok").onclick=()=>judge(true);
+   $("ng").onclick=()=>judge(false);
+ }
+ updStats();
+}
+
+function judge(good){
+ const k=cur.e; seen.add(k); total++;
+ if(good){
+   okCnt++;
+   if(sched[k]!==undefined){
+     streak[k]=(streak[k]||0)+1;
+     if(streak[k]>=CLEAR_AT){delete sched[k];delete streak[k];}
+     else sched[k]=total+GAP_RETRY;
+   }
+ }else{
+   streak[k]=0; sched[k]=total+GAP_FAIL;
+ }
+ cnt++; history.push(k); save(); next();
+}
+function next(){stopTimer();played=false;phase="ready";left=15;cur=pick();render();}
+
+function updStats(){
+ $("st1").textContent=cnt;
+ $("st2").textContent=cnt?Math.round(okCnt/cnt*100)+"%":"—";
+ $("st3").textContent=Object.keys(sched).length;
+ const rn={d:"日常・職場",n:"ニュース",a:"両方"}[reg];
+ $("sub").textContent=`${rn} ・ 出題プール ${pool().length}文`;
+}
+
+function renderSet(){
+ const sp=$("speeds");if(!sp)return;sp.innerHTML="";
+ SPEEDS.forEach((s,i)=>{const b=document.createElement("button");
+  b.className="chip"+(spIdx===i?" on":"");b.textContent=s.l;
+  b.onclick=()=>{spIdx=i;localStorage.setItem(LS.sp,i);renderSet();};sp.appendChild(b);});
+ const vl=$("voices");vl.innerHTML="";
+ voices.forEach((v,i)=>{const b=document.createElement("button");
+  b.className="chip"+(voIdx===i?" on":"");b.style.textAlign="left";
+  b.textContent=v.name.replace(/Microsoft |Google |Apple /g,"");
+  b.onclick=()=>{voIdx=i;localStorage.setItem(LS.vo,i);renderSet();speak("Repeat the sentence.");};
+  vl.appendChild(b);});
+}
+
+document.querySelectorAll(".chip[data-t]").forEach(b=>{
+ b.onclick=()=>{tier=+b.dataset.t;history=[];
+  document.querySelectorAll(".chip[data-t]").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");next();};});
+document.querySelector('.chip[data-t="0"]').classList.add("on");
+document.querySelectorAll(".chip[data-r]").forEach(b=>{
+ b.onclick=()=>{reg=b.dataset.r;localStorage.setItem(LS.reg,reg);history=[];
+  document.querySelectorAll(".chip[data-r]").forEach(x=>x.classList.remove("on"));
+  b.classList.add("on");next();};});
+document.querySelector('.chip[data-r="'+reg+'"]').classList.add("on");
+$("gear").onclick=()=>{$("setpanel").classList.toggle("show");renderSet();};
+$("skip").onclick=()=>{if(cur)history.push(cur.e);next();};
+$("reset").onclick=()=>{if(confirm("学習記録を消去しますか？")){
+ sched={};streak={};seen.clear();history=[];cnt=0;okCnt=0;total=0;save();next();}};
+
+next();
+
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+
+window.micCheck = async function(){
+  const out = [];
+  out.push('protocol: ' + location.protocol);
+  out.push('isSecureContext: ' + window.isSecureContext);
+  out.push('mediaDevices: ' + (navigator.mediaDevices ? 'あり' : 'なし'));
+  if (!navigator.mediaDevices) { alert(out.join('\n')); return; }
+  try {
+    const s = await navigator.mediaDevices.getUserMedia({audio:true});
+    s.getTracks().forEach(t=>t.stop());
+    out.push('getUserMedia: 成功（録音機能を実装できます）');
+  } catch(e) { out.push('getUserMedia: 失敗 ' + e.name); }
+  alert(out.join('\n'));
+};
+</script>
+<a href="./index.html" style="position:fixed;left:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9999;font:500 12px/1 -apple-system,sans-serif;color:#9aa6b8;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:8px 12px;text-decoration:none;">🏠 メニュー</a>
+</body>
+</html>
