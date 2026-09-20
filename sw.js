@@ -1,6 +1,6 @@
 // 更新するときは必ずこの VERSION の数字を上げてからアップロードする。
 // 上げ忘れると、端末に古い画面がキャッシュされたままになる。
-const VERSION = 'flashcards-v2';
+const VERSION = 'flashcards-v3';
 
 const ASSETS = [
   './',

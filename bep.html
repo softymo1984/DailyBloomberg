@@ -510,13 +510,19 @@ function speakSeq(text, cb){
   const u=new SpeechSynthesisUtterance(cleanForSpeech(text));
   u.lang='en-US'; u.rate=speed; if(enVoice) u.voice=enVoice;
   const btns=document.querySelectorAll('.speak-btn');
-  let started=false;
-  const watchdog=setTimeout(()=>{      // 2.5秒たっても鳴り始めなければ壊れている
-    if(!started){ synthBroken=true; showReload(true); if(cb) cb(); }
-  },2500);
+  let started=false, done=false;
+  const finish=()=>{                   // ★次へ進む処理は必ず1回だけ
+    if(done) return; done=true;
+    clearTimeout(watchdog);
+    btns.forEach(b=>b.classList.remove('speaking'));
+    if(cb) cb();
+  };
+  const watchdog=setTimeout(()=>{      // 鳴り始めないまま4秒なら本当に壊れている
+    if(!started){ synthBroken=true; showReload(true); finish(); }
+  },4000);
   u.onstart=()=>{ started=true; showReload(false); btns.forEach(b=>b.classList.add('speaking')); };
-  u.onend  =()=>{ clearTimeout(watchdog); btns.forEach(b=>b.classList.remove('speaking')); if(cb) cb(); };
-  u.onerror=()=>{ clearTimeout(watchdog); btns.forEach(b=>b.classList.remove('speaking')); if(cb) cb(); };
+  u.onend  = finish;
+  u.onerror= finish;
   speechSynthesis.speak(u);
 }
 function speak(t){ speakSeq(t,null); }
