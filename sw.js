@@ -1,6 +1,6 @@
 // 更新するときは必ずこの VERSION の数字を上げてからアップロードする。
 // 上げ忘れると、端末に古い画面がキャッシュされたままになる。
-const VERSION = 'flashcards-v9';
+const VERSION = 'flashcards-v12';
 
 const ASSETS = [
   './',
@@ -8,6 +8,7 @@ const ASSETS = [
   './bloomberg.html',
   './bep.html',
   './repeat.html',
+  './speak.html',
   './manifest.json',
   './apple-touch-icon.png',
   './icon-192.png',

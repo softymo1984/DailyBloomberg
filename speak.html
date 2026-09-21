@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#14181f">
+<title>発話ドリル Part E・F</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#14181f; --desk2:#0a0c11;
+    --paper:#FBF6EA; --paper-edge:#efe6d2;
+    --ink:#1b1d22; --ink-soft:#5d626c;
+    --accent:#5b3fb8; --accent-soft:#e9e2f8;
+    --ok:#2f7d4f; --warn:#a86412; --ng:#a8392a;
+    --line:rgba(27,29,34,.12);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{min-height:100%;}
+  body{
+    font-family:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;
+    background:radial-gradient(120% 80% at 50% 0%,#1d232d 0%,var(--desk) 55%,var(--desk2) 100%) fixed;
+    color:#e8ecf2;
+    padding:calc(18px + env(safe-area-inset-top,0px)) 16px calc(28px + env(safe-area-inset-bottom,0px));
+    display:flex;flex-direction:column;align-items:center;
+    -webkit-text-size-adjust:100%;
+  }
+  button{font-family:inherit;}
+  button:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #b9a6f0;outline-offset:2px;}
+  .wrap{width:100%;max-width:620px;}
+  header{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  header a{color:#a9b2c4;font-size:.8rem;text-decoration:none;}
+  h1{font-size:1.35rem;font-weight:700;letter-spacing:.02em;}
+  h1 small{font-size:.78rem;font-weight:500;color:#a9b2c4;margin-left:6px;}
+
+  .tabs{display:flex;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:4px;gap:4px;}
+  .tab{flex:1;border:none;background:transparent;color:#cfd6e2;font-size:.9rem;font-weight:700;padding:11px 8px;border-radius:10px;cursor:pointer;min-height:44px;}
+  .tab span{display:block;font-size:.7rem;font-weight:500;color:#8f98aa;margin-top:2px;}
+  .tab.on{background:var(--paper);color:var(--ink);}
+  .tab.on span{color:var(--ink-soft);}
+
+  .meta{display:flex;justify-content:space-between;font-size:.78rem;color:#a9b2c4;margin:14px 2px 8px;}
+
+  .sheet{
+    background:linear-gradient(180deg,var(--paper),var(--paper-edge));
+    color:var(--ink);border-radius:18px;padding:22px 20px;
+    box-shadow:0 18px 40px rgba(0,0,0,.35), inset 0 1px 0 #fff;
+    min-height:340px;
+  }
+  .lead{font-size:.95rem;line-height:1.75;color:var(--ink);}
+  .small{font-size:.76rem;color:var(--ink-soft);line-height:1.7;margin-top:10px;}
+  .go{
+    display:block;width:100%;margin-top:22px;border:none;border-radius:14px;
+    background:var(--accent);color:#fff;font-size:1.05rem;font-weight:700;padding:18px;cursor:pointer;min-height:56px;
+  }
+  .go:active{transform:translateY(1px);}
+  .en{font-family:"Lora",serif;font-size:1.05rem;line-height:1.75;color:var(--ink);}
+  .ja{font-size:.84rem;line-height:1.8;color:var(--ink-soft);margin-top:8px;}
+  .listen{text-align:center;padding:26px 0 8px;}
+  .listen .big{font-size:1.1rem;font-weight:700;}
+  .listen .en{text-align:left;margin-top:18px;}
+
+  /* 録音中の残り時間リング（この画面でいちばん目立たせる要素） */
+  .ringbox{display:flex;flex-direction:column;align-items:center;padding:6px 0 4px;}
+  .ring{position:relative;width:196px;height:196px;}
+  .ring svg{width:100%;height:100%;transform:rotate(-90deg);}
+  .ring .trk{fill:none;stroke:var(--accent-soft);stroke-width:12;}
+  .ring .bar{fill:none;stroke:var(--accent);stroke-width:12;stroke-linecap:round;}
+  .ring .num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .ring .num b{font-family:"Lora",serif;font-size:3.1rem;font-weight:600;line-height:1;color:var(--ink);}
+  .ring .num span{font-size:.74rem;color:var(--ink-soft);margin-top:4px;}
+  .level{width:180px;height:8px;border-radius:99px;background:var(--accent-soft);overflow:hidden;margin-top:16px;}
+  .level i{display:block;height:100%;width:0;background:var(--accent);transition:width .05s linear;}
+  .levellab{font-size:.72rem;color:var(--ink-soft);margin-top:6px;}
+  .stop{margin-top:18px;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:.92rem;font-weight:700;border-radius:12px;padding:12px 22px;cursor:pointer;min-height:46px;}
+
+  .metrics{display:flex;gap:8px;}
+  .m{flex:1;border-radius:12px;padding:12px 6px;text-align:center;background:#fff;border:1px solid var(--line);}
+  .m b{display:block;font-family:"Lora",serif;font-size:1.35rem;font-weight:600;line-height:1.1;}
+  .m span{display:block;font-size:.68rem;color:var(--ink-soft);margin-top:4px;line-height:1.4;}
+  .m.ok b{color:var(--ok);} .m.warn b{color:var(--warn);} .m.ng b{color:var(--ng);}
+  .mnote{font-size:.7rem;color:var(--ink-soft);line-height:1.7;margin-top:8px;}
+  .alert{font-size:.82rem;line-height:1.7;color:var(--ng);background:#fbecea;border-radius:10px;padding:10px 12px;margin-top:10px;}
+
+  .btnrow{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .btnrow button{flex:1 1 30%;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:.82rem;font-weight:700;border-radius:11px;padding:11px 6px;cursor:pointer;min-height:44px;}
+  .btnrow button:disabled{opacity:.4;}
+
+  h3{font-size:.86rem;font-weight:700;margin:20px 0 8px;color:var(--ink);}
+  h3 em{font-style:normal;font-weight:500;color:var(--ink-soft);font-size:.76rem;margin-left:6px;}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{border:1px solid var(--line);background:#fff;color:var(--ink);font-family:"Lora",serif;font-size:.86rem;border-radius:999px;padding:8px 13px;cursor:pointer;min-height:40px;text-align:left;}
+  .chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .chk{display:flex;align-items:center;gap:10px;width:100%;border:1px solid var(--line);background:#fff;color:var(--ink);font-size:.86rem;border-radius:11px;padding:11px 12px;cursor:pointer;margin-bottom:6px;text-align:left;min-height:44px;}
+  .chk .box{width:20px;height:20px;border-radius:6px;border:2px solid #b8b2c9;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.8rem;}
+  .chk.on .box{background:var(--accent);border-color:var(--accent);}
+  .score{font-size:.8rem;color:var(--ink-soft);margin-top:6px;}
+  .score b{color:var(--accent);font-size:1rem;}
+
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px;}
+  summary{font-size:.86rem;font-weight:700;cursor:pointer;list-style:none;padding:4px 0;}
+  summary::-webkit-details-marker{display:none;}
+  summary::before{content:"＋ ";color:var(--accent);}
+  details[open] summary::before{content:"－ ";}
+  details .en,details .ja{margin-top:10px;}
+  .frame{margin-top:10px;padding:10px 12px;border-left:3px solid var(--accent);background:rgba(91,63,184,.06);border-radius:0 10px 10px 0;}
+  .frame div{font-family:"Lora",serif;font-size:.88rem;line-height:1.75;}
+  .navrow{display:flex;gap:8px;margin-top:20px;}
+  .navrow button{flex:1;border-radius:12px;font-size:.92rem;font-weight:700;padding:14px 8px;cursor:pointer;min-height:50px;}
+  .navrow .sec{border:1px solid var(--line);background:#fff;color:var(--ink);}
+  .navrow .pri{border:none;background:var(--accent);color:#fff;}
+
+  .tools{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;align-items:center;}
+  .tools .lab{font-size:.74rem;color:#8f98aa;}
+  .spd,.tbtn,select{
+    font-family:inherit;font-size:.8rem;border-radius:10px;border:1px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.06);color:#dfe4ec;padding:9px 12px;cursor:pointer;min-height:40px;
+  }
+  .spd.on,.tbtn.on{background:#e8ecf2;color:var(--ink);border-color:#e8ecf2;}
+  select{max-width:220px;}
+  #reloadBtn{display:none;background:#c9761a;border-color:#c9761a;color:#fff;font-weight:700;}
+  .foot{font-size:.72rem;color:#8f98aa;line-height:1.8;margin-top:18px;}
+  .foot a{color:#b9c4d6;}
+
+  /* 学習記録 */
+  .over{position:fixed;inset:0;background:rgba(5,7,11,.94);z-index:50;overflow-y:auto;display:none;
+    padding:calc(20px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px));}
+  .over.on{display:block;}
+  .over .in{max-width:620px;margin:0 auto;color:#e8ecf2;}
+  .over h2{font-size:1.2rem;display:flex;justify-content:space-between;align-items:center;}
+  .over .x{background:none;border:none;color:#cfd6e2;font-size:1.7rem;cursor:pointer;min-width:44px;min-height:44px;}
+  .kpis{display:flex;gap:8px;margin:14px 0 6px;}
+  .kpi{flex:1;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:12px 6px;text-align:center;}
+  .kpi b{display:block;font-family:"Lora",serif;font-size:1.5rem;color:#c9b8ff;}
+  .kpi span{font-size:.68rem;color:#a9b2c4;}
+  .over h4{font-size:.82rem;color:#c9b8ff;margin:20px 0 8px;font-weight:700;}
+  .avg{font-size:.8rem;line-height:1.9;color:#cfd6e2;}
+  .avg b{font-family:"Lora",serif;color:#fff;}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:90px;border-bottom:1px solid rgba(255,255,255,.14);padding-top:6px;}
+  .bars i{flex:1;background:#8f74e6;border-radius:2px 2px 0 0;min-height:2px;}
+  .bars i.z{background:rgba(255,255,255,.1);}
+  .bars i.t{background:#c9b8ff;}
+  .barlab{display:flex;justify-content:space-between;font-size:.66rem;color:#8f98aa;margin-top:4px;}
+  .row{display:flex;justify-content:space-between;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:none;border-bottom:1px solid rgba(255,255,255,.08);color:#e8ecf2;padding:10px 2px;cursor:pointer;font-size:.8rem;min-height:44px;}
+  .row .t{font-family:"Lora",serif;font-size:.84rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .row .s{flex:none;color:#a9b2c4;font-size:.72rem;}
+  .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);
+    background:#e8ecf2;color:var(--ink);font-size:.82rem;padding:11px 16px;border-radius:12px;box-shadow:0 10px 24px rgba(0,0,0,.35);
+    display:none;z-index:60;max-width:90%;line-height:1.6;}
+  .toast.on{display:block;}
+  @media (prefers-reduced-motion: reduce){ .level i{transition:none;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>発話ドリル<small>Versant Part E・F</small></h1>
+    <a href="./index.html">メニューへ</a>
+  </header>
+
+  <div class="tabs">
+    <button class="tab" data-p="e" onclick="setPart('e')">E 言い直し<span>聞いた話を30秒で話す</span></button>
+    <button class="tab" data-p="f" onclick="setPart('f')">F 意見<span>質問に40秒で答える</span></button>
+  </div>
+
+  <div class="meta"><span id="metaL"></span><span id="metaR"></span></div>
+  <div class="sheet" id="stage"></div>
+
+  <div class="tools">
+    <span class="lab">速度</span>
+    <button class="spd" data-s="0.9" onclick="setSpeed(0.9)">0.9</button>
+    <button class="spd" data-s="1" onclick="setSpeed(1)">1.0</button>
+    <button class="spd" data-s="1.1" onclick="setSpeed(1.1)">1.1</button>
+    <select id="voiceSel" onchange="setVoice(this.value)" aria-label="音声"></select>
+  </div>
+  <div class="tools">
+    <button class="tbtn" id="pracBtn" onclick="togglePractice()">本文を見ながら聞く</button>
+    <button class="tbtn" onclick="openStats()">📊 学習記録</button>
+    <button class="tbtn" onclick="document.getElementById('imp').click()">＋ 問題を取り込む</button>
+    <button class="tbtn" id="reloadBtn" onclick="location.reload()">🔄 音声を復帰</button>
+    <input type="file" id="imp" accept="application/json,.json" style="display:none" onchange="importFile(this)">
+  </div>
+  <div class="foot">
+    時間は公式の説明書にあわせて Part E が30秒、Part F が40秒です（<a href="https://www.pearson.com/content/dam/one-dot-com/one-dot-com/pearson-languages/en-gb/pdfs/versant-resources/validation-report-versant-by-pearson-english-speaking-and-listening-test.pdf" target="_blank" rel="noopener">Pearson</a>）。
+    問題文とお手本はこのアプリ用に作ったもので、実際の出題ではありません。
+  </div>
+</div>
+
+<div class="over" id="stats">
+  <div class="in">
+    <h2>学習記録<button class="x" onclick="closeStats()" aria-label="閉じる">×</button></h2>
+    <div id="statsBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const E_SEC = 30, F_SEC = 40;     // 公式：Part E 30秒、Part F 40秒
+const FRAME_MS = 50;              // 音量を測る間隔
+const REC_KEEP = 60;              // 保存する録音の上限
+const DATA = {"retell": [{"id": "e01", "kind": "story", "en": "Maria planned to bake a cake for her father's birthday. She bought flour, eggs, and chocolate at the store near her apartment. When she got home, she realized she had forgotten the sugar. It was already late, and the store had closed. Maria called her neighbor, Mr. Tanaka, and asked if he had any sugar. He brought over a full bag and stayed to help her decorate the cake. The next day, her father said it was the best cake he had ever eaten.", "ja": "マリアは父親の誕生日にケーキを焼く予定だった。アパート近くの店で小麦粉、卵、チョコレートを買った。家に帰ると、砂糖を買い忘れたことに気づいた。もう遅く、店は閉まっていた。マリアは隣人のタナカさんに電話し、砂糖がないか尋ねた。タナカさんは一袋まるごと持ってきて、そのまま飾り付けも手伝ってくれた。翌日、父親はこれまで食べた中で一番おいしいケーキだと言った。", "keys": ["birthday cake for her father", "forgot the sugar", "the store had closed", "called her neighbor", "brought sugar and helped", "the best cake"], "model": "Maria wanted to bake a cake for her father's birthday. She bought most of the things she needed, but she forgot the sugar, and the store was already closed. So she asked her neighbor for help. He brought her a bag of sugar and helped her decorate the cake. Her father said it was the best cake he'd ever had."}, {"id": "e02", "kind": "story", "en": "Ken takes the same train to work every morning. One Monday, the train stopped between two stations because of a problem with the signals. After twenty minutes, the driver announced that the delay would last at least another hour. Ken had an important meeting at nine, so he sent a message to his manager. His manager suggested that he join the meeting by phone. Ken found a quiet spot at the back of the train and joined the call. The meeting went well, and nobody minded that he was not in the room.", "ja": "ケンは毎朝同じ電車で通勤している。ある月曜日、信号のトラブルで電車が駅と駅の間で止まった。20分後、運転士が少なくともあと1時間は遅れると告げた。ケンは9時に大事な会議があったので、上司にメッセージを送った。上司は電話で会議に参加するよう勧めた。ケンは車両の後ろの静かな場所を見つけて通話に参加した。会議はうまくいき、彼がその場にいないことを気にする人はいなかった。", "keys": ["the train stopped", "problem with the signals", "at least another hour", "an important meeting", "message to his manager", "joined by phone", "the meeting went well"], "model": "Ken's train stopped on the way to work because of a signal problem, and the delay was going to last at least an hour. He had an important meeting at nine, so he sent a message to his manager. His manager told him to join by phone, so Ken joined the meeting from the train, and it went well."}, {"id": "e03", "kind": "story", "en": "Last summer, Emma decided to learn how to swim. She was thirty-five years old and had always been afraid of deep water. She signed up for lessons at a pool near her office and went twice a week after work. At first, she could only float with the help of a board. Her teacher was patient and never rushed her. After three months, Emma swam the whole length of the pool without stopping. She was so proud that she called her mother right away to tell her.", "ja": "去年の夏、エマは泳ぎを習うことにした。彼女は35歳で、ずっと深い水が怖かった。職場近くのプールのレッスンに申し込み、週2回、仕事の後に通った。最初はビート板を使ってやっと浮かべる程度だった。先生は辛抱強く、決して急かさなかった。3か月後、エマはプールの端から端まで止まらずに泳いだ。とても誇らしくて、すぐに母親に電話して伝えた。", "keys": ["learn how to swim", "afraid of deep water", "lessons twice a week", "float with a board", "a patient teacher", "after three months", "the whole length of the pool", "called her mother"], "model": "Emma decided to learn to swim, even though she was thirty-five and afraid of deep water. She took lessons twice a week after work. At first she could only float with a board, but her teacher was very patient. After three months, she swam the whole length of the pool, and she called her mother to tell her."}, {"id": "e04", "kind": "story", "en": "A small restaurant in the town center was losing customers because a large chain restaurant had opened across the street. The owner, David, decided to try something new. He started asking his customers what they wanted to eat, and every Friday he cooked one dish that they had suggested. People liked having a say in the menu, and they began telling their friends about it. Within a few months, the restaurant was full again on most nights.", "ja": "町の中心にある小さなレストランは、通りの向かいに大手チェーン店ができたせいで客を失っていた。オーナーのデイビッドは新しいことを試すことにした。客に何を食べたいか聞き始め、毎週金曜日に客が提案した料理を一品作った。人々はメニューに意見を言えることを喜び、友人に話し始めた。数か月のうちに、店はほとんどの夜、再び満席になった。", "keys": ["a small restaurant", "losing customers", "a chain restaurant across the street", "asked his customers", "a suggested dish every Friday", "told their friends", "full again"], "model": "A small restaurant was losing customers because a big chain restaurant opened across the street. The owner, David, started asking customers what they wanted to eat, and every Friday he cooked a dish they suggested. People liked that and told their friends, so after a few months the restaurant was full again."}, {"id": "e05", "kind": "story", "en": "Two friends, Lisa and Sam, went hiking in the mountains on a Saturday. The weather was sunny when they started, so they did not bring rain jackets. By lunchtime, dark clouds had covered the sky, and it began to rain heavily. They found a small wooden hut near the path and waited inside for about an hour. When the rain stopped, they walked back down slowly because the path was wet. They agreed that next time they would check the weather more carefully.", "ja": "リサとサムの二人の友人は、土曜日に山へハイキングに出かけた。出発したときは晴れていたので、雨具を持っていかなかった。昼ごろには黒い雲が空を覆い、激しい雨が降り出した。二人は道の近くに小さな木の小屋を見つけ、中で1時間ほど待った。雨がやむと、道が濡れていたのでゆっくり下山した。次からはもっと注意して天気を確認しようと二人は決めた。", "keys": ["went hiking", "sunny, so no rain jackets", "began to rain heavily", "a small wooden hut", "waited about an hour", "walked down slowly", "check the weather"], "model": "Lisa and Sam went hiking on a sunny day, so they didn't take rain jackets. Around lunchtime it started to rain heavily. They found a small wooden hut and waited there for about an hour. After the rain stopped, they walked down slowly because the path was wet, and they decided to check the weather next time."}, {"id": "e06", "kind": "story", "en": "Tom lost his wallet on the way home from the supermarket. It had his credit card, his driver's license, and some cash inside. He went back to the store, but nobody had seen it. That evening, a young woman knocked on his door. She had found the wallet on the sidewalk and seen his address on the license. Tom thanked her many times and offered her some money, but she refused. She said she was just happy to help.", "ja": "トムはスーパーからの帰り道に財布をなくした。中にはクレジットカード、運転免許証、現金が入っていた。店に戻ったが、誰も見ていなかった。その夜、若い女性が彼の家のドアをノックした。彼女は歩道で財布を拾い、免許証で住所を見たのだった。トムは何度もお礼を言ってお金を渡そうとしたが、彼女は断った。ただ力になれてうれしいと言った。", "keys": ["lost his wallet", "credit card, license, and cash", "went back to the store", "a young woman came to his door", "found it on the sidewalk", "his address on the license", "refused the money"], "model": "Tom lost his wallet on his way home from the supermarket. It had his credit card, his license, and some cash in it. He went back to the store, but no one had seen it. That evening, a young woman came to his door with the wallet. She had found it on the sidewalk. Tom offered her money, but she said no."}, {"id": "e07", "kind": "story", "en": "Anna works at the front desk of a busy hotel. One afternoon, a guest came to the desk looking very worried. His flight had been cancelled, and all the other hotels near the airport were full. Anna checked the system and found one room that had just become available. She gave him the room and also booked a taxi for him early the next morning. Before he left, the guest wrote a thank-you note and left it at the desk.", "ja": "アンナは忙しいホテルのフロントで働いている。ある午後、一人の客がとても困った様子でフロントに来た。飛行機が欠航になり、空港近くの他のホテルはすべて満室だったのだ。アンナがシステムを確認すると、ちょうど空いたばかりの部屋が一つ見つかった。彼女はその部屋を用意し、翌朝早くのタクシーも手配した。客は出発前にお礼のメモを書いてフロントに残していった。", "keys": ["the front desk of a hotel", "a worried guest", "his flight had been cancelled", "the other hotels were full", "found one room", "booked a taxi", "a thank-you note"], "model": "Anna works at a hotel front desk. A worried guest came in because his flight was cancelled and the other hotels near the airport were full. Anna found a room that had just become free, and she also booked a taxi for him for the next morning. Before he left, he wrote her a thank-you note."}, {"id": "e08", "kind": "story", "en": "Carlos wanted to save money, so he started cooking at home instead of buying lunch every day. On Sunday nights, he made five meals and put them in the refrigerator. The first week was difficult because he did not know many recipes. He asked his grandmother for some simple ideas, and she taught him three dishes over the phone. After two months, Carlos had saved enough money to buy a new bicycle.", "ja": "カルロスはお金を貯めたかったので、毎日昼食を買う代わりに家で料理をするようになった。日曜日の夜に5食分を作り、冷蔵庫に入れておいた。最初の週は、知っているレシピが少なくて大変だった。祖母に簡単なアイデアを聞くと、電話で3つの料理を教えてくれた。2か月後、カルロスは新しい自転車を買えるだけのお金を貯めていた。", "keys": ["save money", "cooking at home", "five meals on Sunday nights", "did not know many recipes", "his grandmother taught him", "after two months", "a new bicycle"], "model": "Carlos wanted to save money, so he stopped buying lunch and started cooking at home. Every Sunday night he made five meals for the week. At first it was hard because he didn't know many recipes, so his grandmother taught him some easy dishes over the phone. After two months, he had saved enough to buy a new bike."}, {"id": "e09", "kind": "story", "en": "Yuki's daughter wanted a dog, but Yuki was worried that she would not take care of it. So they made a deal. For one month, her daughter would walk their neighbor's dog every morning before school. If she did it every day, they would get a dog of their own. Her daughter never missed a single morning, even when it was cold or raining. At the end of the month, they went to an animal shelter and brought home a small brown puppy.", "ja": "ユキの娘は犬を欲しがっていたが、ユキは娘がちゃんと世話をしないのではないかと心配していた。そこで二人は約束をした。1か月間、娘が毎朝学校の前に隣の家の犬を散歩させる。毎日続けられたら、自分たちの犬を飼う。娘は寒い日も雨の日も、一度も休まなかった。月末、二人は動物保護施設へ行き、小さな茶色の子犬を連れて帰った。", "keys": ["her daughter wanted a dog", "worried she would not take care of it", "made a deal", "walk the neighbor's dog", "never missed a morning", "an animal shelter", "a small brown puppy"], "model": "Yuki's daughter wanted a dog, but Yuki wasn't sure she would take care of it. So they made a deal: her daughter had to walk the neighbor's dog every morning for a month. She never missed a day, even in bad weather. So at the end of the month, they got a small brown puppy from an animal shelter."}, {"id": "e10", "kind": "story", "en": "Peter was asked to give a presentation to his whole department for the first time. He was very nervous, so he practiced in front of the mirror every evening for a week. On the day of the presentation, the projector did not work, and he could not show his slides. Instead of panicking, he explained his ideas using the whiteboard. After the meeting, several colleagues told him it was one of the clearest presentations they had ever seen.", "ja": "ピーターは初めて部署全体の前でプレゼンをするよう頼まれた。とても緊張していたので、1週間、毎晩鏡の前で練習した。当日、プロジェクターが動かず、スライドを映せなかった。彼は慌てずに、ホワイトボードを使って考えを説明した。会議の後、何人もの同僚が、これまで見た中で最もわかりやすいプレゼンの一つだったと言った。", "keys": ["his first presentation", "very nervous", "practiced in front of the mirror", "the projector did not work", "used the whiteboard", "one of the clearest presentations"], "model": "Peter had to give his first presentation to his whole department, and he was very nervous, so he practiced every evening for a week. On the day, the projector didn't work, so he couldn't use his slides. He stayed calm and used the whiteboard instead. Afterwards, his colleagues said it was one of the clearest presentations they'd seen."}, {"id": "e11", "kind": "story", "en": "When Sarah moved to a new city, she did not know anyone. She wanted to make friends, so she joined a running group that met in a park every Saturday morning. At first, she found it hard to keep up with the others. One of the members, an older man named George, started running with her at a slower pace. They talked about their jobs and families as they ran. A year later, Sarah and George ran a full marathon together.", "ja": "サラは新しい街に引っ越したとき、知り合いが一人もいなかった。友達を作りたくて、毎週土曜の朝に公園で集まるランニングのグループに入った。最初は他の人たちについていくのが大変だった。メンバーの一人で年配のジョージという男性が、彼女に合わせてゆっくり走ってくれるようになった。二人は走りながら仕事や家族の話をした。1年後、サラとジョージは一緒にフルマラソンを走った。", "keys": ["moved to a new city", "joined a running group", "hard to keep up", "an older man named George", "ran at a slower pace", "talked about jobs and families", "ran a marathon together"], "model": "Sarah moved to a new city and didn't know anyone, so she joined a running group that met every Saturday. At first it was hard for her to keep up. An older man named George started running with her more slowly, and they talked while they ran. A year later, they ran a marathon together."}, {"id": "e12", "kind": "story", "en": "A family was driving to the beach for a holiday when their car made a loud noise and stopped. They were on a quiet country road, and there was no signal on their phones. After a while, a farmer driving a tractor stopped to help. He pulled their car to his farm and called a mechanic from his house. While they waited, the farmer's wife gave the children fresh milk and cookies. The family still sends them a card every year.", "ja": "ある家族が休暇で海へ車で向かっていたとき、車が大きな音を立てて止まった。そこは静かな田舎道で、携帯の電波も入らなかった。しばらくすると、トラクターに乗った農家の男性が止まって助けてくれた。彼は車を自分の農場まで引っ張っていき、家から整備士に電話した。待っている間、農家の妻が子どもたちに新鮮な牛乳とクッキーをくれた。その家族は今でも毎年、二人にカードを送っている。", "keys": ["driving to the beach", "the car stopped", "no signal on their phones", "a farmer with a tractor", "pulled the car to his farm", "called a mechanic", "milk and cookies", "a card every year"], "model": "A family's car broke down on a quiet country road on the way to the beach, and their phones had no signal. A farmer on a tractor stopped and pulled their car to his farm, and he called a mechanic. While they waited, his wife gave the children milk and cookies. The family still sends them a card every year."}, {"id": "e13", "kind": "info", "en": "Many people drink coffee in the morning to feel more awake. Coffee contains caffeine, which blocks a chemical in the brain that makes us feel tired. The effect usually begins within about half an hour and can last for several hours. However, drinking coffee late in the day can make it harder to fall asleep at night. For this reason, many people try not to drink coffee in the late afternoon or evening.", "ja": "多くの人が目を覚ますために朝コーヒーを飲む。コーヒーにはカフェインが含まれ、眠気を感じさせる脳内の物質の働きを妨げる。効果はふつう30分ほどで現れ、数時間続くこともある。ただし、遅い時間に飲むと夜に寝つきにくくなることがある。そのため、夕方以降はコーヒーを控えるようにしている人が多い。", "keys": ["feel more awake", "caffeine", "blocks a chemical that makes us tired", "begins within half an hour", "lasts several hours", "harder to fall asleep", "not in the late afternoon or evening"], "model": "People drink coffee in the morning to feel awake. That's because caffeine blocks a chemical in the brain that makes us tired. It starts working within about half an hour and can last for hours. But if you drink it late in the day, it can be hard to sleep, so many people avoid coffee in the evening."}, {"id": "e14", "kind": "info", "en": "Bees play an important role in growing food. When a bee visits a flower to collect food, tiny grains of pollen stick to its body. As it flies to the next flower, some of this pollen falls off, which helps the plant produce fruit and seeds. Many fruits and vegetables depend on this process. In some areas, the number of bees has been falling, so some farmers now rent boxes of bees to make sure their crops get enough visits.", "ja": "ミツバチは食料の生産で大切な役割を果たしている。ハチが食べ物を集めに花を訪れると、小さな花粉の粒が体につく。次の花へ飛んでいくと、その花粉の一部が落ち、植物が実や種を作る助けになる。多くの果物や野菜はこの仕組みに頼っている。一部の地域ではハチの数が減っているため、作物に十分ハチが来るよう、ハチの巣箱を借りる農家もいる。", "keys": ["bees help grow food", "visit a flower", "pollen sticks to its body", "falls off at the next flower", "helps produce fruit and seeds", "the number of bees is falling", "farmers rent boxes of bees"], "model": "Bees are important for growing food. When a bee visits a flower, pollen sticks to its body, and when it goes to the next flower, some pollen falls off. This helps plants make fruit and seeds. Because there are fewer bees in some places, some farmers now rent boxes of bees for their crops."}, {"id": "e15", "kind": "info", "en": "Recycling paper saves more than just trees. Making paper from used paper needs less water and less energy than making it from wood. First, the used paper is mixed with water to make a soft, wet material. Then the ink is removed, and the material is pressed flat and dried into new sheets. Paper can usually be recycled five to seven times before the fibers become too short to use.", "ja": "紙のリサイクルで節約できるのは木だけではない。古紙から紙を作るほうが、木から作るより水もエネルギーも少なくて済む。まず、古紙を水と混ぜて柔らかくぬれた状態にする。次にインクを取り除き、平らに押して乾かし、新しい紙にする。紙はふつう5〜7回リサイクルでき、その後は繊維が短くなりすぎて使えなくなる。", "keys": ["saves more than trees", "less water and less energy", "mixed with water", "the ink is removed", "pressed flat and dried", "five to seven times", "the fibers become too short"], "model": "Recycling paper saves trees, and it also uses less water and energy than making paper from wood. The old paper is mixed with water, the ink is taken out, and then it's pressed and dried into new paper. Paper can be recycled about five to seven times, until the fibers get too short."}, {"id": "e16", "kind": "info", "en": "Some companies now let their employees work from home two or three days a week. Workers often say they save time and money because they do not have to travel to the office. They can also concentrate better without the noise of a busy office. On the other hand, some managers worry that it is harder for teams to share ideas when they are not in the same room. As a result, many companies ask everyone to come in on the same days each week.", "ja": "いまでは週に2〜3日の在宅勤務を認める会社もある。働く人たちは、通勤しなくてよいので時間とお金の節約になるとよく言う。にぎやかなオフィスの騒音がないので集中しやすいという面もある。一方で、同じ部屋にいないとチームでアイデアを出し合いにくくなると心配する管理職もいる。その結果、毎週同じ曜日に全員が出社するよう求める会社が多い。", "keys": ["work from home two or three days", "save time and money", "no need to travel to the office", "concentrate better", "harder to share ideas", "come in on the same days"], "model": "Some companies let people work from home two or three days a week. Workers like it because they save time and money on travel, and they can focus better without office noise. But some managers think it's harder for teams to share ideas, so many companies ask everyone to come to the office on the same days."}, {"id": "e17", "kind": "info", "en": "A lot of people set goals at the start of the year, but many give up within a few weeks. One reason is that the goals are too big. For example, a goal like \"get fit\" is hard to measure, so people cannot tell if they are making progress. A better way is to break a big goal into small steps, such as walking for fifteen minutes after dinner. Small successes make people feel good and help them keep going.", "ja": "多くの人が年の初めに目標を立てるが、数週間であきらめる人も多い。理由の一つは目標が大きすぎることだ。たとえば「健康になる」のような目標は測りにくく、進んでいるのかどうかわからない。よりよい方法は、大きな目標を夕食後に15分歩くといった小さな段階に分けることだ。小さな成功は気分をよくし、続ける助けになる。", "keys": ["set goals at the start of the year", "give up within a few weeks", "the goals are too big", "hard to measure progress", "break it into small steps", "walk fifteen minutes after dinner", "small successes help you keep going"], "model": "Many people set goals at the start of the year but give up after a few weeks, often because the goals are too big. A goal like getting fit is hard to measure. It's better to break it into small steps, like walking for fifteen minutes after dinner, because small successes help people keep going."}, {"id": "e18", "kind": "info", "en": "Libraries today do much more than lend books. In many cities, people can borrow laptops, use the internet for free, and take classes on things like cooking or computer skills. Some libraries also lend tools, board games, and even musical instruments. Children often come after school to do their homework in a quiet place. For people who cannot afford these things at home, the library has become an important part of daily life.", "ja": "今の図書館は本を貸すだけの場所ではない。多くの都市では、ノートパソコンを借りたり、無料でインターネットを使ったり、料理やパソコンの講座を受けたりできる。工具やボードゲーム、楽器まで貸し出す図書館もある。子どもたちは放課後、静かな場所で宿題をするためによく訪れる。家でこうしたものを買う余裕のない人にとって、図書館は日々の暮らしに欠かせない場所になっている。", "keys": ["more than lend books", "borrow laptops", "free internet", "classes like cooking", "lend tools and instruments", "children do homework", "people who cannot afford these things"], "model": "These days, libraries do more than lend books. You can borrow laptops, use the internet for free, and take classes like cooking. Some even lend tools, games, and musical instruments. Kids go there after school to do homework. For people who can't pay for these things, the library is a very important place."}, {"id": "e19", "kind": "info", "en": "Getting enough sleep is important for learning. While we sleep, the brain goes over the information we took in during the day and stores the important parts. Studies have found that students who sleep after studying remember more the next day than students who stay awake. This is one reason why teachers often tell students not to stay up all night before a test.", "ja": "十分な睡眠は学習にとって大切だ。眠っている間、脳はその日に取り込んだ情報を見直し、大事な部分を記憶として残す。研究では、勉強の後に眠った学生は、起きていた学生よりも翌日に多くを覚えていたことがわかっている。先生がよく「テストの前に徹夜しないように」と言うのは、これが理由の一つだ。", "keys": ["sleep is important for learning", "the brain goes over information", "stores the important parts", "students who sleep remember more", "don't stay up all night before a test"], "model": "Sleep is important for learning, because while we sleep, the brain reviews what we learned and keeps the important parts. Students who sleep after studying remember more the next day than those who stay awake. That's why teachers tell students not to stay up all night before a test."}, {"id": "e20", "kind": "info", "en": "Electric bicycles have become popular in many cities. They look like normal bicycles, but they have a small motor that helps the rider go uphill or travel longer distances. The battery can be charged at home in a few hours. Many people use them to get to work because they are cheaper than a car and faster than walking. However, they are heavier than normal bicycles, and they can be expensive to buy.", "ja": "電動自転車は多くの都市で人気になっている。見た目は普通の自転車と同じだが、小さなモーターが付いていて、坂を上ったり長い距離を走ったりするのを助けてくれる。バッテリーは自宅で数時間あれば充電できる。車より安く、歩くより速いので、通勤に使う人が多い。ただし、普通の自転車より重く、買うと高くつくこともある。", "keys": ["electric bicycles are popular", "a small motor helps", "go uphill or travel farther", "charge the battery at home", "used to get to work", "cheaper than a car, faster than walking", "heavier and expensive"], "model": "Electric bikes are popular now. They look like normal bikes but have a small motor that helps you go uphill or ride farther. You can charge the battery at home. A lot of people ride them to work because they're cheaper than a car and faster than walking, but they're heavy and can be expensive."}], "opinion": [{"id": "f01", "kind": "pros", "q": "What are two advantages of living in a big city? What are two disadvantages?", "ja": "大都市に住む利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of living in a big city is that there are many jobs, so it's easier to find good work. Another advantage is that public transportation is convenient, so you don't really need a car. On the other hand, one disadvantage is that housing is expensive, and apartments are often small. Another disadvantage is that cities can be crowded and noisy, which can be stressful."}, {"id": "f02", "kind": "pros", "q": "What are two advantages of shopping online? What are two disadvantages?", "ja": "ネットで買い物をする利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of shopping online is that it saves time, because you can buy things from home at any hour. Another advantage is that it's easy to compare prices and read reviews before you decide. On the other hand, one disadvantage is that you can't touch or try on the product, so it might not be what you expected. Another disadvantage is that returning items can take a lot of time."}, {"id": "f03", "kind": "pros", "q": "What are two advantages of taking classes online? What are two disadvantages?", "ja": "オンラインで授業を受ける利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of taking classes online is that you can study from anywhere, so you don't waste time traveling. Another advantage is that you can often watch the lessons again if you missed something. On the other hand, one disadvantage is that it's harder to stay motivated when nobody is watching you. Another disadvantage is that you can't easily talk with other students or ask the teacher quick questions."}, {"id": "f04", "kind": "pros", "q": "What are two advantages of owning a car? What are two disadvantages?", "ja": "車を持つ利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of owning a car is that you can go wherever you want, whenever you want. Another advantage is that it's easy to carry heavy things, like groceries or luggage. On the other hand, one disadvantage is that it costs a lot of money, because you have to pay for gas, insurance, and parking. Another disadvantage is that driving in traffic can be tiring and stressful."}, {"id": "f05", "kind": "pros", "q": "What are two advantages of getting news from social media? What are two disadvantages?", "ja": "SNSでニュースを得る利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of getting news from social media is that it's very fast, so you can learn about events almost as soon as they happen. Another advantage is that it's free and easy to check on your phone. On the other hand, one disadvantage is that some stories are not true, so you have to be careful. Another disadvantage is that you may only see opinions that are similar to your own."}, {"id": "f06", "kind": "pros", "q": "What are two advantages of traveling alone? What are two disadvantages?", "ja": "一人旅の利点を2つ、欠点を2つ挙げてください。", "model": "One advantage of traveling alone is that you can decide everything yourself, like where to go and when to eat. Another advantage is that you're more likely to talk to local people and make new friends. On the other hand, one disadvantage is that it can be more expensive, because you can't share the cost of a room. Another disadvantage is that you may feel lonely, especially at dinner."}, {"id": "f07", "kind": "how", "q": "Explain two things you can do to stay healthy when you're very busy.", "ja": "とても忙しいときに健康を保つためにできることを2つ説明してください。", "model": "There are two things you can do to stay healthy when you're busy. First, you can walk more during the day. For example, you can take the stairs or get off the train one stop early. Second, you should plan your meals ahead of time, so you don't end up eating fast food. If you cook a few simple meals on the weekend, you'll eat better during the week."}, {"id": "f08", "kind": "how", "q": "Explain two things you can do to prepare for an important meeting.", "ja": "大事な会議の準備としてできることを2つ説明してください。", "model": "There are two things you can do to prepare for an important meeting. First, you should read the agenda and decide what you want to say about each point. This helps you speak clearly and confidently. Second, you can think about the questions people might ask and prepare short answers. For example, if you're presenting numbers, be ready to explain where they came from."}, {"id": "f09", "kind": "how", "q": "Explain two things you can do to save money every month.", "ja": "毎月お金を節約するためにできることを2つ説明してください。", "model": "There are two things you can do to save money every month. First, you can write down everything you spend for a few weeks. This shows you where your money is really going. Second, you can move some money into a savings account on payday, before you have a chance to spend it. That way, saving becomes automatic, and you don't have to think about it."}, {"id": "f10", "kind": "how", "q": "Explain two things you can do to make a good first impression at a new job.", "ja": "新しい職場で良い第一印象を与えるためにできることを2つ説明してください。", "model": "There are two things you can do to make a good first impression at a new job. First, you should learn your coworkers' names as quickly as possible and use them when you talk. People really notice that. Second, you can ask questions and take notes, because it shows you want to learn. For example, you could ask your manager how they like to receive updates."}, {"id": "f11", "kind": "how", "q": "Explain two things you can do to sleep better at night.", "ja": "夜よく眠るためにできることを2つ説明してください。", "model": "There are two things you can do to sleep better at night. First, you can stop looking at your phone about an hour before bed. The light from the screen can keep your brain awake. Second, you should try to go to bed and get up at the same time every day, even on weekends. After a few weeks, your body gets used to the routine, and falling asleep becomes easier."}, {"id": "f12", "kind": "how", "q": "Explain two things you can do to reduce stress at work.", "ja": "仕事のストレスを減らすためにできることを2つ説明してください。", "model": "There are two things you can do to reduce stress at work. First, you can make a short list of tasks each morning and start with the most important one. This helps you feel in control of your day. Second, you should take short breaks, even just five minutes. For example, you can take a walk outside or get a drink. A short break helps you come back with a clear head."}, {"id": "f13", "kind": "pref", "q": "Do you prefer working in the morning or at night? Explain why.", "ja": "朝と夜、どちらに仕事をするほうが好きですか。理由も説明してください。", "model": "I prefer working in the morning. The main reason is that my mind is clearest after a good night's sleep, so I can focus on difficult tasks. Another reason is that there are fewer emails and phone calls early in the day. For example, I usually finish my most important work before ten o'clock. That's why I prefer the morning."}, {"id": "f14", "kind": "pref", "q": "Do you prefer to travel by train or by plane? Explain why.", "ja": "電車と飛行機、どちらで移動するほうが好きですか。理由も説明してください。", "model": "I prefer traveling by train. The main reason is that it's more relaxing. You don't have to arrive two hours early or go through security. Another reason is that train stations are usually in the middle of the city, so you save time at both ends. For example, on a train I can work on my laptop or enjoy the view. So overall, I'd choose the train."}, {"id": "f15", "kind": "pref", "q": "Do you prefer eating at home or eating at a restaurant? Explain why.", "ja": "家で食べるのと外食、どちらが好きですか。理由も説明してください。", "model": "I prefer eating at home. The main reason is that it's cheaper, and I can decide exactly what goes into my food. Another reason is that it's more relaxing, because I don't have to wait for a table or dress up. For example, on weekends I like cooking a simple meal and talking with my family at the table. That's why I prefer eating at home."}, {"id": "f16", "kind": "pref", "q": "Do you prefer working alone or working in a team? Explain why.", "ja": "一人で働くのとチームで働くのでは、どちらが好きですか。理由も説明してください。", "model": "I prefer working in a team. The main reason is that other people often notice problems that I miss, so the final result is better. Another reason is that it's more motivating to work toward a goal together. For example, when we prepare a big report, one person checks the numbers and another writes the summary. That's why I like working in a team."}, {"id": "f17", "kind": "pref", "q": "Do you prefer spending your free time at home or going out? Explain why.", "ja": "自由な時間は家で過ごすのと出かけるのでは、どちらが好きですか。理由も説明してください。", "model": "I prefer spending my free time at home. The main reason is that I'm busy during the week, so I need time to rest. Another reason is that I can do things I enjoy without spending much money, like reading or watching movies. For example, on Sunday afternoons I often make coffee and read for a few hours. That's why I prefer staying home."}, {"id": "f18", "kind": "pref", "q": "Do you prefer summer or winter? Explain why.", "ja": "夏と冬、どちらが好きですか。理由も説明してください。", "model": "I prefer winter. The main reason is that I don't like hot, humid weather, because it makes me tired. In winter, I can just wear a warm coat and feel comfortable. Another reason is that winter food is great, like hot soup and stews. For example, I love having a hot meal with friends on a cold night. So overall, I'd choose winter over summer."}, {"id": "f19", "kind": "comp", "q": "Describe two ways that a bank and a supermarket are similar, and two ways that they are different.", "ja": "銀行とスーパーマーケットの共通点を2つ、違いを2つ説明してください。", "model": "A bank and a supermarket are similar in two ways. First, both serve many customers every day. Second, both are open at regular hours and have staff who help people. However, they are different in two ways. First, a supermarket sells products, while a bank offers services like loans and savings accounts. Second, people visit a supermarket several times a week, but they don't go to a bank very often."}, {"id": "f20", "kind": "comp", "q": "Describe two ways that email and a phone call are similar, and two ways that they are different.", "ja": "メールと電話の共通点を2つ、違いを2つ説明してください。", "model": "Email and phone calls are similar in two ways. First, both let you talk to people who are far away. Second, both are common ways to communicate at work. However, they are different in two ways. First, a phone call happens in real time, while an email can be answered later. Second, an email leaves a written record, but a phone call usually doesn't, unless someone takes notes."}, {"id": "f21", "kind": "comp", "q": "Describe two ways that a manager and a sports coach are similar, and two ways that they are different.", "ja": "上司とスポーツのコーチの共通点を2つ、違いを2つ説明してください。", "model": "A manager and a sports coach are similar in two ways. First, both lead a team toward a goal. Second, both need to motivate people and give feedback. However, they are different in two ways. First, a coach trains players to win games, while a manager helps workers finish projects. Second, a coach usually works with a team for a season, but a manager often works with the same people for years."}, {"id": "f22", "kind": "comp", "q": "Describe two ways that a train and a bus are similar, and two ways that they are different.", "ja": "電車とバスの共通点を2つ、違いを2つ説明してください。", "model": "A train and a bus are similar in two ways. First, both carry many passengers at the same time. Second, both follow a fixed route and a schedule. However, they are different in two ways. First, a train runs on tracks, while a bus uses normal roads, so it can get stuck in traffic. Second, trains are usually faster for long distances, but buses can stop in more places."}, {"id": "f23", "kind": "comp", "q": "Describe two ways that a smartphone and a laptop are similar, and two ways that they are different.", "ja": "スマートフォンとノートパソコンの共通点を2つ、違いを2つ説明してください。", "model": "A smartphone and a laptop are similar in two ways. First, both can connect to the internet and send messages. Second, both run apps and store files. However, they are different in two ways. First, a smartphone fits in your pocket, while a laptop needs a bag. Second, a laptop has a bigger screen and a keyboard, so it's much better for writing long documents."}, {"id": "f24", "kind": "comp", "q": "Describe two ways that cats and dogs are similar as pets, and two ways that they are different.", "ja": "ペットとしての猫と犬の共通点を2つ、違いを2つ説明してください。", "model": "Cats and dogs are similar as pets in two ways. First, both can be very loving and become part of the family. Second, both need food, care, and regular visits to the vet. However, they are different in two ways. First, dogs need to be walked every day, while cats are happy to stay inside. Second, dogs usually want a lot of attention, but cats are more independent."}], "frames": {"pros": ["One advantage of ~ is that ~.", "Another advantage is that ~.", "On the other hand, one disadvantage is that ~.", "Another disadvantage is that ~."], "how": ["There are two things you can do.", "First, you can ~. This helps because ~.", "Second, you should ~.", "For example, ~."], "pref": ["I prefer ~.", "The main reason is that ~.", "Another reason is that ~.", "For example, ~.", "That's why I prefer ~."], "comp": ["~ and ~ are similar in two ways.", "First, both ~. Second, both ~.", "However, they are different in two ways.", "First, ~, while ~. Second, ~, but ~."]}, "checks": {"pros": ["利点を2つ言った", "欠点を2つ言った", "それぞれに理由を付けた", "Another / On the other hand でつないだ"], "how": ["2つ挙げた", "どちらも具体的な行動にした", "理由か例を付けた", "First / Second で区切った"], "pref": ["最初に立場を言った", "理由を2つ言った", "具体例を入れた", "最後に立場を言い直した"], "comp": ["共通点を2つ言った", "違いを2つ言った", "both / while で比べた", "共通点と違いを同じくらい話した"]}};
+const KIND_JA = {story:"物語", info:"説明", pros:"利点と欠点", how:"やり方", pref:"好み", comp:"比較"};
+
+// ============ 保存 ============
+function lsGet(k,d){ try{ const v=localStorage.getItem('sp_'+k); return v==null?d:JSON.parse(v); }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem('sp_'+k, JSON.stringify(v)); }catch(e){} }
+function jstDay(t){ return new Date((t||Date.now())+9*3600e3).toISOString().slice(0,10); }
+function addDays(ymd,n){ return new Date(new Date(ymd+'T00:00:00Z').getTime()+n*86400000).toISOString().slice(0,10); }
+function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function wc(t){ return String(t||'').trim().split(/\s+/).filter(Boolean).length; }
+
+let extra = lsGet('extra', {retell:[], opinion:[]});
+let ITEMS = {e:[], f:[]};
+function buildItems(){
+  const seen = new Set();
+  const add = (arr, list, p) => {
+    for(const x of (list||[])){
+      const key = p==='e' ? x.en : x.q;
+      if(!key || !x.id || seen.has(key) || seen.has(x.id)) continue;
+      seen.add(key); seen.add(x.id);
+      arr.push(Object.assign({p}, x));
+    }
+  };
+  ITEMS = {e:[], f:[]};
+  add(ITEMS.e, DATA.retell, 'e');  add(ITEMS.e, extra.retell, 'e');
+  add(ITEMS.f, DATA.opinion, 'f'); add(ITEMS.f, extra.opinion, 'f');
+}
+buildItems();
+
+let part     = lsGet('part','e');
+let idx      = lsGet('idx', {e:0, f:0});
+let rec      = lsGet('rec', {});     // rec[id] = {n,d,hit,tot,lat,talk,gap,ratio}
+let log      = lsGet('log', []);     // 挑戦ごとの記録（直近300件）
+let hist     = lsGet('hist', {});    // hist[日付] = {e:回数, f:回数}
+let speed    = lsGet('speed', 1);
+let voiceName= lsGet('voice', '');
+let practice = lsGet('practice', false);
+function persist(){
+  lsSet('part',part); lsSet('idx',idx); lsSet('rec',rec); lsSet('log',log); lsSet('hist',hist);
+  lsSet('speed',speed); lsSet('voice',voiceName); lsSet('practice',practice);
+}
+
+let state = 'ready';   // ready（開始前）| playing（再生中）| recording（録音中）| review（振り返り）
+let cur = null;
+let checks = {};
+let lastMetrics = null;
+let curBlobURL = null;
+
+// ============ 出題順 ============
+function list(){ return ITEMS[part] || []; }
+function curItem(){
+  const L = list(); if(!L.length) return null;
+  idx[part] = Math.min(Math.max(0, idx[part]||0), L.length-1);
+  return L[idx[part]];
+}
+// 未挑戦を順番に出し、全部終わったら最後に挑戦した日が古いものから
+function nextIndex(){
+  const L = list(); if(L.length<2) return 0;
+  const now = idx[part]||0;
+  for(let k=1; k<=L.length; k++){ const i=(now+k)%L.length; if(!rec[L[i].id]) return i; }
+  let best=-1, bd='9999-99-99';
+  L.forEach((x,i)=>{ if(i===now) return; const d=(rec[x.id]&&rec[x.id].d)||''; if(d<bd){ bd=d; best=i; } });
+  return best<0 ? (now+1)%L.length : best;
+}
+
+// ============ 読み上げ（単語帳と同じiOS対策）============
+let enVoice=null, voices=[], warmed=false, playToken=0;
+function loadVoices(){
+  try{ voices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
+  const sel = document.getElementById('voiceSel');
+  if(sel){
+    sel.innerHTML = '<option value="">音声：自動</option>' +
+      voices.map(v=>'<option value="'+esc(v.name)+'">'+esc(v.name)+' ('+esc(v.lang)+')</option>').join('');
+    if(voiceName) sel.value = voiceName;
+  }
+  enVoice = voices.find(v=>v.name===voiceName) || voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0] || null;
+}
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+function warmUp(){                        // iOSは最初の発話が無音になるため、無音の発話で起こす
+  if(warmed || !('speechSynthesis' in window)) return;
+  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){}
+  warmed = true;
+}
+function showReload(on){ const b=document.getElementById('reloadBtn'); if(b) b.style.display = on?'inline-block':'none'; }
+function stopSpeech(){ playToken++; try{ speechSynthesis.cancel(); }catch(e){} }
+
+function splitSentences(t){
+  const m = String(t).match(/[^.!?]+[.!?]+["')\]]*\s*|[^.!?]+$/g);
+  return (m||[t]).map(s=>s.trim()).filter(Boolean);
+}
+// 1文ずつ読む。done(true)=最後まで読めた / done(false)=音声が出なかった
+function speakSentences(arr, done){
+  stopSpeech();
+  const my = playToken; let i = 0;
+  const step = () => {
+    if(my!==playToken) return;
+    if(i>=arr.length){ if(done) done(true); return; }
+    speakOne(arr[i++], ok => {
+      if(my!==playToken) return;
+      if(!ok){ if(done) done(false); return; }
+      setTimeout(step, 220);
+    });
+  };
+  warmUp();
+  step();
+}
+function speakOne(text, cb){
+  if(!('speechSynthesis' in window)){ cb(false); return; }
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang='en-US'; u.rate=speed; if(enVoice) u.voice=enVoice;
+  let started=false, fin=false;
+  const finish = ok => { if(fin) return; fin=true; clearTimeout(wd); clearTimeout(cap); cb(ok); };
+  const wd  = setTimeout(()=>{ if(!started){ showReload(true); finish(false); } }, 4000);        // 4秒鳴らなければ壊れている
+  const cap = setTimeout(()=>finish(true), (wc(text)/1.8/speed + 6)*1000);                       // 終了通知が来ない時の保険
+  u.onstart = ()=>{ started=true; showReload(false); };
+  u.onend   = ()=>finish(true);
+  u.onerror = ()=>finish(started);
+  speechSynthesis.speak(u);
+}
+
+// ============ 音（合図）と録音 ============
+let actx=null, mediaRec=null, recStream=null, recChunks=[], analyser=null, srcNode=null, sinkNode=null;
+let levels=[], meterTimer=null, recStartAt=0, recLimit=E_SEC, saveOnStop=true, stopping=false;
+function unlockAudio(){                   // タップの瞬間に音声の再生権限を得ておく（iOS対策）
+  try{
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if(!AC) return;
+    if(!actx) actx = new AC();
+    if(actx.state!=='running') actx.resume();      // iOSでは録音後に interrupted になることがある
+  }catch(e){}
+}
+function beep(){
+  try{
+    if(!actx) return;
+    const o=actx.createOscillator(), g=actx.createGain(), t=actx.currentTime;
+    o.frequency.value=880; g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.2,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2);
+    o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+0.22);
+  }catch(e){}
+}
+
+let RDB=null;
+function idb(){
+  return new Promise((res,rej)=>{
+    if(RDB) return res(RDB);
+    const q=indexedDB.open('sp_audio',1);
+    q.onupgradeneeded=()=>{ const db=q.result; if(!db.objectStoreNames.contains('clips')) db.createObjectStore('clips',{keyPath:'k'}); };
+    q.onsuccess=()=>{ RDB=q.result; res(RDB); };
+    q.onerror=()=>rej(q.error);
+  });
+}
+async function idbPut(k,blob){
+  const db=await idb();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('clips','readwrite');
+    tx.objectStore('clips').put({k,blob,at:Date.now()});
+    tx.oncomplete=res; tx.onerror=()=>rej(tx.error);
+  });
+}
+async function idbGet(k){
+  const db=await idb();
+  return new Promise(res=>{
+    const r=db.transaction('clips','readonly').objectStore('clips').get(k);
+    r.onsuccess=()=>res(r.result||null); r.onerror=()=>res(null);
+  });
+}
+async function idbTrim(){
+  const db=await idb();
+  const st=db.transaction('clips','readwrite').objectStore('clips'); const all=[];
+  st.openCursor().onsuccess=e=>{
+    const c=e.target.result;
+    if(c){ all.push({k:c.value.k,at:c.value.at}); c.continue(); }
+    else{ all.sort((a,b)=>a.at-b.at); for(let i=0;i<all.length-REC_KEEP;i++) st.delete(all[i].k); }
+  };
+}
+
+async function startRec(){
+  recLimit = part==='e' ? E_SEC : F_SEC;
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) throw new Error('unsupported');
+    recStream = await navigator.mediaDevices.getUserMedia({audio:true});
+  }catch(e){
+    state='ready'; paintStage();
+    toast('マイクを使えませんでした。設定でこのサイトの「マイク」を許可してください。');
+    return;
+  }
+  if(state!=='playing'){ recStream.getTracks().forEach(t=>t.stop()); recStream=null; return; }   // 待つ間に中止された
+  recChunks=[]; levels=[]; saveOnStop=true; stopping=false;
+  const mt = MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4'
+           : MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '';
+  try{ mediaRec = mt ? new MediaRecorder(recStream,{mimeType:mt}) : new MediaRecorder(recStream); }
+  catch(e){ recStream.getTracks().forEach(t=>t.stop()); recStream=null; state='ready'; paintStage(); toast('この端末では録音できません。'); return; }
+  mediaRec.ondataavailable = e=>{ if(e.data && e.data.size) recChunks.push(e.data); };
+  mediaRec.onstop = onRecStop;
+  try{                                   // 声の大きさを測る（聞こえない出力につないで処理を回す）
+    unlockAudio();
+    srcNode = actx.createMediaStreamSource(recStream);
+    analyser = actx.createAnalyser(); analyser.fftSize = 1024;
+    sinkNode = actx.createGain(); sinkNode.gain.value = 0;
+    srcNode.connect(analyser); analyser.connect(sinkNode); sinkNode.connect(actx.destination);
+  }catch(e){ analyser=null; }
+  const buf = new Uint8Array(1024);
+  mediaRec.start();
+  recStartAt = performance.now();
+  state='recording'; paintStage();
+  meterTimer = setInterval(()=>{
+    const el = (performance.now()-recStartAt)/1000;
+    let rms = 0;
+    if(analyser){
+      analyser.getByteTimeDomainData(buf);
+      let s=0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; s+=v*v; }
+      rms = Math.sqrt(s/buf.length);
+    }
+    levels.push(rms);
+    paintMeter(el, rms);
+    if(el >= recLimit) stopRec(true);
+  }, FRAME_MS);
+}
+function stopRec(save){
+  if(stopping) return;
+  stopping = true;
+  saveOnStop = save!==false;
+  clearInterval(meterTimer); meterTimer=null;
+  try{ if(mediaRec && mediaRec.state!=='inactive') mediaRec.stop(); else onRecStop(); }catch(e){ onRecStop(); }
+}
+let handled=false;
+async function onRecStop(){
+  if(handled) return; handled=true;
+  if(recStream){ recStream.getTracks().forEach(t=>t.stop()); recStream=null; }
+  try{ if(srcNode) srcNode.disconnect(); if(analyser) analyser.disconnect(); if(sinkNode) sinkNode.disconnect(); }catch(e){}
+  srcNode=analyser=sinkNode=null;
+  if(!saveOnStop || !cur){ state='ready'; paintStage(); return; }
+  lastMetrics = analyze(levels, FRAME_MS, part==='e'?E_SEC:F_SEC);
+  const blob = new Blob(recChunks, {type:(mediaRec && mediaRec.mimeType) || 'audio/mp4'});
+  if(curBlobURL){ URL.revokeObjectURL(curBlobURL); curBlobURL=null; }
+  if(blob.size){ curBlobURL = URL.createObjectURL(blob); try{ await idbPut(cur.id, blob); idbTrim(); }catch(e){} }
+  checks = {};
+  saveAttempt();
+  state='review'; paintStage();
+}
+
+// ============ 声の区間から3つの目安を出す ============
+// 周りの静かな音を基準に、それより十分大きい区間を「話している」とみなす。
+// 語と語の間の短い切れ目（0.3秒以下）は話している扱いにする。
+function analyze(lv, frameMs, allotSec){
+  const n = lv.length;
+  if(!n) return {lat:null, talk:0, gap:null, ratio:0, voiced:false};
+  const sorted = lv.slice().sort((a,b)=>a-b);
+  // 基準は下位5%の音量。話し続けても基準が声にならないよう、上限0.02で頭打ちにする
+  const floor = Math.min(sorted[Math.floor(n*0.05)] || 0, 0.02);
+  const thr = Math.max(0.018, floor*2.5);
+  const v = lv.map(x=>x>thr);
+  const fill = Math.round(300/frameMs);
+  let last = -1;
+  for(let i=0;i<n;i++){
+    if(!v[i]) continue;
+    if(last>=0 && i-last-1<=fill){ for(let j=last+1;j<i;j++) v[j]=true; }
+    last = i;
+  }
+  let first = -1;
+  for(let i=0;i<n-1;i++){ if(v[i] && v[i+1]){ first=i; break; } }
+  if(first<0) return {lat:null, talk:0, gap:null, ratio:0, voiced:false};
+  let lastV = first; for(let i=n-1;i>=first;i--){ if(v[i]){ lastV=i; break; } }
+  let talk=0; for(let i=0;i<n;i++) if(v[i]) talk++;
+  let gap=0, run=0;
+  for(let i=first;i<=lastV;i++){ if(!v[i]){ run++; if(run>gap) gap=run; } else run=0; }
+  const sec = f => Math.round(f*frameMs/100)/10;
+  return {lat:sec(first), talk:sec(talk), gap:sec(gap), ratio:Math.min(1,(talk*frameMs/1000)/allotSec), voiced:true};
+}
+function grade(kind, val){
+  if(val==null) return 'ng';
+  if(kind==='lat')   return val<=2 ? 'ok' : val<=4 ? 'warn' : 'ng';
+  if(kind==='ratio') return val>=0.7 ? 'ok' : val>=0.5 ? 'warn' : 'ng';
+  if(kind==='gap')   return val<=2 ? 'ok' : val<=3.5 ? 'warn' : 'ng';
+  return '';
+}
+
+// ============ 記録 ============
+function totalChecks(){ return cur ? (cur.p==='e' ? (cur.keys||[]).length : (DATA.checks[cur.kind]||[]).length) : 0; }
+function saveAttempt(){
+  const d = jstDay();
+  const m = lastMetrics || {};
+  const r = rec[cur.id] || {n:0};
+  r.n++; r.d=d; r.lat=m.lat; r.talk=m.talk; r.gap=m.gap; r.ratio=m.ratio; r.hit=0; r.tot=totalChecks();
+  rec[cur.id] = r;
+  log.push({d, p:cur.p, id:cur.id, lat:m.lat, ratio:m.ratio, gap:m.gap, hit:0, tot:r.tot});
+  if(log.length>300) log = log.slice(-300);
+  const h = hist[d] || {e:0, f:0}; h[cur.p] = (h[cur.p]||0)+1; hist[d]=h;
+  const ks = Object.keys(hist).sort(); while(ks.length>120) delete hist[ks.shift()];
+  persist();
+}
+function toggleCheck(i){
+  if(state!=='review' || !cur) return;
+  checks[i] = !checks[i];
+  const hit = Object.values(checks).filter(Boolean).length;
+  if(rec[cur.id]) rec[cur.id].hit = hit;
+  const L = log[log.length-1]; if(L && L.id===cur.id) L.hit = hit;
+  persist();
+  document.querySelectorAll('[data-ck]').forEach(el=>el.classList.toggle('on', !!checks[el.dataset.ck]));
+  const sc = document.getElementById('score'); if(sc) sc.innerHTML = '<b>'+hit+'</b> / '+totalChecks();
+}
+function streak(){
+  let n=0, d=jstDay();
+  if(!hist[d]) d = addDays(d,-1);          // 今日まだなら昨日から数える
+  while(hist[d] && ((hist[d].e||0)+(hist[d].f||0))>0){ n++; d=addDays(d,-1); }
+  return n;
+}
+
+// ============ 画面 ============
+function render(){
+  cur = curItem();
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on', b.dataset.p===part));
+  document.querySelectorAll('.spd').forEach(b=>b.classList.toggle('on', Number(b.dataset.s)===Number(speed)));
+  document.getElementById('pracBtn').classList.toggle('on', practice);
+  const L = list();
+  const r = cur && rec[cur.id];
+  document.getElementById('metaL').textContent = cur ? ('第'+(idx[part]+1)+'問 ／ '+L.length+'問　'+KIND_JA[cur.kind]) : '';
+  document.getElementById('metaR').textContent = cur ? (r ? '挑戦 '+r.n+'回' : '未挑戦') : '';
+  paintStage();
+}
+function paintStage(){
+  const st = document.getElementById('stage');
+  if(!cur){ st.innerHTML = '<div class="lead">問題がありません。「＋ 問題を取り込む」から追加してください。</div>'; return; }
+  const isE = cur.p==='e';
+  const sec = isE ? E_SEC : F_SEC;
+  if(state==='ready'){
+    st.innerHTML =
+      '<div class="lead">'+(isE
+        ? '短い話が1回流れます。合図の音のあと、<b>'+sec+'秒</b>で自分の言葉で言い直してください。'
+        : '質問が1回流れます。合図の音のあと、<b>'+sec+'秒</b>で理由を付けて答えてください。')+'</div>'
+      + '<button class="go" onclick="go()">▶ 聞いて話す</button>'
+      + '<div class="small">'+(practice
+        ? '「本文を見ながら聞く」がオンです。慣れてきたらオフにして、本番と同じ条件で練習してください。'
+        : '本番と同じく、音声は1回だけ流れます。録音は合図の音で自動的に始まります。')+'</div>'
+      + '<div id="prevRec"></div>';
+    loadPrev(cur.id);
+    return;
+  }
+  if(state==='playing'){
+    st.innerHTML =
+      '<div class="listen"><div class="big">🔊 聞いてください</div>'
+      + (practice ? '<div class="en">'+esc(isE?cur.en:cur.q)+'</div>' : '')
+      + '<button class="stop" onclick="abort()">中止する</button></div>';
+    return;
+  }
+  if(state==='recording'){
+    st.innerHTML =
+      '<div class="ringbox"><div class="ring">'
+      + '<svg viewBox="0 0 120 120" aria-hidden="true"><circle class="trk" cx="60" cy="60" r="52"/><circle class="bar" id="ringBar" cx="60" cy="60" r="52" stroke-dasharray="326.73" stroke-dashoffset="0"/></svg>'
+      + '<div class="num"><b id="secLeft">'+sec+'</b><span>残り秒数</span></div></div>'
+      + '<div class="level"><i id="lvl"></i></div><div class="levellab">声の大きさ</div>'
+      + '<button class="stop" onclick="stopRec(true)">■ ここで終える</button></div>';
+    return;
+  }
+  // review
+  const m = lastMetrics || {};
+  const pct = Math.round((m.ratio||0)*100);
+  let html =
+    '<div class="metrics">'
+    + '<div class="m '+grade('lat',m.lat)+'"><b>'+(m.lat==null?'—':m.lat.toFixed(1)+'秒')+'</b><span>話し始めまで</span></div>'
+    + '<div class="m '+grade('ratio',m.ratio)+'"><b>'+(m.talk||0).toFixed(0)+'秒</b><span>話した時間<br>（'+pct+'%）</span></div>'
+    + '<div class="m '+grade('gap',m.gap)+'"><b>'+(m.gap==null?'—':m.gap.toFixed(1)+'秒')+'</b><span>いちばん長い<br>沈黙</span></div>'
+    + '</div>'
+    + (m.voiced===false ? '<div class="alert">声を検出できませんでした。マイクを口に近づけるか、静かな場所でもう一度試してください。</div>' : '')
+    + '<div class="mnote">色の基準はぼくが決めた目安です（緑：話し始め2秒以内／話した時間7割以上／沈黙2秒以内）。公式の採点基準ではありません。周りが騒がしいと正確に測れません。</div>'
+    + '<div class="btnrow">'
+    + '<button onclick="playMine()" '+(curBlobURL?'':'disabled')+'>▶ 自分の録音</button>'
+    + '<button onclick="playPrompt()">🔊 もう一度聞く</button>'
+    + '<button onclick="playModel()">🔊 お手本</button></div>';
+  const tot = totalChecks();
+  const hit = Object.values(checks).filter(Boolean).length;
+  if(isE){
+    html += '<h3>言えた内容をタップ<em>本文の要点です</em></h3><div class="chips">'
+      + (cur.keys||[]).map((k,i)=>'<button class="chip'+(checks[i]?' on':'')+'" data-ck="'+i+'" onclick="toggleCheck('+i+')">'+esc(k)+'</button>').join('')
+      + '</div>';
+  }else{
+    html += '<h3>できたことをタップ<em>'+KIND_JA[cur.kind]+'の型</em></h3>'
+      + (DATA.checks[cur.kind]||[]).map((k,i)=>'<button class="chk'+(checks[i]?' on':'')+'" data-ck="'+i+'" onclick="toggleCheck('+i+')"><span class="box">✓</span>'+esc(k)+'</button>').join('');
+  }
+  html += '<div class="score" id="score"><b>'+hit+'</b> / '+tot+'</div>';
+  html += '<details><summary>'+(isE?'本文と訳':'質問と訳')+'</summary>'
+       + '<div class="en">'+esc(isE?cur.en:cur.q)+'</div><div class="ja">'+esc(cur.ja)+'</div></details>';
+  html += '<details><summary>お手本（'+wc(cur.model)+'語）</summary><div class="en">'+esc(cur.model)+'</div>'
+       + (!isE && DATA.frames[cur.kind] ? '<div class="frame">'+DATA.frames[cur.kind].map(f=>'<div>'+esc(f)+'</div>').join('')+'</div>' : '')
+       + '</details>';
+  html += '<div class="navrow"><button class="sec" onclick="retry()">↻ もう一度挑戦</button><button class="pri" onclick="next()">次の問題へ</button></div>';
+  st.innerHTML = html;
+}
+let prevURL=null;
+async function loadPrev(id){               // この問題の前回の録音があれば、聞き比べ用のボタンを出す
+  try{
+    const r = await idbGet(id);
+    if(!r || !r.blob || state!=='ready' || !cur || cur.id!==id) return;
+    if(prevURL) URL.revokeObjectURL(prevURL);
+    prevURL = URL.createObjectURL(r.blob);
+    const box = document.getElementById('prevRec');
+    if(box) box.innerHTML = '<div class="btnrow"><button onclick="playPrev()">▶ 前回の録音（'+jstDay(r.at).slice(5).replace('-','/')+'）</button></div>';
+  }catch(e){}
+}
+function playPrev(){ if(!prevURL) return; stopSpeech(); const a=new Audio(prevURL); a.play().catch(()=>toast('録音を再生できませんでした。')); }
+function paintMeter(el, rms){
+  const left = Math.max(0, recLimit-el);
+  const s = document.getElementById('secLeft'); if(s) s.textContent = Math.ceil(left);
+  const b = document.getElementById('ringBar'); if(b) b.setAttribute('stroke-dashoffset', (326.73*(1-left/recLimit)).toFixed(1));
+  const l = document.getElementById('lvl'); if(l) l.style.width = Math.min(100, rms/0.15*100).toFixed(0)+'%';
+}
+let toastT=null;
+function toast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('on');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'), 4200);
+}
+
+// ============ 操作 ============
+function go(){
+  if(!cur || state!=='ready') return;
+  unlockAudio();
+  handled=false;
+  state='playing'; paintStage();
+  const text = cur.p==='e' ? cur.en : cur.q;
+  speakSentences(splitSentences(text), ok=>{
+    if(state!=='playing') return;
+    if(!ok){ state='ready'; paintStage(); toast('音声が出ませんでした。「🔄 音声を復帰」を押してください。'); return; }
+    beep();
+    setTimeout(()=>{ if(state==='playing') startRec(); }, 350);
+  });
+}
+function abort(){
+  stopSpeech();
+  if(state==='recording'){ stopRec(false); return; }
+  state='ready'; paintStage();
+}
+function retry(){ stopSpeech(); state='ready'; lastMetrics=null; render(); }
+function next(){
+  stopSpeech();
+  idx[part] = nextIndex(); persist();
+  state='ready'; lastMetrics=null;
+  if(curBlobURL){ URL.revokeObjectURL(curBlobURL); curBlobURL=null; }
+  render();
+}
+function jumpTo(p,i){
+  if(state==='playing' || state==='recording') return;
+  closeStats(); stopSpeech();
+  part=p; idx[p]=i; persist(); state='ready'; lastMetrics=null; render();
+}
+function setPart(p){
+  if(state==='playing' || state==='recording') return;
+  stopSpeech(); part=p; state='ready'; lastMetrics=null; persist(); render();
+}
+function setSpeed(s){ speed=s; persist(); render(); }
+function setVoice(n){ voiceName=n; persist(); loadVoices(); }
+function togglePractice(){ practice=!practice; persist(); render(); }
+function playPrompt(){ if(cur) speakSentences(splitSentences(cur.p==='e'?cur.en:cur.q), ()=>{}); }
+function playModel(){ if(cur) speakSentences(splitSentences(cur.model), ()=>{}); }
+function playMine(){
+  if(!curBlobURL) return;
+  stopSpeech();
+  const a = new Audio(curBlobURL); a.play().catch(()=>toast('録音を再生できませんでした。'));
+}
+
+// ============ 学習記録 ============
+function avgOf(rows, key){
+  const v = rows.map(r=>r[key]).filter(x=>typeof x==='number');
+  return v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+}
+function avgBlock(p){
+  const rows = log.filter(x=>x.p===p).slice(-10);
+  if(!rows.length) return '<div class="avg">まだ記録がありません。</div>';
+  const lat=avgOf(rows,'lat'), ratio=avgOf(rows,'ratio'), gap=avgOf(rows,'gap');
+  const withTot = rows.filter(r=>r.tot>0);
+  const hitPct = withTot.length ? Math.round(withTot.reduce((a,r)=>a+r.hit/r.tot,0)/withTot.length*100) : null;
+  return '<div class="avg">直近'+rows.length+'回の平均：話し始め <b>'+(lat==null?'—':lat.toFixed(1)+'秒')+'</b>／話した時間 <b>'
+    +(ratio==null?'—':Math.round(ratio*100)+'%')+'</b>／最長の沈黙 <b>'+(gap==null?'—':gap.toFixed(1)+'秒')+'</b>／言えた割合 <b>'
+    +(hitPct==null?'—':hitPct+'%')+'</b></div>';
+}
+function openStats(){
+  const today = jstDay();
+  const t = hist[today] || {e:0,f:0};
+  const days=[]; for(let i=29;i>=0;i--) days.push(addDays(today,-i));
+  const vals = days.map(d=>hist[d]?((hist[d].e||0)+(hist[d].f||0)):0);
+  const mx = Math.max(4, ...vals);
+  const total = log.length;
+  const rowsOf = p => ITEMS[p].map((x,i)=>{
+    const r = rec[x.id];
+    const s = r ? ('挑戦'+r.n+'回　'+(r.tot?r.hit+'/'+r.tot:'')) : '未挑戦';
+    const label = p==='e' ? x.en : x.q;
+    return '<button class="row" onclick="jumpTo(\''+p+'\','+i+')"><span class="t">'+esc(label)+'</span><span class="s">'+s+'</span></button>';
+  }).join('');
+  document.getElementById('statsBody').innerHTML =
+    '<div class="kpis">'
+    + '<div class="kpi"><b>'+streak()+'</b><span>連続日数</span></div>'
+    + '<div class="kpi"><b>'+((t.e||0)+(t.f||0))+'</b><span>今日の回数</span></div>'
+    + '<div class="kpi"><b>'+total+'</b><span>合計の回数</span></div></div>'
+    + '<h4>直近30日</h4><div class="bars">'
+    + vals.map((v,i)=>'<i class="'+(v?'':'z')+(i===29?' t':'')+'" style="height:'+(v?Math.max(6,Math.round(v/mx*100)):2)+'%"></i>').join('')
+    + '</div><div class="barlab"><span>'+days[0].slice(5)+'</span><span>今日</span></div>'
+    + '<h4>Part E 言い直し</h4>'+avgBlock('e')
+    + '<h4>Part F 意見</h4>'+avgBlock('f')
+    + '<h4>Part E の問題（タップで開く）</h4>'+rowsOf('e')
+    + '<h4>Part F の問題（タップで開く）</h4>'+rowsOf('f');
+  document.getElementById('stats').classList.add('on');
+}
+function closeStats(){ document.getElementById('stats').classList.remove('on'); }
+
+// ============ 問題の取り込み ============
+// 形式：{"retell":[{"id","kind","en","ja","keys":[],"model"}], "opinion":[{"id","kind","q","ja","model"}]}
+function importFile(inp){
+  const f = inp.files && inp.files[0]; if(!f) return;
+  const rd = new FileReader();
+  rd.onload = ()=>{
+    try{
+      const d = JSON.parse(rd.result);
+      const before = {e:ITEMS.e.length, f:ITEMS.f.length};
+      const inE = (d.retell||[]).filter(x=>x && x.id && x.en && x.model && Array.isArray(x.keys) && (x.kind==='story'||x.kind==='info'));
+      const inF = (d.opinion||[]).filter(x=>x && x.id && x.q && x.model && DATA.checks[x.kind]);
+      const haveE = new Set(ITEMS.e.flatMap(x=>[x.id,x.en])), haveF = new Set(ITEMS.f.flatMap(x=>[x.id,x.q]));
+      const okE = inE.filter(x=>!haveE.has(x.id) && !haveE.has(x.en));
+      const okF = inF.filter(x=>!haveF.has(x.id) && !haveF.has(x.q));
+      extra.retell = (extra.retell||[]).concat(okE);
+      extra.opinion = (extra.opinion||[]).concat(okF);
+      lsSet('extra', extra);
+      buildItems();
+      const addE = ITEMS.e.length-before.e, addF = ITEMS.f.length-before.f;
+      const bad = ((d.retell||[]).length-inE.length) + ((d.opinion||[]).length-inF.length);
+      const dup = (inE.length-okE.length) + (inF.length-okF.length);
+      toast('追加しました：Part E '+addE+'題、Part F '+addF+'題'+(dup?'（重複 '+dup+'題は除外）':'')+(bad?'（項目不足 '+bad+'題は除外）':''));
+      render();
+    }catch(e){ toast('読み込めませんでした。JSONの形式を確認してください。'); }
+    inp.value='';
+  };
+  rd.readAsText(f);
+}
+
+// ============ 画面の切り替え・キー操作 ============
+document.addEventListener('visibilitychange', ()=>{
+  if(document.hidden){
+    if(state==='playing'){ stopSpeech(); state='ready'; paintStage(); }
+    else if(state==='recording'){ stopRec(true); }       // 録れた分は残す
+  }else{
+    try{ speechSynthesis.cancel(); }catch(e){}
+    warmed=false; showReload(false); setTimeout(loadVoices, 300);
+  }
+});
+document.addEventListener('keydown', e=>{
+  const tg = e.target.tagName;
+  if(tg==='INPUT' || tg==='SELECT' || tg==='TEXTAREA') return;
+  if(e.code==='Space'){
+    e.preventDefault();
+    if(state==='ready') go(); else if(state==='recording') stopRec(true);
+  }else if(e.key==='n' || e.key==='N'){ if(state==='review') next(); }
+});
+
+render();
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('./sw.js').catch(()=>{}); }
+</script>
+</body>
+</html>
