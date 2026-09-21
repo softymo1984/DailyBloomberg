@@ -64,6 +64,8 @@
   .diag:hover{background:rgba(255,255,255,.08);}
   #out{max-width:560px;width:100%;margin-top:12px;font-size:.76rem;line-height:1.8;color:#a9b2c4;white-space:pre-wrap;}
   .ok{color:#6ede9f;} .ng{color:#ff9b8a;}
+
+  .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
 </style>
 </head>
 <body>
@@ -105,6 +107,7 @@
   <button class="diag" onclick="diag()">動作診断</button>
   <div id="out"></div>
 
+  <div class="vertag">更新 v13 ・ 2026-09-21</div>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
