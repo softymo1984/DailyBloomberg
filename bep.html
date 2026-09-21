@@ -166,6 +166,15 @@
   .weak .w-ja{font-size:.72rem;color:#8892a4;}
   .weak .w-n{float:right;color:var(--accent);font-weight:700;font-size:.74rem;}
   .empty-s{font-size:.78rem;color:#8892a4;padding:10px 0;}
+
+  .card{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  .card.nudge-l{animation:nudgeL .22s ease;} .card.nudge-r{animation:nudgeR .22s ease;}
+  @keyframes nudgeL{50%{margin-left:-14px}} @keyframes nudgeR{50%{margin-left:14px}}
+  .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
+  .flipRow.on{display:flex;}
+  .flipRow .btn{flex:1;}
+  .tapflash{animation:tapf .35s ease;}
+  @keyframes tapf{0%{filter:brightness(1)}40%{filter:brightness(1.08)}100%{filter:brightness(1)}}
 </style>
 </head>
 <body>
@@ -190,12 +199,12 @@
   </div>
 
   <div class="stage">
-    <div class="card" id="card" onclick="flip()">
+    <div class="card" id="card">
       <div class="face front">
         <span class="deck-tag" id="frontDeck"></span>
         <button class="speak-btn" onclick="speakCurrent(event)" aria-label="発音する">🔊</button>
         <div class="en" id="frontEn"></div>
-        <div class="hint">カードをタップで意味・例文 ／ 🔊 で発音</div>
+        <div class="hint" id="frontHint">タップで発音 ／ 左右にフリックでめくる</div>
       </div>
       <div class="face back">
         <span class="known-flag">✓ 覚えた</span>
@@ -207,7 +216,7 @@
           <p class="ex-ja" id="backExJa"></p>
         </div>
         <div class="note" id="backNote"></div>
-        <div class="hint">タップで戻る ／ 🔊 例文も発音</div>
+        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ フリックで戻る</div>
       </div>
     </div>
   </div>
@@ -216,6 +225,10 @@
     <button class="btn" id="prevBtn" onclick="prev(event)">← 前</button>
     <button class="btn primary" onclick="flip(event)">めくる</button>
     <button class="btn" id="nextBtn" onclick="next(event)">次 →</button>
+  </div>
+
+  <div class="flipRow" id="flipRow">
+    <button class="btn primary" onclick="flip(event)">めくる</button>
   </div>
 
   <div class="judge" id="judgeRow">
@@ -434,7 +447,7 @@ const BUILTIN = [
   {d:"会議を進行", en:"Just to refocus, ...", ja:"焦点を戻すと…", ex:"Just to refocus, we're trying to agree on the budget today.", exja:"焦点を戻すと、今日は予算に合意しようとしています。", note:"議論を引き戻す。"},
   {d:"会議を進行", en:"We seem to have dealt with ~.", ja:"〜は片付いたようですね", ex:"Right, we seem to have dealt with the outsourcing issue.", exja:"では、外注の件は片付いたようですね。", note:"論点を締めて次へ。"},
   {d:"会議を進行", en:"This is your area of expertise.", ja:"これはあなたの専門分野ですね", ex:"Dave, this is your area of expertise. What do you think?", exja:"デイブ、これは君の専門だね。どう思う?", note:"特定の人に意見を求める。"},
-  {d:"会議を進行", en:"Let's leave that for the regular team meeting.", ja:"それは定例会議に回しましょう", ex:"You may have a point, but let's leave that for Thursday's meeting.", exja:"一理あるけど、それは木曜の定例に回しましょう。", note:"脱線を別会議へ。"},
+  {d:"会議を進行", en:"Let's leave that for the regular team meeting.", ja:"それは定例会議に回しましょう", ex:"You may have a point, but let's leave that for the regular team meeting.", exja:"一理ありますが、それは定例会議に回しましょう。", note:"脱線を別会議へ。"},
   {d:"会議を進行", en:"Can we go around the table?", ja:"一人ずつ意見を聞きましょうか", ex:"Can we go around the table to make sure everyone agrees?", exja:"全員の合意を確かめるため、一人ずつ聞きましょうか?", note:"順に意見を確認。"},
   {d:"会議を進行", en:"All those in favor? / All those against?", ja:"賛成の方？／反対の方？", ex:"All those in favor of a limited redesign? All those against?", exja:"限定的な刷新に賛成の方? 反対の方?", note:"in favor of=賛成 / against=反対。"},
   {d:"会議を進行", en:"Are we all on the same page?", ja:"認識は揃っていますか", ex:"Are we all on the same page here?", exja:"ここで認識は揃っていますか?", note:"共通理解の確認。"},
@@ -447,8 +460,8 @@ const BUILTIN = [
   {d:"プレゼンの掴み", en:"Can I get a show of hands?", ja:"挙手をお願いできますか", ex:"Can I get a show of hands from those who work in marketing?", exja:"マーケ担当の方、挙手をお願いできますか?", note:"聴衆を巻き込む。"},
   {d:"プレゼンの掴み", en:"rhetorical question", ja:"修辞疑問（答えを求めない問い）", ex:"He builds rapport by asking rhetorical questions.", exja:"彼は修辞疑問で親近感を作る。", note:"返答を期待しない問い。"},
   {d:"プレゼンの掴み", en:"You've got it.", ja:"その通りです", ex:"Yes, you've got it—medical equipment.", exja:"はい、その通り、医療機器です。", note:"= you're right。"},
-  {d:"プレゼンの掴み", en:"~ is what we're all about.", ja:"我々が最も大切にしているのは〜です", ex:"People is really what Mountain Medical is all about.", exja:"我々が本当に大切にしているのは人です。", note:"中心テーマの提示。"},
-  {d:"プレゼンの掴み", en:"a single key idea", ja:"一貫した中心テーマ", ex:"It's smart to have one key idea you keep coming back to.", exja:"何度も立ち返る中心テーマを持つと良い。", note:"発表に一貫性を与える。"},
+  {d:"プレゼンの掴み", en:"~ is what we're all about.", ja:"我々が最も大切にしているのは〜です", ex:"Customer service is what we're all about.", exja:"顧客サービスこそ我々が最も大切にしていることです。", note:"中心テーマの提示。"},
+  {d:"プレゼンの掴み", en:"a single key idea", ja:"一貫した中心テーマ", ex:"It's smart to have a single key idea you keep coming back to.", exja:"何度も立ち返る一つの中心テーマを持つと良い。", note:"発表に一貫性を与える。"},
   {d:"プレゼンの掴み", en:"Everything comes back to ~.", ja:"すべては〜に行き着きます", ex:"Everything I'll talk about today comes back to good relationships.", exja:"今日話すことはすべて良い関係に行き着きます。", note:"テーマへの回帰。"},
   {d:"プレゼンの掴み", en:"What I'd like to do today is highlight a few key takeaways.", ja:"今日は要点をいくつか強調したい", ex:"What I'd like to do today is highlight a few key takeaways.", exja:"今日は重要な要点をいくつか強調したいと思います。", note:"目的を明確に述べる。"},
   {d:"プレゼンの掴み", en:"I won't keep you long.", ja:"手短にします", ex:"You've all seen the numbers, so I won't keep you long.", exja:"数字はご覧済みなので、手短にします。", note:"忙しい聴衆に配慮。"},
@@ -462,7 +475,7 @@ const BUILTIN = [
   // ===== プレゼン展開（delivering / engaging） =====
   {d:"プレゼン展開", en:"Imagine you've just been hired.", ja:"採用されたばかりだと想像してください", ex:"Imagine you've just been hired and you arrive for your first day.", exja:"採用されたばかりで初日に出社したと想像してください。", note:"想像させて説得する技法。"},
   {d:"プレゼン展開", en:"Here's the thing.", ja:"実はですね／要点はこうです", ex:"Well, here's the thing—support really matters.", exja:"実はですね、サポートが本当に大事なんです。", note:"要点に入る前置き。"},
-  {d:"プレゼン展開", en:"focus on the why, not the what", ja:"「何を」より「なぜ」を語る", ex:"Don't tell them what you do; tell them why you do it.", exja:"何をするかより、なぜするかを伝えよう。", note:"共感を生む説得。"},
+  {d:"プレゼン展開", en:"focus on the why, not the what", ja:"「何を」より「なぜ」を語る", ex:"Focus on the why, not the what, when you pitch an idea.", exja:"アイデアを売り込むときは「何を」より「なぜ」に焦点を当てよう。", note:"共感を生む説得。"},
   {d:"プレゼン展開", en:"That brings me back to ~.", ja:"それで〜の話に戻ります", ex:"That brings me back to this key idea: it's all about people.", exja:"それで中心テーマに戻ります、要は人なんです。", note:"テーマに回帰。"},
   {d:"プレゼン展開", en:"It's all about people.", ja:"要は人なんです（中心テーマ）", ex:"That brings me back once again—it's all about people.", exja:"もう一度立ち返りますが、要は人なんです。", note:"繰り返す中心テーマ。"},
   {d:"プレゼン展開", en:"a thread throughout your presentation", ja:"発表全体を貫くテーマ", ex:"That key idea forms a thread throughout his presentation.", exja:"その中心テーマが発表全体を貫く糸になる。", note:"thread = 一本の筋。"},
@@ -865,7 +878,7 @@ function render(){
     document.getElementById('knownCount').textContent="覚えた "+known.size;
     paintToday(); return;
   }
-  isFlipped=false; card.classList.remove('flipped');
+  setFlipped(false);
   const c=CARDS[cur];
   document.getElementById('frontDeck').textContent=c.d + (dir==='ja'?' ／ 日→英':'');
   if(dir==='ja'){
@@ -909,7 +922,7 @@ function paintMode(){
   b.textContent = drill ? "🎯 ドリル" : "📖 通し";
   b.classList.toggle('on', drill);
   document.getElementById('browseRow').style.display = drill?'none':'flex';
-  document.getElementById('judgeRow').classList.toggle('on', drill);
+  paintDrillRows();
   document.getElementById('knowBtn').style.display = drill?'none':'';
 }
 function toggleIL(e){
@@ -923,7 +936,7 @@ function paintIL(){
 function toggleDir(e){
   if(e) e.stopPropagation();
   dir = dir==='en' ? 'ja' : 'en';
-  persist(); paintDir(); render();
+  persist(); paintDir(); paintHints(); render();
 }
 function paintDir(){
   const b=document.getElementById('dirBtn');
@@ -938,8 +951,68 @@ function toggleMode(e){
   if(mode==='drill') nextDrill(); else { setBrowse(true); render(); }
 }
 
+
+// ============ タップで読み上げ／フリックでめくる ============
+function setFlipped(v){
+  isFlipped=v; card.classList.toggle('flipped',v);
+  paintDrillRows(); paintHints();
+}
+function paintDrillRows(){
+  const drill = mode==='drill';
+  const fr=document.getElementById('flipRow'), jr=document.getElementById('judgeRow');
+  if(fr) fr.classList.toggle('on', drill && !isFlipped);   // 表：めくるボタン
+  if(jr) jr.classList.toggle('on', drill && isFlipped);    // 裏：判定ボタン
+}
+function paintHints(){
+  const fh=document.getElementById('frontHint'), bh=document.getElementById('backHint');
+  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから、左右にフリックでめくる'
+                                     : 'タップで発音 ／ 左右にフリックでめくる';
+  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ フリックで戻る';
+}
+function inRect(el,x,y){
+  if(!el) return false;
+  const r=el.getBoundingClientRect();
+  return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+}
+function tapSpeak(x,y){
+  if(cur==null) return;
+  const c=CARDS[cur];
+  card.classList.remove('tapflash'); void card.offsetWidth; card.classList.add('tapflash');
+  if(isFlipped){
+    if(inRect(document.querySelector('.back .ex'),x,y)) speak(c.ex);   // 例文の枠
+    else speak(c.en);                                                   // それ以外は見出し語
+    return;
+  }
+  if(dir==='ja') return;      // 表が日本語のときは読まない（英語を読むと答えになる）
+  speak(c.en);
+}
+
+let tStart=null, lastSwipe=0;
+card.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){ tStart=null; return; }
+  const t=e.touches[0]; tStart={x:t.clientX,y:t.clientY,at:Date.now()};
+},{passive:true});
+card.addEventListener('touchend',e=>{
+  if(!tStart) return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tStart.x, dy=t.clientY-tStart.y;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  if(adx>45 && adx>ady*1.4 && Date.now()-tStart.at<800){      // 横フリック
+    lastSwipe=Date.now();
+    card.classList.remove('nudge-l','nudge-r'); void card.offsetWidth;
+    card.classList.add(dx<0?'nudge-l':'nudge-r');
+    flip();
+  }
+  tStart=null;
+},{passive:true});
+card.addEventListener('click',e=>{
+  if(Date.now()-lastSwipe<450) return;              // フリック直後の誤タップを無視
+  if(e.target.closest('button')) return;            // 🔊ボタンは自前で処理
+  tapSpeak(e.clientX,e.clientY);
+});
+
 // ============ 操作 ============
-function flip(e){ if(e) e.stopPropagation(); if(cur==null) return; isFlipped=!isFlipped; card.classList.toggle('flipped',isFlipped); }
+function flip(e){ if(e) e.stopPropagation(); if(cur==null) return; setFlipped(!isFlipped); }
 function next(e){ if(e) e.stopPropagation(); if(mode==='drill'){ nextDrill(); } else if(pos<order.length-1){ pos++; setBrowse(false); render(); } if(playing) playCard(); }
 function prev(e){ if(e) e.stopPropagation(); if(mode==='browse' && pos>0){ pos--; setBrowse(false); render(); if(playing) playCard(); } }
 function shuffle(e){
@@ -968,10 +1041,10 @@ function playCard(){
   if(!playing || cur==null) return;
   const my = ++playToken;
   const c = CARDS[cur];
-  isFlipped=false; card.classList.remove('flipped');
+  setFlipped(false);
   speakSeq(dir==='ja' ? '' : c.en, ()=>{
     if(!playing || my!==playToken) return;
-    isFlipped=true; card.classList.add('flipped');
+    setFlipped(true);
     if(dir==='ja') speak(c.en);
     speakSeq(c.ex, ()=>{
       if(!playing || my!==playToken) return;
@@ -1082,7 +1155,7 @@ function importProgress(e){
   inp.click();
 }
 
-renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL();
+renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL(); paintHints();
 if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
 </script>
 </body>
