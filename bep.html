@@ -183,7 +183,6 @@
   <header>
     <div class="kicker">Business English Pod</div>
     <h1>BEP 単語帳</h1>
-    <div class="sub">英語をタップ → 意味・例文。🔊で発音（見出し語／例文）。全8デッキ収録。</div>
   </header>
 
   <div class="decks" id="decks"></div>
@@ -204,21 +203,18 @@
     <div class="card" id="card">
       <div class="face front">
         <span class="deck-tag" id="frontDeck"></span>
-        <button class="speak-btn" onclick="speakCurrent(event)" aria-label="発音する">🔊</button>
         <div class="en" id="frontEn"></div>
-        <div class="hint" id="frontHint">タップで発音 ／ 左右にフリックでめくる</div>
+        <div class="hint" id="frontHint">タップで発音 ／ 右フリックで次・左フリックで前</div>
       </div>
       <div class="face back">
         <span class="known-flag">✓ 覚えた</span>
-        <button class="speak-btn" onclick="speakCurrent(event)" aria-label="発音する">🔊</button>
         <div class="ja" id="backJa"></div>
         <div class="ex">
-          <button class="ex-speak" onclick="speakEx(event)" aria-label="例文を発音">🔊</button>
           <p class="ex-en" id="backEx"></p>
           <p class="ex-ja" id="backExJa"></p>
         </div>
         <div class="note" id="backNote"></div>
-        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ フリックで戻る</div>
+        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前</div>
       </div>
     </div>
   </div>
@@ -240,7 +236,7 @@
   </div>
 
   <div class="row2">
-    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">🔀 交互</button>
+    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">⇄ 交互</button>
     <button class="toolbtn" id="dirBtn" onclick="toggleDir(event)">EN→JA</button>
     <button class="toolbtn" id="modeBtn" onclick="toggleMode(event)">📖 通し</button>
     <button class="toolbtn" id="knowBtn" onclick="toggleKnown(event)">この語を「覚えた」</button>
@@ -282,7 +278,7 @@
 
   <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
 
-  <div class="vertag">更新 v13 ・ 2026-09-21</div>
+  <div class="vertag">更新 v14 ・ 2026-09-21</div>
 <script>
 const BUILTIN = [
   // ===== プレゼン導入 =====
@@ -554,7 +550,7 @@ if(rec === null){
   const old = lsGet('sched',{});
   for(const w of lsGet('known',[])) rec[w] = {d:addDays(jstDay(),1), n:1, f:0};
   for(const w of Object.keys(old))  rec[w] = {d:jstDay(), n:0, f:1};
-  lsSet('rec', rec); lsSet('hist', hist);
+  lsSet('rec', rec);
 }
 function addDays(ymd, n){
   const t = new Date(ymd+'T00:00:00Z').getTime() + n*86400000;
@@ -898,6 +894,7 @@ function render(){
   card.classList.toggle('known', known.has(c.en));
 
   if(mode==='browse'){
+    lsSet('spot', c.en);                      // 次に開いたとき、この語から再開する
     document.getElementById('count').textContent=(pos+1)+" / "+order.length;
     document.getElementById('barfill').style.width=((pos+1)/order.length*100)+"%";
     document.getElementById('prevBtn').disabled = pos===0;
@@ -934,7 +931,7 @@ function toggleIL(e){
 }
 function paintIL(){
   const b=document.getElementById('ilBtn');
-  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'🔀 交互 ON':'🔀 交互 OFF'; }
+  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'⇄ 交互 ON':'⇄ 交互 OFF'; }
 }
 function toggleDir(e){
   if(e) e.stopPropagation();
@@ -968,9 +965,9 @@ function paintDrillRows(){
 }
 function paintHints(){
   const fh=document.getElementById('frontHint'), bh=document.getElementById('backHint');
-  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから、左右にフリックでめくる'
-                                     : 'タップで発音 ／ 左右にフリックでめくる';
-  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ フリックで戻る';
+  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから「めくる」／ 右フリックで次・左フリックで前'
+                                     : 'タップで発音 ／ 右フリックで次・左フリックで前';
+  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前';
 }
 function inRect(el,x,y){
   if(!el) return false;
@@ -1004,7 +1001,7 @@ card.addEventListener('touchend',e=>{
     lastSwipe=Date.now();
     card.classList.remove('nudge-l','nudge-r'); void card.offsetWidth;
     card.classList.add(dx<0?'nudge-l':'nudge-r');
-    flip();
+    if(dx>0) next(); else prev();
   }
   tStart=null;
 },{passive:true});
@@ -1158,8 +1155,14 @@ function importProgress(e){
   inp.click();
 }
 
+function restoreSpot(){                     // 前回いた語まで戻す
+  const w = lsGet('spot','');
+  if(!w) return;
+  const i = order.findIndex(k=>CARDS[k] && CARDS[k].en===w);
+  if(i>=0){ pos=i; cur=order[pos]; }
+}
 renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL(); paintHints();
-if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+if(mode==='drill') nextDrill(); else { setBrowse(false); restoreSpot(); render(); }
 </script>
 </body>
 </html>
