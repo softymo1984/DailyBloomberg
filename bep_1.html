@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>BEP 単語帳</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0a0c11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#123b34; --desk2:#0d2c27;
+    --paper:#FBF6EA; --paper-edge:#efe6d2;
+    --ink:#1c2624; --ink-soft:#5d6b66;
+    --accent:#d8452f; --accent-soft:#f4d9d2; --gold:#e3b341;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+    background:radial-gradient(120% 80% at 50% -10%, #1b5048 0%, var(--desk) 45%, var(--desk2) 100%);
+    color:var(--paper);min-height:100dvh;
+    display:flex;flex-direction:column;align-items:center;padding:22px 16px 36px;
+  }
+  header{width:100%;max-width:620px;text-align:center;margin-bottom:14px;}
+  .kicker{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+  h1{font-family:"Lora",serif;font-weight:600;font-size:1.9rem;margin:.15em 0 .1em;}
+  .sub{font-size:.8rem;color:#bcd4ce;}
+  .decks{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:16px 0 10px;}
+  .chip{font-family:inherit;font-size:.78rem;font-weight:500;color:#dceae6;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);padding:6px 13px;border-radius:999px;cursor:pointer;transition:.18s;}
+  .chip:hover{background:rgba(255,255,255,.13);}
+  .chip.active{background:var(--paper);color:var(--desk2);border-color:var(--paper);font-weight:700;}
+  .meta{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between;
+    font-size:.78rem;color:#bcd4ce;margin:4px 2px 12px;}
+  .bar{height:5px;flex:1;margin:0 12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
+  .bar > i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s;}
+  .stage{width:100%;max-width:620px;perspective:1600px;}
+  .card{position:relative;width:100%;min-height:400px;cursor:pointer;transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);}
+  .card.flipped{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;overflow-y:auto;
+    background:linear-gradient(180deg,var(--paper),var(--paper-edge));border-radius:18px;
+    box-shadow:0 18px 40px rgba(0,0,0,.32), inset 0 1px 0 #fff;
+    padding:54px 26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink);}
+  .face::before,.face::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#c9ccce 60%,#8b9094);box-shadow:0 2px 3px rgba(0,0,0,.35);}
+  .face::before{left:32%;} .face::after{right:32%;}
+  .deck-tag{position:absolute;top:16px;left:0;right:0;font-size:.66rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .en{font-family:"Lora",serif;font-weight:600;font-size:1.8rem;line-height:1.3;}
+  .ja{font-size:1.45rem;font-weight:700;line-height:1.4;}
+  .ex{margin-top:16px;width:100%;max-width:430px;text-align:left;
+    border-left:3px solid var(--accent);background:rgba(216,69,47,.05);
+    border-radius:0 10px 10px 0;padding:11px 14px 11px 13px;position:relative;}
+  .ex-speak{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:.85rem;
+    line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .ex-speak:hover{background:var(--accent);color:#fff;}
+  .ex-en{font-family:"Lora",serif;font-style:italic;font-size:1.02rem;line-height:1.45;padding-right:28px;color:#3a2420;}
+  .ex-ja{font-size:.86rem;color:var(--ink-soft);margin-top:5px;line-height:1.5;}
+  .note{margin-top:12px;font-size:.82rem;color:var(--ink-soft);line-height:1.55;max-width:42ch;}
+  .hint{margin-top:14px;font-size:.72rem;color:#a9938a;}
+  .back{transform:rotateY(180deg);}
+  .known-flag{position:absolute;top:14px;right:16px;font-size:.7rem;font-weight:700;color:#2e7d52;
+    background:#dff3e6;border-radius:999px;padding:3px 9px;display:none;}
+  .known .known-flag{display:inline-block;}
+  .speak-btn{position:absolute;top:12px;left:14px;width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:1.1rem;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);transition:.15s;}
+  .speak-btn:hover{background:var(--accent);color:#fff;}
+  .speak-btn:active{transform:scale(.92);}
+  .speak-btn.speaking{background:var(--accent);color:#fff;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(216,69,47,.45);}50%{box-shadow:0 0 0 7px rgba(216,69,47,0);}}
+  .controls{width:100%;max-width:620px;display:flex;gap:10px;margin-top:18px;}
+  .btn{flex:1;font-family:inherit;font-size:.95rem;font-weight:700;padding:14px 10px;border-radius:13px;
+    border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--paper);cursor:pointer;transition:.16s;}
+  .btn:hover{background:rgba(255,255,255,.16);}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);}
+  .btn.primary:hover{background:#e85740;}
+  .btn[disabled]{opacity:.4;cursor:default;}
+  .row2{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+  .toolbtn{flex:1 1 28%;font-family:inherit;font-size:.82rem;font-weight:500;padding:10px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#dceae6;cursor:pointer;transition:.16s;}
+  .toolbtn:hover{background:rgba(255,255,255,.1);}
+  .toolbtn.on{background:var(--gold);border-color:var(--gold);color:#3a2c05;font-weight:700;}
+  .keys{margin-top:18px;font-size:.72rem;color:#8fb0a9;text-align:center;line-height:1.7;}
+  .empty{text-align:center;padding:60px 20px;color:#cfe2dd;}
+  .empty b{color:var(--gold);}
+
+  .judge{width:100%;max-width:620px;display:none;gap:10px;margin-top:18px;}
+  .judge.on{display:flex;}
+  .btn.good{background:#1f7a52;border-color:#1f7a52;}
+  .btn.good:hover{background:#249160;}
+  .btn.bad{background:rgba(255,255,255,.08);}
+  .row3{width:100%;max-width:620px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
+  .lbl{font-size:.78rem;color:#9aa6b8;}
+  .spd{font-family:inherit;font-size:.78rem;padding:7px 11px;border-radius:9px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .spd.on{background:var(--gold);border-color:var(--gold);color:#05282e;font-weight:700;}
+  #voiceSel{flex:1;min-width:150px;font-family:inherit;font-size:.76rem;padding:7px 9px;
+    border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#cfd6e2;}
+  .today{width:100%;max-width:620px;margin-top:12px;text-align:center;font-size:.8rem;
+    color:var(--gold);letter-spacing:.04em;}
+  .reset{margin-top:14px;font-family:inherit;font-size:.72rem;background:none;border:none;
+    color:#6f7a8c;text-decoration:underline;cursor:pointer;}
+
+  .judge .btn{font-size:.88rem;padding:13px 6px;}
+  .recall{font-size:1.5rem;font-weight:700;line-height:1.45;color:var(--ink);}
+  .recall-hint{margin-top:10px;font-size:.8rem;color:var(--ink-soft);}
+
+  .searchwrap{width:100%;max-width:620px;margin-top:10px;position:relative;}
+  #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
+  #q::placeholder{color:#8892a4;}
+  /* iOS/Chrome が type=search に足す消去ボタンを消す（自前の ✕ と二重になるため） */
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
+  #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
+  /* body が縦フレックスで高さ固定のため、overflow を持つこの枠は
+     放っておくと高さ 2px まで縮められて検索結果が見えなくなる。flex:none で止める。 */
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;flex:none;
+    border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
+  .hits.on{display:block;}
+  .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
+  .hit:last-child{border-bottom:none;}
+  .hit:hover{background:rgba(255,255,255,.07);}
+  .hit .he{font-family:"Lora",serif;font-size:.95rem;color:var(--paper);}
+  .hit .hj{font-size:.76rem;color:#a9b2c4;margin-top:2px;}
+  .hit .hd{font-size:.64rem;color:var(--gold);letter-spacing:.08em;}
+  .nohit{padding:12px;text-align:center;font-size:.8rem;color:#8892a4;}
+
+  .statsBtn{margin-top:10px;font-family:inherit;font-size:.82rem;padding:10px 18px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .statsBtn:hover{background:rgba(255,255,255,.1);}
+  .sheet{position:fixed;inset:0;background:rgba(5,7,11,.92);z-index:999;overflow-y:auto;
+    padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px));display:none;}
+  .sheet.on{display:block;}
+  .sheet-in{max-width:620px;margin:0 auto;}
+  .sheet h2{font-family:"Lora",serif;font-size:1.3rem;margin-bottom:4px;color:var(--paper);}
+  .sheet .close{position:sticky;top:0;float:right;background:none;border:none;color:#a9b2c4;
+    font-size:1.6rem;cursor:pointer;line-height:1;}
+  .kpis{display:flex;gap:9px;margin:14px 0 18px;flex-wrap:wrap;}
+  .kpi{flex:1 1 30%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:12px 10px;text-align:center;}
+  .kpi b{display:block;font-family:"Lora",serif;font-size:1.5rem;color:var(--gold);line-height:1.1;}
+  .kpi span{font-size:.68rem;color:#a9b2c4;letter-spacing:.05em;}
+  .sec{margin-top:22px;}
+  .sec h3{font-size:.8rem;color:var(--gold);letter-spacing:.1em;margin-bottom:9px;font-weight:700;}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);}
+  .bar{flex:1;min-width:3px;background:var(--gold);border-radius:2px 2px 0 0;opacity:.85;position:relative;}
+  .bar.zero{background:rgba(255,255,255,.1);height:2px !important;}
+  .bar.today{background:var(--accent);opacity:1;}
+  .barlab{display:flex;justify-content:space-between;font-size:.62rem;color:#8892a4;margin-top:5px;}
+  .drow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:.78rem;color:#cfd6e2;}
+  .drow .nm{width:6.5em;flex:none;color:#a9b2c4;font-size:.72rem;}
+  .dbar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+  .dbar i{display:block;height:100%;background:var(--gold);}
+  .drow .vl{width:4.5em;flex:none;text-align:right;font-size:.7rem;color:#8892a4;}
+  .weak{font-size:.8rem;color:#cfd6e2;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+  .weak .w-ja{font-size:.72rem;color:#8892a4;}
+  .weak .w-n{float:right;color:var(--accent);font-weight:700;font-size:.74rem;}
+  .empty-s{font-size:.78rem;color:#8892a4;padding:10px 0;}
+
+  .card{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  .card.nudge-l{animation:nudgeL .22s ease;} .card.nudge-r{animation:nudgeR .22s ease;}
+  @keyframes nudgeL{50%{margin-left:-14px}} @keyframes nudgeR{50%{margin-left:14px}}
+  .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
+  .flipRow.on{display:flex;}
+  .flipRow .btn{flex:1;}
+  /* タップの手ごたえ。filter を使うとカードの立体が潰れて裏の面が透けるので、
+     カード本体ではなく表示中の面の背景色だけを一瞬明るくする。 */
+  .tapflash .face{animation:tapf .35s ease;}
+  @keyframes tapf{0%,100%{background-image:linear-gradient(180deg,var(--paper),var(--paper-edge));}
+                  40%{background-image:linear-gradient(180deg,#fffcf2,#f7eeda);}}
+
+  .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Business English Pod</div>
+    <h1>BEP 単語帳</h1>
+  </header>
+
+  <div class="decks" id="decks"></div>
+
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="🔍 英語・日本語・メモから検索" oninput="doSearch()" autocomplete="off">
+    <button id="qclear" onclick="clearSearch(event)">✕</button>
+  </div>
+  <div class="hits" id="hits"></div>
+
+  <div class="meta">
+    <span id="count">0 / 0</span>
+    <span class="bar"><i id="barfill"></i></span>
+    <span id="knownCount">覚えた 0</span>
+  </div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="face front">
+        <span class="deck-tag" id="frontDeck"></span>
+        <div class="en" id="frontEn"></div>
+        <div class="hint" id="frontHint">タップで発音 ／ 右フリックで次・左フリックで前</div>
+      </div>
+      <div class="face back">
+        <span class="known-flag">✓ 覚えた</span>
+        <div class="ja" id="backJa"></div>
+        <div class="ex">
+          <p class="ex-en" id="backEx"></p>
+          <p class="ex-ja" id="backExJa"></p>
+        </div>
+        <div class="note" id="backNote"></div>
+        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="browseRow">
+    <button class="btn" id="prevBtn" onclick="prev(event)">← 前</button>
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+    <button class="btn" id="nextBtn" onclick="next(event)">次 →</button>
+  </div>
+
+  <div class="flipRow" id="flipRow">
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+  </div>
+
+  <div class="judge" id="judgeRow">
+    <button class="btn bad" onclick="judge(0,event)">もう一度</button>
+    <button class="btn" onclick="judge(1,event)">わかった</button>
+    <button class="btn good" onclick="judge(2,event)">余裕</button>
+  </div>
+
+  <div class="row2">
+    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">⇄ 交互</button>
+    <button class="toolbtn" id="dirBtn" onclick="toggleDir(event)">EN→JA</button>
+    <button class="toolbtn" id="modeBtn" onclick="toggleMode(event)">📖 通し</button>
+    <button class="toolbtn" id="knowBtn" onclick="toggleKnown(event)">この語を「覚えた」</button>
+    <button class="toolbtn" onclick="shuffle(event)">🔀 シャッフル</button>
+    <button class="toolbtn" id="filterBtn" onclick="toggleFilter(event)">未習のみ</button>
+    <button class="toolbtn" id="playBtn" onclick="togglePlay(event)">▶ 自動再生</button>
+    <button class="toolbtn" id="repeatBtn" onclick="cycleRepeat(event)">🔁 リピート:なし</button>
+  </div>
+
+  <div class="row3">
+    <span class="lbl">速度</span>
+    <button class="spd" data-sp="0.9" onclick="setSpeed(0.9,event)">0.9×</button>
+    <button class="spd" data-sp="1" onclick="setSpeed(1,event)">1.0×</button>
+    <button class="spd" data-sp="1.1" onclick="setSpeed(1.1,event)">1.1×</button>
+    <select id="voiceSel" onchange="setVoice(this.value)"><option value="">音声：自動</option></select>
+  </div>
+
+  <div class="today" id="today">今日 0枚 ／ 正答 -</div>
+
+  <div class="keys">
+    Space/Enter…めくる &nbsp;·&nbsp; ← →…前後 &nbsp;·&nbsp; S…発音 &nbsp;·&nbsp; P…自動再生 &nbsp;·&nbsp; K…覚えた &nbsp;·&nbsp; D…モード切替
+  </div>
+  <div class="row3" style="justify-content:center;margin-top:6px;">
+    <button class="spd" id="reloadBtn" style="display:none;background:#c9761a;color:#fff;border-color:#c9761a;font-weight:700;" onclick="location.reload()">🔄 音声を復帰</button>
+    <button class="spd" onclick="importCards(event)">＋ カードを取り込む</button>
+    <button class="spd" onclick="exportProgress(event)">⬇ 進捗を書き出す</button>
+    <button class="spd" onclick="importProgress(event)">⬆ 進捗を読み込む</button>
+    <a class="spd" href="./index.html" style="text-decoration:none;">🏠 メニュー</a>
+  </div>
+  <button class="statsBtn" onclick="openStats(event)">📊 学習記録</button>
+
+  <div class="sheet" id="statsSheet">
+    <div class="sheet-in">
+      <button class="close" onclick="closeStats(event)">×</button>
+      <h2>学習記録</h2>
+      <div id="statsBody"></div>
+    </div>
+  </div>
+
+  <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
+
+  <div class="vertag">更新 v20 ・ 2026-09-22</div>
+<script>
+const BUILTIN = [
+  // ===== プレゼン導入 =====
+  {d:"プレゼン導入", en:"Let's all take a seat and get things started.", ja:"さあ、席について始めましょう", ex:"Let's all take a seat and get things started—we have a lot to cover.", exja:"みんな席について始めましょう、今日は議題が多いので。", note:"会議・プレゼンを丁寧に開始。"},
+  {d:"プレゼン導入", en:"We need to keep to the schedule.", ja:"予定通りに進めましょう", ex:"It's a busy day, so we need to keep to the schedule.", exja:"忙しい日なので、予定通りに進めましょう。", note:"keep to ~ = 〜を守る。"},
+  {d:"プレゼン導入", en:"Why don't we all get started?", ja:"そろそろ始めましょうか", ex:"Everyone's here, so why don't we all get started?", exja:"全員揃ったので、そろそろ始めましょうか。", note:"やわらかい提案。"},
+  {d:"プレゼン導入", en:"Let's kick this meeting off.", ja:"この会議を始めましょう", ex:"Alright, let's kick this meeting off with the sales update.", exja:"では、売上報告からこの会議を始めましょう。", note:"kick off = 始める。"},
+  {d:"プレゼン導入", en:"Can both of you hear us and see us OK?", ja:"両方とも音声・映像は大丈夫ですか", ex:"Sydney, New York—can both of you hear us and see us OK?", exja:"シドニー、ニューヨーク、両方とも音声・映像は大丈夫ですか?", note:"ビデオ会議の接続確認。"},
+  {d:"プレゼン導入", en:"Loud and clear.", ja:"はっきり聞こえています", ex:"Loud and clear here in New York.", exja:"こちらニューヨーク、はっきり聞こえています。", note:"接続良好の決まり文句。"},
+  {d:"プレゼン導入", en:"Leading off this morning is ~.", ja:"今朝の口火を切るのは〜です", ex:"Leading off this morning is Claude from the sales team.", exja:"今朝の口火を切るのは営業チームのクロードです。", note:"lead off = 最初に始める。"},
+  {d:"プレゼン導入", en:"Please take it away.", ja:"どうぞお願いします", ex:"Claude, if you're ready, please take it away.", exja:"クロード、準備ができたらお願いします。", note:"バトンを渡す一言。"},
+  {d:"プレゼン導入", en:"For those of you who don't know me, ...", ja:"私を知らない方のために…", ex:"For those of you who don't know me, I'm the new project lead.", exja:"私を知らない方のために、新しいプロジェクトリーダーです。", note:"自己紹介の前置き。"},
+  {d:"プレゼン導入", en:"I'm responsible for ~.", ja:"〜を担当しています", ex:"I'm responsible for new employee training.", exja:"新人研修を担当しています。", note:"担当を述べる基本形。"},
+  {d:"プレゼン導入", en:"I'm in charge of ~.", ja:"〜を担当しています", ex:"I'm in charge of test data collection.", exja:"テストデータの収集を担当しています。", note:"be in charge of = 責任者。"},
+  {d:"プレゼン導入", en:"I'll be presenting our analysis of ~.", ja:"〜の分析を発表します", ex:"I'll be presenting our analysis of recent sales data.", exja:"最近の売上データの分析を発表します。", note:"主題を述べる。"},
+  {d:"プレゼン導入", en:"We will open it up to any questions.", ja:"質疑応答に移ります", ex:"After my remarks, we will open it up to any questions.", exja:"私の説明の後、質疑応答に移ります。", note:"open it up = 質問を受ける。"},
+  {d:"プレゼン導入", en:"handout material", ja:"配布資料", ex:"Hopefully you've all received the handout material I sent.", exja:"お送りした配布資料は皆さん届いていますよね。", note:"会議で配る資料。"},
+  {d:"プレゼン導入", en:"visual aids", ja:"視覚資料（図表・スライド）", ex:"I'll use a few visual aids to make the data clearer.", exja:"データを分かりやすくするため視覚資料を使います。", note:"視覚補助。"},
+  {d:"プレゼン導入", en:"elevator pitch", ja:"エレベーターピッチ（短い要約）", ex:"Can you give me the elevator pitch for your idea?", exja:"あなたのアイデアを手短に説明してくれる?", note:"10〜15秒の要約。"},
+  {d:"プレゼン導入", en:"signposting", ja:"道しるべ表現", ex:"Good signposting helps the audience follow your talk.", exja:"上手な道しるべ表現は聴衆が話を追う助けになる。", note:"構成を示す案内。"},
+  {d:"プレゼン導入", en:"A warm welcome from our Paris office.", ja:"パリオフィスより心から歓迎します", ex:"A warm welcome from our Paris office to everyone joining today.", exja:"本日参加の皆さんへ、パリオフィスより心から歓迎します。", note:"温かい歓迎。"},
+  {d:"プレゼン導入", en:"Good afternoon, and welcome to ~.", ja:"こんにちは、〜へようこそ", ex:"Good afternoon, and welcome to the North American division.", exja:"こんにちは、北米部門へようこそ。", note:"拠点を歓迎。"},
+  {d:"プレゼン導入", en:"set the tone and expectations", ja:"雰囲気と期待値を決める", ex:"The introduction sets the tone and expectations for the whole meeting.", exja:"導入が会議全体の雰囲気と期待値を決める。", note:"導入が印象を左右。"},
+  {d:"プレゼン導入", en:"tie in to ~", ja:"〜と結びつく・関連する", ex:"I was wondering how this ties in to our Q3 goals.", exja:"これが第3四半期の目標とどう結びつくのか気になっていました。", note:"関連を尋ねる。"},
+  {d:"プレゼン導入", en:"precede ~ with ...", ja:"〜の前に…を置く・…で切り出す", ex:"They precede their self-introduction with a short greeting.", exja:"自己紹介の前に短いあいさつを置く。", note:"前置きを入れる。"},
+  {d:"プレゼン導入", en:"put someone on the spot", ja:"その場で困らせる質問をする", ex:"I don't want to put you on the spot, but what do you think?", exja:"困らせるつもりはないけど、どう思う?", note:"答えにくい質問。"},
+  {d:"プレゼン導入", en:"keep ~ in mind", ja:"〜を心に留めておく", ex:"Keep the deadline in mind as you plan.", exja:"計画するときは締め切りを念頭に置いて。", note:"覚えておく。"},
+  {d:"プレゼン導入", en:"Let me get my pen!", ja:"メモするから待って！", ex:"That's useful—let me get my pen!", exja:"それ役立つね、メモするから待って!", note:"「書くね」のニュアンス。"},
+  {d:"プレゼン導入", en:"It's kind of rude not to ~.", ja:"〜しないのはちょっと失礼だ", ex:"It's kind of rude not to introduce yourself first.", exja:"まず自己紹介しないのはちょっと失礼だ。", note:"kind of = ちょっと。"},
+  {d:"プレゼン導入", en:"That's a good point.", ja:"いい指摘ですね", ex:"That's a good point—I hadn't thought of that.", exja:"いい指摘ですね、考えていませんでした。", note:"同意・評価。"},
+  {d:"プレゼン導入", en:"get up to speak", ja:"発言に立つ・話しに立ち上がる", ex:"When you get up to speak, introduce yourself clearly.", exja:"立って発言するときは、はっきり名乗りましょう。", note:"発言のために立つ。"},
+  {d:"プレゼン導入", en:"I was wondering if ~.", ja:"〜かなと思っていまして", ex:"I was wondering if we could move the meeting to Friday.", exja:"会議を金曜に動かせないかなと思っていまして。", note:"依頼をやわらかく。"},
+  {d:"プレゼン導入", en:"Sorry to interrupt.", ja:"割り込んですみません", ex:"Sorry to interrupt, but I have a quick question.", exja:"割り込んですみません、手短に質問が。", note:"丁寧に遮る。"},
+  {d:"プレゼン導入", en:"Personality plays a part.", ja:"人柄も影響する", ex:"Personality plays a part, but preparation matters more.", exja:"人柄も影響するが、準備の方が大事だ。", note:"play a part = 一役買う。"},
+  {d:"プレゼン導入", en:"kickoff meeting", ja:"キックオフ（開始）会議", ex:"We'll align on goals at tomorrow's kickoff meeting.", exja:"明日のキックオフ会議で目標をすり合わせます。", note:"開始の会議。"},
+  {d:"プレゼン導入", en:"shareholder meeting", ja:"株主総会", ex:"The results will be presented at the next shareholder meeting.", exja:"結果は次回の株主総会で発表されます。", note:"shareholder = 株主。"},
+  {d:"プレゼン導入", en:"forecast", ja:"予測・見通し", ex:"Our sales forecast for next quarter looks strong.", exja:"来四半期の売上予測は好調そうです。", note:"sales forecast。"},
+  {d:"プレゼン導入", en:"sales figures / trends", ja:"売上数値／傾向", ex:"Let's look at the latest sales figures and trends.", exja:"最新の売上数値と傾向を見ましょう。", note:"プレゼン頻出。"},
+  {d:"プレゼン導入", en:"prepared remarks", ja:"用意した発言内容", ex:"My prepared remarks will take about 20 minutes.", exja:"用意した話は20分ほどです。", note:"原稿の話。"},
+
+  // ===== アイデアのつなぎ =====
+  {d:"アイデアのつなぎ", en:"That about wraps it up for ~.", ja:"〜はこれで一区切りです", ex:"That about wraps it up for the sales figures.", exja:"売上数値についてはこれで一区切りです。", note:"wrap up = 締める。"},
+  {d:"アイデアのつなぎ", en:"Let's move on to ~.", ja:"〜へ進みましょう", ex:"Let's move on to our overseas markets.", exja:"海外市場の話に移りましょう。", note:"次の話題へ。"},
+  {d:"アイデアのつなぎ", en:"Let's turn our attention to ~.", ja:"〜に注目しましょう", ex:"Let's turn our attention to this first chart.", exja:"最初の図に注目しましょう。", note:"注意を向ける。"},
+  {d:"アイデアのつなぎ", en:"to expand on ~", ja:"より詳しく説明する", ex:"Could you expand on the issue of pricing?", exja:"価格の問題をもう少し詳しく説明してくれますか?", note:"詳述する。"},
+  {d:"アイデアのつなぎ", en:"to elaborate on ~", ja:"詳しい情報を加える", ex:"The next slide will elaborate on our sales plan.", exja:"次のスライドで販売計画を詳しく説明します。", note:"expand onと同義。"},
+  {d:"アイデアのつなぎ", en:"to digress", ja:"話を脱線させる", ex:"If I can digress for a moment, what about the new office?", exja:"少し脱線しますが、新オフィスの件はどうですか?", note:"別の話に変える。"},
+  {d:"アイデアのつなぎ", en:"to go back", ja:"前の点に戻る", ex:"Let's go back to the first item on the agenda.", exja:"議題の最初の項目に戻りましょう。", note:"前へ戻る。"},
+  {d:"アイデアのつなぎ", en:"to recap", ja:"要点を繰り返す", ex:"So, to recap, sales were strong in all regions.", exja:"では要点をまとめると、全地域で売上が好調でした。", note:"要点整理。"},
+  {d:"アイデアのつなぎ", en:"to conclude", ja:"締めくくる", ex:"I'd like to conclude by discussing our future plans.", exja:"今後の計画について述べて締めくくりたいと思います。", note:"終わらせる。"},
+  {d:"アイデアのつなぎ", en:"to summarize", ja:"要点をまとめる", ex:"Next, Peter is going to summarize our strategy.", exja:"次にピーターが戦略を要約します。", note:"main pointsを示す。"},
+  {d:"アイデアのつなぎ", en:"to turn to ~", ja:"（話を）〜に移す", ex:"I'd like to turn to the question of hiring.", exja:"採用の話に移りたいと思います。", note:"話題転換。"},
+  {d:"アイデアのつなぎ", en:"There is no alternative but to ~.", ja:"〜するしかない", ex:"There is no alternative but to cut costs this year.", exja:"今年はコスト削減するしかありません。", note:"強い断定。"},
+  {d:"アイデアのつなぎ", en:"As I've already said, ...", ja:"既に申し上げた通り…", ex:"As I've already said, quality comes first.", exja:"既に申し上げた通り、品質が第一です。", note:"既出を強調。"},
+  {d:"アイデアのつなぎ", en:"Everybody with me?", ja:"ついてきてますか？", ex:"That's the plan so far—everybody with me?", exja:"ここまでが計画です、ついてきてますか?", note:"理解確認の口語。"},
+  {d:"アイデアのつなぎ", en:"come of age", ja:"成熟する・一人前になる", ex:"Our industry really came of age in the 1990s.", exja:"我々の業界は1990年代に本当に成熟した。", note:"成熟する。"},
+  {d:"アイデアのつなぎ", en:"hold an audience's attention", ja:"聴衆を引きつける", ex:"A good story helps you hold an audience's attention.", exja:"良い話は聴衆を引きつけるのに役立つ。", note:"注意を保つ。"},
+  {d:"アイデアのつなぎ", en:"I've divided this section into three parts.", ja:"このセクションを3つに分けました", ex:"I've divided this section into three parts.", exja:"このセクションを3つに分けました。", note:"リスト予告。"},
+  {d:"アイデアのつなぎ", en:"First, then, next, after that, finally", ja:"順序を示すキーワード", ex:"First we review the past, then the present, and finally the future.", exja:"まず過去を振り返り、次に現在、最後に未来を見ます。", note:"sequencing。"},
+  {d:"アイデアのつなぎ", en:"So, ... (+ pause)", ja:"（つなぎの万能語）では、…", ex:"So… what can we conclude from this data?", exja:"では…このデータから何が言えるでしょう?", note:"区切りに使える。"},
+  {d:"アイデアのつなぎ", en:"I'd like to re-emphasize ~.", ja:"〜を改めて強調したい", ex:"I'd like to re-emphasize the main benefit of the design.", exja:"この設計の主な利点を改めて強調したい。", note:"再強調。"},
+  {d:"アイデアのつなぎ", en:"As we saw in part 2 ...", ja:"パート2で見たように…", ex:"As we saw in part 2, demand keeps rising.", exja:"パート2で見たように、需要は伸び続けています。", note:"既出への言及。"},
+  {d:"アイデアのつなぎ", en:"Recalling our look at ~ ...", ja:"〜を振り返ると…", ex:"Recalling our look at the forecast, growth should continue.", exja:"予測を振り返ると、成長は続くはずです。", note:"recall = 振り返る。"},
+  {d:"アイデアのつなぎ", en:"reach your objectives", ja:"目標を達成する", ex:"A clear plan helps you reach your objectives.", exja:"明確な計画は目標達成に役立つ。", note:"objective = 目標。"},
+  {d:"アイデアのつなぎ", en:"worth hearing", ja:"聞く価値がある", ex:"Deliver a message that is worth hearing.", exja:"聞く価値のあるメッセージを届けよう。", note:"価値がある。"},
+  {d:"アイデアのつなぎ", en:"guide listeners", ja:"聞き手を導く", ex:"Signposting phrases guide listeners through your talk.", exja:"道しるべ表現は聞き手を話の中で導く。", note:"signpostingの目的。"},
+  {d:"アイデアのつなぎ", en:"clearly and concisely", ja:"明確かつ簡潔に", ex:"Say what you mean clearly and concisely.", exja:"言いたいことを明確かつ簡潔に言おう。", note:"concise = 簡潔。"},
+  {d:"アイデアのつなぎ", en:"file information away", ja:"情報を頭の中に整理してしまう", ex:"Signposting lets the audience file information away correctly.", exja:"道しるべがあると聴衆は情報を正しく整理できる。", note:"分類する比喩。"},
+  {d:"アイデアのつなぎ", en:"There are three main points I'd like to introduce.", ja:"紹介したい要点が3つあります", ex:"There are three main points I'd like to introduce today.", exja:"今日は紹介したい要点が3つあります。", note:"全体構成の予告。"},
+
+  // ===== 会議を開く =====
+  {d:"会議を開く", en:"Let's get down to business.", ja:"本題に入りましょう", ex:"We're all set, so let's get down to business.", exja:"準備は整ったので、本題に入りましょう。", note:"注目→開始。"},
+  {d:"会議を開く", en:"Let's get the show on the road.", ja:"さあ始めましょう", ex:"Alright everybody, let's get the show on the road.", exja:"さあ皆さん、始めましょう。", note:"イディオム。"},
+  {d:"会議を開く", en:"at short notice", ja:"急な知らせで・直前に", ex:"Sorry for calling this meeting at short notice.", exja:"急な招集ですみません。", note:"直前に。"},
+  {d:"会議を開く", en:"Did you all get a copy of the agenda?", ja:"議題は全員届いていますか", ex:"Did you all get a copy of the agenda by email?", exja:"議題のメールは全員届いていますか?", note:"開始時の確認。"},
+  {d:"会議を開く", en:"Thank you all for coming.", ja:"お越しいただきありがとうございます", ex:"Great—thank you all for coming today.", exja:"では、本日はお越しいただきありがとうございます。", note:"歓迎・お礼。"},
+  {d:"会議を開く", en:"The main objective of this meeting is to ~.", ja:"本会議の主目的は〜です", ex:"The main objective of this meeting is to cut the shortfall.", exja:"本会議の主目的は不足の削減です。", note:"目的を述べる。"},
+  {d:"会議を開く", en:"The reason we're meeting today is to ~.", ja:"今日集まったのは〜のためです", ex:"The reason we're meeting today is to plan the launch.", exja:"今日集まったのは発売を計画するためです。", note:"目的の言い換え。"},
+  {d:"会議を開く", en:"budget shortfall", ja:"予算不足", ex:"We're facing a budget shortfall of $154,000.", exja:"15万4千ドルの予算不足に直面しています。", note:"見込みに届かない。"},
+  {d:"会議を開く", en:"make up the shortfall", ja:"不足を埋める", ex:"We need to find ways to make up the shortfall.", exja:"不足を埋める方法を見つける必要があります。", note:"make up = 埋め合わせ。"},
+  {d:"会議を開く", en:"tighten one's belt / belt tightening", ja:"節約する・支出削減", ex:"Sales are down, so it's belt-tightening time.", exja:"売上が落ちているので、節約の時です。", note:"支出を切り詰める。"},
+  {d:"会議を開く", en:"to chair a meeting", ja:"会議を仕切る", ex:"Martin will chair today's meeting.", exja:"今日の会議はマーティンが仕切ります。", note:"進行役を務める。"},
+  {d:"会議を開く", en:"chairperson", ja:"議長・司会者", ex:"As chairperson, she kept the discussion on track.", exja:"議長として彼女は議論を脱線させず進めた。", note:"chairする人。"},
+  {d:"会議を開く", en:"go through the agenda", ja:"議題に目を通す", ex:"Let me first go through the agenda.", exja:"まず議題に目を通させてください。", note:"目を通す。"},
+  {d:"会議を開く", en:"We have a lot to cover.", ja:"やることがたくさんあります", ex:"We have a lot to cover, so let's begin.", exja:"やることが多いので、始めましょう。", note:"cover = 扱う。"},
+  {d:"会議を開く", en:"run through them in order", ja:"順番に見ていく", ex:"There are ten items; we'll run through them in order.", exja:"10項目あるので、順番に見ていきます。", note:"一つずつ処理。"},
+  {d:"会議を開く", en:"Any questions before we start?", ja:"始める前に質問は？", ex:"Any questions before we start? No? Good.", exja:"始める前に質問は? ない? では。", note:"開始前確認。"},
+  {d:"会議を開く", en:"Could you please kick off?", ja:"口火を切ってもらえますか", ex:"Sandra, could you please kick off?", exja:"サンドラ、口火を切ってもらえますか?", note:"kick off = 始める。"},
+  {d:"会議を開く", en:"Would you be so kind as to begin?", ja:"始めていただけますか", ex:"Suzanne, would you be so kind as to begin?", exja:"スザンヌ、始めていただけますか?", note:"とても丁寧。"},
+  {d:"会議を開く", en:"Let's get back to that in a moment.", ja:"それには後で戻りましょう", ex:"Let's get back to that in a moment, Sam.", exja:"サム、それには後で戻りましょう。", note:"脱線を抑える。"},
+  {d:"会議を開く", en:"outsourcing", ja:"外注（する）", ex:"We're considering outsourcing the cleaning.", exja:"清掃の外注を検討しています。", note:"vendorに委託。"},
+  {d:"会議を開く", en:"demotivating", ja:"やる気をそぐ", ex:"Cutting the bonus would be totally demotivating.", exja:"ボーナス削減はやる気を完全にそぐだろう。", note:"motivateの反対。"},
+  {d:"会議を開く", en:"Okay, folks, let's get started, shall we?", ja:"では、みなさん始めましょうか", ex:"Okay, folks, let's get started, shall we?", exja:"では皆さん、始めましょうか。", note:"folks = みなさん。"},
+  {d:"会議を開く", en:"It's good to see you all here.", ja:"お集まりいただき嬉しいです", ex:"Good morning—it's good to see you all here.", exja:"おはようございます、お集まりいただき嬉しいです。", note:"歓迎の一言。"},
+  {d:"会議を開く", en:"First of all, I'd like to introduce ~.", ja:"まず〜を紹介します", ex:"First of all, I'd like to introduce George from Hong Kong.", exja:"まず香港のジョージを紹介します。", note:"新メンバー紹介。"},
+  {d:"会議を開く", en:"Would you like to say a few words about yourself?", ja:"自己紹介を少しお願いできますか", ex:"George, would you like to say a few words about yourself?", exja:"ジョージ、自己紹介を少しお願いできますか?", note:"紹介した人に振る。"},
+  {d:"会議を開く", en:"The primary purpose of this meeting is to ~.", ja:"この会議の主目的は〜です", ex:"The primary purpose of this meeting is to start the discussion.", exja:"この会議の主目的は議論を始めることです。", note:"objectiveの言い換え。"},
+  {d:"会議を開く", en:"The main thing I'd like to accomplish today is ~.", ja:"今日達成したい主なことは〜です", ex:"The main thing I'd like to accomplish today is defining the problem.", exja:"今日達成したい主なことは問題の特定です。", note:"accomplish = 成し遂げる。"},
+  {d:"会議を開く", en:"to cope with a challenge", ja:"課題に対処する", ex:"We need new ideas to cope with this challenge.", exja:"この課題に対処するには新しい発想が必要です。", note:"cope with = 対処。"},
+  {d:"会議を開く", en:"to deal with a problem", ja:"問題に対処する", ex:"How should we deal with the delivery problem?", exja:"配送の問題にどう対処すべきでしょう?", note:"deal with = 扱う。"},
+  {d:"会議を開く", en:"to face a challenge", ja:"課題に直面する", ex:"The main challenge we're facing is rapid growth.", exja:"直面している主な課題は急成長です。", note:"face = 直面。"},
+  {d:"会議を開く", en:"Let's take a quick look at the agenda.", ja:"議題をざっと見ましょう", ex:"Let's take a quick look at the agenda.", exja:"議題をざっと見てみましょう。", note:"quick look = ざっと。"},
+  {d:"会議を開く", en:"It's broken down into ~ parts.", ja:"〜のパートに分かれています", ex:"The agenda is broken down into five main parts.", exja:"議題は5つの主要パートに分かれています。", note:"break down = 分割。"},
+  {d:"会議を開く", en:"I'll distribute them now.", ja:"今お配りします", ex:"I've prepared some figures; I'll distribute them now.", exja:"資料を用意したので、今お配りします。", note:"distribute = 配布。"},
+  {d:"会議を開く", en:"brainstorming", ja:"解決策を出し合うこと", ex:"First we'll discuss the problem, then do some brainstorming.", exja:"まず問題を話し、それから解決策を出し合います。", note:"自由に発想。"},
+  {d:"会議を開く", en:"housekeeping (details)", ja:"進行上の連絡事項", ex:"Before we start, a few housekeeping details about breaks.", exja:"始める前に、休憩など進行上の連絡を少し。", note:"休憩・時間など。"},
+  {d:"会議を開く", en:"keep everybody on track", ja:"全員を脱線させず進める", ex:"The chair's job is to keep everybody on track.", exja:"議長の役目は全員を脱線させず進めることだ。", note:"on track = 軌道に。"},
+  {d:"会議を開く", en:"expenditures", ja:"支出", ex:"We need to reduce our monthly expenditures.", exja:"毎月の支出を減らす必要があります。", note:"= spending。"},
+
+  // ===== 口語・短縮 =====
+  {d:"口語・短縮", en:"... or something", ja:"〜か何か", ex:"I think the server is down or something.", exja:"サーバーが落ちてるか何かだと思う。", note:"ぼかし表現。"},
+  {d:"口語・短縮", en:"what-do-you-call-it", ja:"例のあれ／なんていうか", ex:"Pass me the… what-do-you-call-it… the adapter.", exja:"その…例のあれ…アダプターを取って。", note:"言葉が出ない時。"},
+  {d:"口語・短縮", en:"Oh, come on.", ja:"もう、やめてよ／勘弁して", ex:"Oh, come on, you know I'm never late.", exja:"もう、やめてよ、遅刻なんてしないの知ってるでしょ。", note:"軽い抗議。"},
+  {d:"口語・短縮", en:"huh?", ja:"〜だよね？（同意を促す）", ex:"Late again, huh?", exja:"また出遅れたね?", note:"念押しの合図。"},
+  {d:"口語・短縮", en:"gonna", ja:"= going to", ex:"I'm gonna start with the numbers.", exja:"数字から始めるよ。", note:"to系の短縮。"},
+  {d:"口語・短縮", en:"gotta", ja:"= have to / got to", ex:"You gotta see this chart.", exja:"この図、見なきゃだめだよ。", note:"to系の短縮。"},
+  {d:"口語・短縮", en:"wanna", ja:"= want to", ex:"Do you wanna begin?", exja:"始めたい?", note:"to系の短縮。"},
+  {d:"口語・短縮", en:"shoulda", ja:"= should have", ex:"We shoulda booked the room earlier.", exja:"もっと早く部屋を予約しておくべきだった。", note:"-aはhave。"},
+  {d:"口語・短縮", en:"coulda", ja:"= could have", ex:"We coulda finished on time.", exja:"時間通りに終えられたはずなのに。", note:"could ofは誤り。"},
+  {d:"口語・短縮", en:"woulda", ja:"= would have", ex:"I woulda called, but I ran out of time.", exja:"電話したかったけど、時間がなかった。", note:"過去の推量。"},
+  {d:"口語・短縮", en:"kinda", ja:"= kind of", ex:"It's kinda late to change the plan.", exja:"計画を変えるにはちょっと遅いね。", note:"of系の短縮。"},
+  {d:"口語・短縮", en:"gotcha", ja:"= got you（了解／捕まえた）", ex:"Gotcha—I'll send it right now.", exja:"了解、今すぐ送るね。", note:"you系の崩れ。"},
+  {d:"口語・短縮", en:"dunno", ja:"= don't know", ex:"I dunno where the file is.", exja:"ファイルがどこか分からない。", note:"don't knowの崩れ。"},
+  {d:"口語・短縮", en:"Fine by me.", ja:"私はそれでいいよ", ex:"Lunch at 11:30? Fine by me.", exja:"11:30に昼食? 私はそれでいいよ。", note:"It'sの省略。"},
+  {d:"口語・短縮", en:"Sounds good.", ja:"いいね", ex:"Let's meet Friday. Sounds good.", exja:"金曜に会おう。いいね。", note:"Thatの省略。"},
+  {d:"口語・短縮", en:"I mean, ...", ja:"つまり…／いやその…", ex:"I mean, we could try, but it's risky.", exja:"つまり、やってみてもいいけど、リスクはある。", note:"言い直し。"},
+  {d:"口語・短縮", en:"hafta", ja:"= have to", ex:"We hafta cut costs somewhere.", exja:"どこかでコストを削らなきゃ。", note:"to系の短縮。"},
+  {d:"口語・短縮", en:"sposta", ja:"= supposed to", ex:"It's sposta start at nine.", exja:"9時に始まることになってる。", note:"to系の短縮。"},
+  {d:"口語・短縮", en:"lemme", ja:"= let me", ex:"Lemme check the schedule.", exja:"スケジュール確認させて。", note:"you/me系。"},
+  {d:"口語・短縮", en:"outta", ja:"= out of", ex:"We're almost outta time.", exja:"もうほとんど時間がない。", note:"of系の短縮。"},
+  {d:"口語・短縮", en:"whatcha", ja:"= what are you / what do you", ex:"Whatcha working on?", exja:"何に取り組んでるの?", note:"you系の崩れ。"},
+  {d:"口語・短縮", en:"'cause / cuz", ja:"= because", ex:"We're behind 'cause the server crashed.", exja:"サーバーが落ちたせいで遅れてる。", note:"becauseの崩れ。"},
+  {d:"口語・短縮", en:"ain't", ja:"= isn't / aren't など（非標準）", ex:"That ain't gonna work.", exja:"それはうまくいかないよ。", note:"くだけ・方言寄り。"},
+
+  // ===== 会議を締める（action points） =====
+  {d:"会議を締める", en:"That just about covers everything.", ja:"だいたい全部カバーできました", ex:"I think that just about covers everything we wanted to get to today.", exja:"今日扱いたかったことは大体カバーできたと思います。", note:"締めの合図。"},
+  {d:"会議を締める", en:"Is there any other business?", ja:"他に議題はありますか", ex:"Is there any other business before we finish?", exja:"終える前に、他に議題はありますか?", note:"未処理事項の確認。"},
+  {d:"会議を締める", en:"Let's go through the action points to finish off.", ja:"締めに行動項目を確認しましょう", ex:"Let's just go through the action points to finish off.", exja:"締めに行動項目を確認しましょう。", note:"finish off = 締めくくる。"},
+  {d:"会議を締める", en:"That just about wraps it up.", ja:"これで大体締めくくりです", ex:"I think that just about wraps it up. Any final questions?", exja:"これで大体締めです。最後に質問は?", note:"wrap up = 終える。"},
+  {d:"会議を締める", en:"Are there any loose ends to wrap up?", ja:"片付け残しはありますか", ex:"Are there any loose ends left to wrap up?", exja:"片付け残しはありますか?", note:"loose ends = 未処理事項。"},
+  {d:"会議を締める", en:"action points / action items", ja:"行動項目（誰が・何を・いつ）", ex:"Having no clear action points makes meetings unproductive.", exja:"行動項目が不明確だと会議は非生産的になる。", note:"会議後の宿題。"},
+  {d:"会議を締める", en:"Let's play it by ear.", ja:"臨機応変にいきましょう", ex:"Let's see how things go and play it by ear.", exja:"様子を見て臨機応変にいきましょう。", note:"play by ear = 成り行きで。"},
+  {d:"会議を締める", en:"Let's wait and see.", ja:"様子を見ましょう", ex:"We'll just have to wait and see how things turn out.", exja:"どうなるか様子を見るしかないですね。", note:"結果を待つ。"},
+  {d:"会議を締める", en:"get to the bottom of ~", ja:"〜の根本原因を突き止める", ex:"It's important that we get to the bottom of this.", exja:"この根本原因を突き止めることが重要だ。", note:"root cause を探る。"},
+  {d:"会議を締める", en:"send me a report by next Friday", ja:"来週金曜までに報告を送って", ex:"Conduct a risk analysis and send me a report by next Friday.", exja:"リスク分析をして来週金曜までに報告を送って。", note:"by + 期限。"},
+  {d:"会議を締める", en:"Your team is going to ~ (指示)", ja:"あなたのチームは〜する予定です", ex:"Brian, your team is going to conduct a risk analysis.", exja:"ブライアン、君のチームはリスク分析を行う予定です。", note:"going to = 決定をやわらかく指示。"},
+  {d:"会議を締める", en:"You're meeting with ~ next week. (予定)", ja:"来週〜と会うことになっています", ex:"Cecilia, you're meeting with Telos next week.", exja:"セシリア、来週テロスと会うことになっています。", note:"現在進行形＝手配済みの予定。"},
+  {d:"会議を締める", en:"You'll be writing ~. (丁寧な指示)", ja:"〜を書いてもらうことになります", ex:"You'll be writing a proposal based on that meeting.", exja:"その会議を基に提案書を書いてもらうことになります。", note:"未来進行形＝やや丁寧な割り当て。"},
+  {d:"会議を締める", en:"I can't stress enough how important it is.", ja:"どれほど重要か強調してもしきれない", ex:"I can't stress enough how important it is to succeed here.", exja:"ここで成功することの重要性は強調してもしきれない。", note:"最大級の強調。"},
+  {d:"会議を締める", en:"It's critical that we ~.", ja:"〜が極めて重要だ", ex:"It's critical that we solve this problem.", exja:"この問題を解決することが極めて重要だ。", note:"critical = 決定的に重要。"},
+  {d:"会議を締める", en:"That's all for today.", ja:"本日は以上です", ex:"Great, that's all for today. Everyone, get busy.", exja:"では本日は以上です。皆さん、取りかかりましょう。", note:"締めの定番。"},
+  {d:"会議を締める", en:"Let's show management what we can do.", ja:"経営陣に実力を見せよう", ex:"We've got the best team here, so let's show management what we can do.", exja:"最高のチームだ、経営陣に実力を見せよう。", note:"激励フレーズ。"},
+  {d:"会議を締める", en:"knock 'em dead", ja:"（実力で）圧倒する・大成功する", ex:"Get out there and knock 'em dead.", exja:"さあ行って、圧倒してこよう。", note:"knock someone dead = 感嘆させる。"},
+
+  // ===== 会議を進行（managing discussion） =====
+  {d:"会議を進行", en:"cut a lot of fat", ja:"無駄を大きく削る", ex:"This is a great way to cut a lot of fat.", exja:"これは無駄を大きく削る良い方法です。", note:"fat = 無駄。"},
+  {d:"会議を進行", en:"Can I just come in here?", ja:"ちょっといいですか（割り込み）", ex:"Can I just come in here? That reminds me of something.", exja:"ちょっといいですか? それで思い出したのですが。", note:"丁寧に割って入る。"},
+  {d:"会議を進行", en:"This is a bit of a sidetrack.", ja:"それは少し脱線ですね", ex:"Sorry, but I think this is a bit of a sidetrack.", exja:"すみませんが、それは少し脱線かと。", note:"sidetrack = 本筋から外れた話。"},
+  {d:"会議を進行", en:"Let's try to keep to the agenda.", ja:"議題に沿って進めましょう", ex:"Let's try to keep to the agenda so we finish on time.", exja:"時間内に終えるため議題に沿って進めましょう。", note:"脱線を戻す。"},
+  {d:"会議を進行", en:"It's a no-brainer.", ja:"考えるまでもない（当然の選択）", ex:"It's a no-brainer if you ask me.", exja:"私に言わせれば考えるまでもないですよ。", note:"迷う余地のない決定。"},
+  {d:"会議を進行", en:"What do others think?", ja:"他の方はどう思いますか", ex:"Uh-huh. What do others think?", exja:"なるほど。他の方はどう思いますか?", note:"意見を広げる。"},
+  {d:"会議を進行", en:"Is there anything else we should consider?", ja:"他に考慮すべき点は？", ex:"Is there anything else we should consider here?", exja:"他に考慮すべき点はありますか?", note:"広く意見を募る。"},
+  {d:"会議を進行", en:"I think we're getting off track.", ja:"話がそれてきましたね", ex:"I think we're getting off track, so let's return to the issue at hand.", exja:"話がそれてきたので、目下の問題に戻りましょう。", note:"off track = 脱線。"},
+  {d:"会議を進行", en:"the issue at hand", ja:"目下の問題", ex:"Let's return to the issue at hand.", exja:"目下の問題に戻りましょう。", note:"今まさに扱うべき件。"},
+  {d:"会議を進行", en:"Just to refocus, ...", ja:"焦点を戻すと…", ex:"Just to refocus, we're trying to agree on the budget today.", exja:"焦点を戻すと、今日は予算に合意しようとしています。", note:"議論を引き戻す。"},
+  {d:"会議を進行", en:"We seem to have dealt with ~.", ja:"〜は片付いたようですね", ex:"Right, we seem to have dealt with the outsourcing issue.", exja:"では、外注の件は片付いたようですね。", note:"論点を締めて次へ。"},
+  {d:"会議を進行", en:"This is your area of expertise.", ja:"これはあなたの専門分野ですね", ex:"Dave, this is your area of expertise. What do you think?", exja:"デイブ、これは君の専門だね。どう思う?", note:"特定の人に意見を求める。"},
+  {d:"会議を進行", en:"Let's leave that for the regular team meeting.", ja:"それは定例会議に回しましょう", ex:"You may have a point, but let's leave that for the regular team meeting.", exja:"一理ありますが、それは定例会議に回しましょう。", note:"脱線を別会議へ。"},
+  {d:"会議を進行", en:"Can we go around the table?", ja:"一人ずつ意見を聞きましょうか", ex:"Can we go around the table to make sure everyone agrees?", exja:"全員の合意を確かめるため、一人ずつ聞きましょうか?", note:"順に意見を確認。"},
+  {d:"会議を進行", en:"All those in favor? / All those against?", ja:"賛成の方？／反対の方？", ex:"All those in favor of a limited redesign? All those against?", exja:"限定的な刷新に賛成の方? 反対の方?", note:"in favor of=賛成 / against=反対。"},
+  {d:"会議を進行", en:"Are we all on the same page?", ja:"認識は揃っていますか", ex:"Are we all on the same page here?", exja:"ここで認識は揃っていますか?", note:"共通理解の確認。"},
+  {d:"会議を進行", en:"by consensus", ja:"総意で・全員合意で", ex:"The best decisions are often made by consensus.", exja:"最善の決定は多く総意でなされる。", note:"consensus = 全員一致。"},
+
+  // ===== プレゼンの掴み（starting a presentation） =====
+  {d:"プレゼンの掴み", en:"I'd like to start by thanking you all for coming.", ja:"まず皆さんの来場に感謝します", ex:"I'd just like to start by thanking you all for coming.", exja:"まず、お越しいただいたことに感謝します。", note:"知らない聴衆への長めの歓迎。"},
+  {d:"プレゼンの掴み", en:"It's great to see so many fresh faces.", ja:"新しい顔ぶれが多くて嬉しいです", ex:"It's great to see so many fresh faces here today.", exja:"今日は新しい顔ぶれが多くて嬉しいです。", note:"前向きな雰囲気づくり。"},
+  {d:"プレゼンの掴み", en:"build rapport", ja:"打ち解けた関係を築く", ex:"Asking questions helps you build rapport with the audience.", exja:"質問は聴衆との関係を築くのに役立つ。", note:"rapport = 親密さ。"},
+  {d:"プレゼンの掴み", en:"Can I get a show of hands?", ja:"挙手をお願いできますか", ex:"Can I get a show of hands from those who work in marketing?", exja:"マーケ担当の方、挙手をお願いできますか?", note:"聴衆を巻き込む。"},
+  {d:"プレゼンの掴み", en:"rhetorical question", ja:"修辞疑問（答えを求めない問い）", ex:"He builds rapport by asking rhetorical questions.", exja:"彼は修辞疑問で親近感を作る。", note:"返答を期待しない問い。"},
+  {d:"プレゼンの掴み", en:"You've got it.", ja:"その通りです", ex:"Yes, you've got it—medical equipment.", exja:"はい、その通り、医療機器です。", note:"= you're right。"},
+  {d:"プレゼンの掴み", en:"~ is what we're all about.", ja:"我々が最も大切にしているのは〜です", ex:"Customer service is what we're all about.", exja:"顧客サービスこそ我々が最も大切にしていることです。", note:"中心テーマの提示。"},
+  {d:"プレゼンの掴み", en:"a single key idea", ja:"一貫した中心テーマ", ex:"It's smart to have a single key idea you keep coming back to.", exja:"何度も立ち返る一つの中心テーマを持つと良い。", note:"発表に一貫性を与える。"},
+  {d:"プレゼンの掴み", en:"Everything comes back to ~.", ja:"すべては〜に行き着きます", ex:"Everything I'll talk about today comes back to good relationships.", exja:"今日話すことはすべて良い関係に行き着きます。", note:"テーマへの回帰。"},
+  {d:"プレゼンの掴み", en:"What I'd like to do today is highlight a few key takeaways.", ja:"今日は要点をいくつか強調したい", ex:"What I'd like to do today is highlight a few key takeaways.", exja:"今日は重要な要点をいくつか強調したいと思います。", note:"目的を明確に述べる。"},
+  {d:"プレゼンの掴み", en:"I won't keep you long.", ja:"手短にします", ex:"You've all seen the numbers, so I won't keep you long.", exja:"数字はご覧済みなので、手短にします。", note:"忙しい聴衆に配慮。"},
+  {d:"プレゼンの掴み", en:"key takeaways", ja:"重要な要点・持ち帰り", ex:"Let me highlight a few key takeaways.", exja:"重要な要点をいくつか挙げます。", note:"takeaway = 学び/要点。"},
+  {d:"プレゼンの掴み", en:"Let's jump right in.", ja:"さっそく本題に入りましょう", ex:"I'm pretty pushed for time, so let's jump right in.", exja:"時間が押しているので、さっそく本題に。", note:"前置き抜きで開始。"},
+  {d:"プレゼンの掴み", en:"I'm pushed for time.", ja:"時間が押しています", ex:"I'm pretty pushed for time today.", exja:"今日は時間がかなり押しています。", note:"急いでいる。"},
+  {d:"プレゼンの掴み", en:"The first thing I'd like to touch on is ~.", ja:"まず触れたいのは〜です", ex:"The first thing I'd like to touch on is the increase in revenue.", exja:"まず触れたいのは増収の点です。", note:"touch on = 軽く触れる。"},
+  {d:"プレゼンの掴み", en:"I'll finish off with ~.", ja:"最後に〜で締めます", ex:"I'll finish off with two factors to watch next quarter.", exja:"最後に来四半期の注目点2つで締めます。", note:"締めを予告。"},
+  {d:"プレゼンの掴み", en:"My purpose here today is to ~.", ja:"本日の目的は〜です", ex:"My purpose here today is to outline our biggest ideas.", exja:"本日の目的は主要なアイデアの概説です。", note:"目的の明示。"},
+
+  // ===== プレゼン展開（delivering / engaging） =====
+  {d:"プレゼン展開", en:"Imagine you've just been hired.", ja:"採用されたばかりだと想像してください", ex:"Imagine you've just been hired and you arrive for your first day.", exja:"採用されたばかりで初日に出社したと想像してください。", note:"想像させて説得する技法。"},
+  {d:"プレゼン展開", en:"Here's the thing.", ja:"実はですね／要点はこうです", ex:"Well, here's the thing—support really matters.", exja:"実はですね、サポートが本当に大事なんです。", note:"要点に入る前置き。"},
+  {d:"プレゼン展開", en:"focus on the why, not the what", ja:"「何を」より「なぜ」を語る", ex:"Focus on the why, not the what, when you pitch an idea.", exja:"アイデアを売り込むときは「何を」より「なぜ」に焦点を当てよう。", note:"共感を生む説得。"},
+  {d:"プレゼン展開", en:"That brings me back to ~.", ja:"それで〜の話に戻ります", ex:"That brings me back to this key idea: it's all about people.", exja:"それで中心テーマに戻ります、要は人なんです。", note:"テーマに回帰。"},
+  {d:"プレゼン展開", en:"It's all about people.", ja:"要は人なんです（中心テーマ）", ex:"That brings me back once again—it's all about people.", exja:"もう一度立ち返りますが、要は人なんです。", note:"繰り返す中心テーマ。"},
+  {d:"プレゼン展開", en:"a thread throughout your presentation", ja:"発表全体を貫くテーマ", ex:"That key idea forms a thread throughout his presentation.", exja:"その中心テーマが発表全体を貫く糸になる。", note:"thread = 一本の筋。"},
+  {d:"プレゼン展開", en:"I said it before, and I'll say it again.", ja:"前も言いましたが、もう一度言います", ex:"I said it before, and I'll say it again—we need to understand trends.", exja:"前も言いましたが、もう一度、傾向を理解する必要があります。", note:"繰り返しによる強調。"},
+  {d:"プレゼン展開", en:"move right along to ~", ja:"すぐに〜へ移る", ex:"I'd like to move right along to the cash flow situation.", exja:"すぐにキャッシュフローの話へ移りたいと思います。", note:"スムーズな転換。"},
+  {d:"プレゼン展開", en:"Let's get going with ~.", ja:"〜を進めましょう", ex:"We're all clear on revenue, so let's get going with cash flow.", exja:"収益は理解できたので、キャッシュフローを進めましょう。", note:"get going = 始める/進める。"},
+  {d:"プレゼン展開", en:"First off, ...", ja:"まず第一に…", ex:"First off, there was the retrofit of the two ships.", exja:"まず第一に、2隻の改修がありました。", note:"最初の点を導入。"},
+  {d:"プレゼン展開", en:"Does that make sense to everyone?", ja:"皆さん理解できましたか", ex:"Does that make sense to everyone? Any questions on that?", exja:"皆さん理解できましたか? その点で質問は?", note:"理解の確認（check in）。"},
+  {d:"プレゼン展開", en:"check in with your listeners", ja:"聞き手に理解を確認する", ex:"Checking in with your listeners can prevent confusion.", exja:"聞き手に確認すると混乱を防げる。", note:"要所で理解を確かめる。"},
+  {d:"プレゼン展開", en:"Mind you, ...", ja:"とはいえ／言っておくと", ex:"Mind you, it will take a couple of years to pay back.", exja:"とはいえ、回収には数年かかります。", note:"補足・留保を加える。"},
+  {d:"プレゼン展開", en:"pay off", ja:"報われる・元が取れる", ex:"I want to remind everyone how these investments will pay off.", exja:"これらの投資がどう報われるか改めてお伝えします。", note:"投資が実を結ぶ。"},
+  {d:"プレゼン展開", en:"Allow me to explain exactly what I mean.", ja:"具体的に説明させてください", ex:"This will bring serious benefits. Allow me to explain exactly what I mean.", exja:"大きな利益をもたらします。具体的に説明させてください。", note:"丁寧に詳述へ。"},
+  {d:"プレゼン展開", en:"cash outflows", ja:"資金流出・支出", ex:"There was some concern about cash outflows from investments.", exja:"投資による資金流出に懸念がありました。", note:"outflow = 流出。"},
+  {d:"プレゼン展開", en:"takeover / buyout", ja:"買収", ex:"Let me get into our takeover of ACL Shipping.", exja:"ACLシッピングの買収について話させてください。", note:"他社を買収すること。"},
+];
+let CARDS = BUILTIN.slice();
+
+// ============ 設定（Repeat Drill 仕様書の出題ロジックを流用） ============
+const NS = 'bep';
+const GAP_FAIL = 5;    // 同一セッション内で間違えた語を戻す間隔（問数）
+const NO_REPEAT = 12;  // 直近12問は引かない
+// 日付ベースの復習間隔（日）。3択判定で伸び方が変わる。
+const STEPS_OK   = [1,3,7,16,35,75];   // 「わかった」で進む
+const STEPS_EASY = [3,7,16,35,75,150]; // 「余裕」で進む（1段飛ばし相当）
+
+// ============ 保存（localStorage。使えない環境では黙って無効化） ============
+function lsGet(k,d){ try{const v=localStorage.getItem(NS+'_'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} }
+function lsSet(k,v){ try{localStorage.setItem(NS+'_'+k,JSON.stringify(v));}catch(e){} }
+function jstDay(){ return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); }
+
+// ============ 追加カード（あとから取り込んだ分） ============
+let extras = lsGet('extra',[]);
+function mergeExtras(){
+  const have = new Set(BUILTIN.map(c=>c.en));
+  const ok = [];
+  for(const c of extras){
+    if(!c || !c.en || !c.ja) continue;          // 最低限 英語と意味は必須
+    if(have.has(c.en)) continue;                // 内蔵カードと重複したら捨てる
+    have.add(c.en);
+    ok.push({d:c.d||"追加", en:c.en, ja:c.ja, ex:c.ex||"", exja:c.exja||"", note:c.note||""});
+  }
+  extras = ok;
+  CARDS = BUILTIN.concat(ok);
+}
+function recomputeDecks(){
+  decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+  if(!decks.includes(activeDeck)) activeDeck = "すべて";
+}
+
+mergeExtras();
+let decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+let activeDeck = lsGet('deck','すべて'); if(!decks.includes(activeDeck)) activeDeck='すべて';
+let known  = new Set(lsGet('known',[]));   // 見出し語で保持（カード追加で番号がずれないため）
+let sched  = lsGet('sched',{});
+let streak = lsGet('streak',{});
+let seen   = new Set(lsGet('seen',[]));
+let total  = lsGet('total',0);
+let mode   = lsGet('mode','browse');
+let dir    = lsGet('dir','en');
+let interleaveOn = lsGet('il',1)===1;   // デッキ交互出題   // 'en'=英→日（再認） / 'ja'=日→英（想起）
+let speed  = lsGet('sp',1);
+let voiceName = lsGet('vo','');
+let day = lsGet('day',''), cnt = lsGet('cnt',0), okCnt = lsGet('ok',0);
+if(day!==jstDay()){ day=jstDay(); cnt=0; okCnt=0; lsSet('day',day); lsSet('cnt',0); lsSet('ok',0); }
+
+
+// ---- 学習データ（日付ベース）----
+// rec[見出し語] = {d:次回復習日(YYYY-MM-DD), n:段階, f:連続失敗}
+let rec = lsGet('rec', null);
+if(rec === null){
+  // 旧データ（問番号ベース）からの移行。卒業済みは1日後、要再挑戦は今日に置く。
+  rec = {};
+  const old = lsGet('sched',{});
+  for(const w of lsGet('known',[])) rec[w] = {d:addDays(jstDay(),1), n:1, f:0};
+  for(const w of Object.keys(old))  rec[w] = {d:jstDay(), n:0, f:1};
+  lsSet('rec', rec);
+}
+function addDays(ymd, n){
+  const t = new Date(ymd+'T00:00:00Z').getTime() + n*86400000;
+  return new Date(t).toISOString().slice(0,10);
+}
+function isDue(w){ const r=rec[w]; return r && r.d <= jstDay(); }
+function isNew(w){ return !rec[w]; }
+function graduated(w){ const r=rec[w]; return r && r.n>=3; }   // 1週間以上の間隔に乗った語
+
+let onlyUnknown=false, order=[], pos=0, cur=null, isFlipped=false;
+let playing=false, repeatMode=0, history=[], playToken=0;
+const card = document.getElementById('card');
+
+function persist(){
+  lsSet('known',[...known]); lsSet('sched',sched); lsSet('streak',streak);
+  lsSet('seen',[...seen]); lsSet('total',total);
+  lsSet('rec', rec);
+  lsSet('day',day); lsSet('cnt',cnt); lsSet('ok',okCnt);
+  lsSet('deck',activeDeck); lsSet('mode',mode); lsSet('dir',dir); lsSet('il', interleaveOn?1:0); lsSet('sp',speed); lsSet('vo',voiceName);
+}
+
+// ============ 読み上げ ============
+let enVoice=null, voices=[], warmed=false;
+function loadVoices(){
+  try{ voices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
+  const sel=document.getElementById('voiceSel');
+  if(sel){
+    sel.innerHTML = '<option value="">音声：自動</option>' +
+      voices.map(v=>'<option value="'+v.name+'">'+v.name+' ('+v.lang+')</option>').join('');
+    if(voiceName) sel.value = voiceName;
+  }
+  enVoice = voices.find(v=>v.name===voiceName) || voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0] || null;
+}
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+// iOS Safari は最初の発話が無音になるため、volume:0 の空発話でウォームアップする
+function warmUp(){
+  if(warmed || !('speechSynthesis' in window)) return;
+  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){}
+  warmed=true;
+}
+
+// ---- iOS対策：画面オフ／アプリ切替から戻ったときの復帰 ----
+// iOSは読み上げ中にバックグラウンドへ回ると音声合成が壊れ、
+// ページを読み込み直すまで鳴らなくなる。戻ってきたら作り直す。
+let synthBroken=false;
+function showReload(on){
+  const b=document.getElementById('reloadBtn');
+  if(b) b.style.display = on?'inline-block':'none';
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    stopPlay();                    // 裏に回ったら再生状態を畳む
+  }else{
+    try{ speechSynthesis.cancel(); }catch(e){}
+    warmed=false;                  // ウォームアップからやり直す
+    synthBroken=false; showReload(false);
+    setTimeout(loadVoices, 300);
+  }
+});
+
+function cleanForSpeech(t){ return t.replace(/~/g,' ').replace(/\.\.\./g,' ').replace(/…/g,' ').replace(/（[^）]*）/g,' ').replace(/\s+/g,' ').trim(); }
+function speakSeq(text, cb){
+  if(!('speechSynthesis' in window) || !text){ if(cb) cb(); return; }
+  speechSynthesis.cancel(); warmUp();
+  const u=new SpeechSynthesisUtterance(cleanForSpeech(text));
+  u.lang='en-US'; u.rate=speed; if(enVoice) u.voice=enVoice;
+  const btns=document.querySelectorAll('.speak-btn');
+  let started=false, done=false;
+  const finish=()=>{                   // ★次へ進む処理は必ず1回だけ
+    if(done) return; done=true;
+    clearTimeout(watchdog);
+    btns.forEach(b=>b.classList.remove('speaking'));
+    if(cb) cb();
+  };
+  const watchdog=setTimeout(()=>{      // 鳴り始めないまま4秒なら本当に壊れている
+    if(!started){ synthBroken=true; showReload(true); finish(); }
+  },4000);
+  u.onstart=()=>{ started=true; showReload(false); btns.forEach(b=>b.classList.add('speaking')); };
+  u.onend  = finish;
+  u.onerror= finish;
+  speechSynthesis.speak(u);
+}
+function speak(t){ speakSeq(t,null); }
+function speakCurrent(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].en); }
+function speakEx(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].ex); }
+function setSpeed(v,e){ if(e) e.stopPropagation(); speed=v; persist(); paintSpeed(); }
+function setVoice(name){ voiceName=name; loadVoices(); persist(); }
+function paintSpeed(){
+  document.querySelectorAll('.spd').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.sp)===speed));
+}
+
+
+// ============ 検索 ============
+function doSearch(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const box=document.getElementById('hits');
+  document.getElementById('qclear').style.display = q?'block':'none';
+  if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+  const hits=[];
+  for(let i=0;i<CARDS.length && hits.length<40;i++){
+    const c=CARDS[i];
+    const hay=(c.en+' '+c.ja+' '+(c.ex||'')+' '+(c.exja||'')+' '+(c.note||'')+' '+c.d).toLowerCase();
+    if(hay.includes(q)) hits.push(i);
+  }
+  if(!hits.length){ box.innerHTML='<div class="nohit">見つかりません</div>'; box.classList.add('on'); return; }
+  box.innerHTML = hits.map(i=>{
+    const c=CARDS[i];
+    return '<div class="hit" onclick="jumpTo('+i+')">'
+      + '<div class="hd">'+c.d+'</div>'
+      + '<div class="he">'+esc(c.en)+'</div>'
+      + '<div class="hj">'+esc(c.ja)+'</div></div>';
+  }).join('');
+  box.classList.add('on');
+}
+function esc(t){ return (t||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function clearSearch(e){
+  if(e) e.stopPropagation();
+  document.getElementById('q').value='';
+  doSearch();
+}
+function jumpTo(i){                       // 検索結果からそのカードへ
+  clearSearch();
+  cur=i;
+  if(mode==='browse'){
+    activeDeck='すべて'; onlyUnknown=false; renderDecks();
+    order=workingList(); pos=Math.max(0, order.indexOf(i));
+  }
+  render();
+  try{ document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+}
+
+// ---- インターリービング（デッキを意図的に交互に出す）----
+// 同じデッキが3枚続いたら、別デッキの候補を優先する。
+// ブロック練習より交互練習の方が長期保持に有利、という知見に基づく。
+function interleave(cands){
+  if(!interleaveOn || cands.length<2) return null;
+  const last = history.slice(-2).map(i=>CARDS[i] && CARDS[i].d);
+  if(last.length<2 || last[0]!==last[1]) return null;   // 直近2枚が同デッキのときだけ介入
+  const other = cands.filter(i=>CARDS[i].d!==last[1]);
+  return other.length ? other[Math.floor(Math.random()*other.length)] : null;
+}
+
+// ============ 出題 ============
+function workingList(){
+  let list = CARDS.map((c,i)=>i);
+  if(activeDeck!=="すべて") list=list.filter(i=>CARDS[i].d===activeDeck);
+  if(onlyUnknown)          list=list.filter(i=>!known.has(CARDS[i].en));
+  return list;
+}
+function pick(){
+  const pool = workingList();
+  if(!pool.length) return null;
+  let cut = Math.min(NO_REPEAT, Math.max(0, pool.length-2));
+  const excl = new Set(history.slice(-cut));
+  let use = pool.filter(i=>!excl.has(i)); if(!use.length) use = pool;
+  const rnd = a => a[Math.floor(Math.random()*a.length)];
+  // ①同一セッションで間違えた語（すぐ戻す）
+  const again = use.filter(i=>sched[CARDS[i].en]!=null && sched[CARDS[i].en]<=total);
+  if(again.length) return rnd(again);
+  // ②今日が復習日の語
+  const due = use.filter(i=>isDue(CARDS[i].en));
+  if(due.length) return interleave(due) || rnd(due);
+  // ③未出題
+  const fresh = use.filter(i=>isNew(CARDS[i].en));
+  if(fresh.length) return interleave(fresh) || rnd(fresh);
+  // ④前倒し復習（期日が近い順）
+  const rest = use.slice().sort((a,b)=>(rec[CARDS[a].en]?.d||'9') < (rec[CARDS[b].en]?.d||'9') ? -1 : 1);
+  return rest[0];
+}
+function nextDrill(){
+  cur = pick();
+  if(cur!=null){ history.push(cur); if(history.length>60) history.shift(); }
+  render();
+}
+function judge(grade,e){     // grade: 0=もう一度 1=わかった 2=余裕
+  if(e) e.stopPropagation();
+  if(cur==null) return;
+  const w = CARDS[cur].en;
+  total++; cnt++; if(grade>0) okCnt++;
+  logDay(grade>0);
+  seen.add(w);
+  const r = rec[w] || {d:jstDay(), n:0, f:0};
+  if(grade===0){
+    r.n = 0; r.f = (r.f||0)+1;
+    r.d = jstDay();                                  // 今日のうちにもう一度
+    sched[w] = total + GAP_FAIL;                     // セッション内で戻す
+    known.delete(w);
+  }else{
+    delete sched[w];
+    const steps = grade===2 ? STEPS_EASY : STEPS_OK;
+    const idx = Math.min(r.n, steps.length-1);
+    r.d = addDays(jstDay(), steps[idx]);
+    r.n = Math.min(r.n+1, steps.length);
+    r.f = 0;
+    if(r.n>=3) known.add(w);                         // 1週間間隔に乗ったら「覚えた」扱い
+  }
+  rec[w] = r;
+  persist(); nextDrill();
+  if(playing) playCard();
+}
+
+
+// ============ 学習記録 ============
+// hist[YYYY-MM-DD] = {n:枚数, ok:正解数}
+let hist = lsGet('hist',{});
+function logDay(good){
+  const d=jstDay();
+  const h=hist[d]||{n:0,ok:0};
+  h.n++; if(good) h.ok++;
+  hist[d]=h;
+  const keys=Object.keys(hist).sort();
+  while(keys.length>120){ delete hist[keys.shift()]; }   // 120日分だけ残す
+  lsSet('hist',hist);
+}
+function streakDays(){
+  let n=0, d=jstDay();
+  while(hist[d] && hist[d].n>0){ n++; d=addDays(d,-1); }
+  return n;
+}
+function dueBuckets(){
+  const t=jstDay(), t1=addDays(t,1), t7=addDays(t,7);
+  const b={today:0,tomorrow:0,week:0,later:0,none:0};
+  for(const c of CARDS){
+    const r=rec[c.en];
+    if(!r){ b.none++; continue; }
+    if(r.d<=t) b.today++;
+    else if(r.d===t1) b.tomorrow++;
+    else if(r.d<=t7) b.week++;
+    else b.later++;
+  }
+  return b;
+}
+function openStats(e){
+  if(e) e.stopPropagation();
+  const box=document.getElementById('statsBody');
+  const days=[]; for(let i=29;i>=0;i--) days.push(addDays(jstDay(),-i));
+  const vals=days.map(d=>hist[d]?hist[d].n:0);
+  const max=Math.max(10,...vals);
+  const tot30=vals.reduce((a,b)=>a+b,0);
+  const活=vals.filter(v=>v>0).length;
+  const b=dueBuckets();
+  const done=CARDS.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+
+  // デッキ別
+  const decksAll=Array.from(new Set(CARDS.map(c=>c.d)));
+  const drows=decksAll.map(d=>{
+    const cs=CARDS.filter(c=>c.d===d);
+    const ok=cs.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+    return {d, ok, all:cs.length, pct:Math.round(ok/cs.length*100)};
+  }).sort((a,b)=>a.pct-b.pct);
+
+  // 苦手な語（失敗回数の多い順）
+  const weak=CARDS.filter(c=>rec[c.en]&&(rec[c.en].f||0)>0)
+    .sort((a,b)=>(rec[b.en].f||0)-(rec[a.en].f||0)).slice(0,8);
+
+  box.innerHTML =
+   '<div class="kpis">'
+   + '<div class="kpi"><b>'+streakDays()+'</b><span>連続日数</span></div>'
+   + '<div class="kpi"><b>'+done+'</b><span>定着（1週間超）</span></div>'
+   + '<div class="kpi"><b>'+b.today+'</b><span>今日の復習</span></div>'
+   + '</div>'
+
+   + '<div class="sec"><h3>直近30日</h3>'
+   + '<div class="bars">'
+   + days.map((d,i)=>{
+       const v=vals[i], h=v?Math.max(4,Math.round(v/max*100)):0;
+       return '<div class="bar'+(v?'':' zero')+(i===29?' today':'')+'" style="height:'+h+'%" title="'+d+' '+v+'枚"></div>';
+     }).join('')
+   + '</div>'
+   + '<div class="barlab"><span>'+days[0].slice(5)+'</span><span>30日で '+tot30+'枚 ／ 学習 '+活+'日</span><span>今日</span></div></div>'
+
+   + '<div class="sec"><h3>復習の予定</h3>'
+   + row('今日', b.today) + row('明日', b.tomorrow) + row('今週中', b.week)
+   + row('それ以降', b.later) + row('未学習', b.none)
+   + '</div>'
+
+   + '<div class="sec"><h3>デッキ別の定着</h3>'
+   + drows.map(r=>'<div class="drow"><span class="nm">'+r.d+'</span>'
+       +'<span class="dbar"><i style="width:'+r.pct+'%"></i></span>'
+       +'<span class="vl">'+r.ok+'/'+r.all+'</span></div>').join('')
+   + '</div>'
+
+   + '<div class="sec"><h3>つまずいた語</h3>'
+   + (weak.length ? weak.map(c=>'<div class="weak"><span class="w-n">'+(rec[c.en].f||0)+'回</span>'
+       +esc(c.en)+'<div class="w-ja">'+esc(c.ja)+'</div></div>').join('')
+     : '<div class="empty-s">まだありません</div>')
+   + '</div>';
+
+  document.getElementById('statsSheet').classList.add('on');
+  function row(lab,n){
+    const pct=CARDS.length?Math.round(n/CARDS.length*100):0;
+    return '<div class="drow"><span class="nm">'+lab+'</span>'
+      +'<span class="dbar"><i style="width:'+pct+'%"></i></span>'
+      +'<span class="vl">'+n+'枚</span></div>';
+  }
+}
+function closeStats(e){ if(e) e.stopPropagation(); document.getElementById('statsSheet').classList.remove('on'); }
+
+// ============ 表示 ============
+function setBrowse(keep){
+  const prevCur = cur;
+  order = workingList();
+  if(keep && prevCur!=null){ const i=order.indexOf(prevCur); pos = i>=0?i:0; }
+  else if(pos>=order.length) pos=0;
+  cur = order.length ? order[pos] : null;
+}
+function renderDecks(){
+  const wrap=document.getElementById('decks'); wrap.innerHTML="";
+  decks.forEach(d=>{
+    const b=document.createElement('button');
+    b.className="chip"+(d===activeDeck?" active":""); b.textContent=d;
+    b.onclick=()=>{ activeDeck=d; persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } renderDecks(); if(playing) playCard(); };
+    wrap.appendChild(b);
+  });
+}
+function render(){
+  const pool = workingList();
+  const stage = document.querySelector('.stage');
+  if(cur==null || !pool.length){
+    stage.innerHTML='<div class="empty">この条件のカードが<b>ありません</b><br>デッキか「未習のみ」を切り替えてください。</div>';
+    document.getElementById('count').textContent="0 / 0";
+    document.getElementById('barfill').style.width="0%";
+    document.getElementById('knownCount').textContent="覚えた "+known.size;
+    paintToday(); return;
+  }
+  setFlipped(false);
+  const c=CARDS[cur];
+  document.getElementById('frontDeck').textContent=c.d + (dir==='ja'?' ／ 日→英':'');
+  if(dir==='ja'){
+    document.getElementById('frontEn').innerHTML =
+      '<div class="recall">'+c.ja+'</div><div class="recall-hint">英語で言ってからめくる</div>';
+    document.getElementById('backJa').textContent=c.en;
+  }else{
+    document.getElementById('frontEn').textContent=c.en;
+    document.getElementById('backJa').textContent=c.ja;
+  }
+  document.getElementById('backEx').textContent=c.ex||"";
+  document.getElementById('backExJa').textContent=c.exja||"";
+  document.getElementById('backNote').textContent=c.note||"";
+  card.classList.toggle('known', known.has(c.en));
+
+  if(mode==='browse'){
+    lsSet('spot', c.en);                      // 次に開いたとき、この語から再開する
+    document.getElementById('count').textContent=(pos+1)+" / "+order.length;
+    document.getElementById('barfill').style.width=((pos+1)/order.length*100)+"%";
+    document.getElementById('prevBtn').disabled = pos===0;
+    document.getElementById('nextBtn').disabled = pos===order.length-1;
+  } else {
+    const done = pool.filter(i=>known.has(CARDS[i].en)).length;
+    document.getElementById('count').textContent="卒業 "+done+" / "+pool.length;
+    document.getElementById('barfill').style.width=(done/pool.length*100)+"%";
+  }
+  document.getElementById('knownCount').textContent="要再挑戦 "+Object.keys(sched).length;
+
+  const kb=document.getElementById('knowBtn');
+  kb.classList.toggle('on', known.has(c.en));
+  kb.textContent = known.has(c.en) ? "✓ 覚えた（解除）" : "この語を「覚えた」";
+  document.getElementById('filterBtn').classList.toggle('on', onlyUnknown);
+  paintToday();
+}
+function paintToday(){
+  const rate = cnt? Math.round(okCnt/cnt*100)+"%" : "-";
+  document.getElementById('today').textContent = (extras.length? "＋"+extras.length+"枚 ／ ":"")+"今日 "+cnt+"枚 ／ 正答 "+rate+" ／ 覚えた "+known.size+"語";
+}
+function paintMode(){
+  const b=document.getElementById('modeBtn');
+  const drill = mode==='drill';
+  b.textContent = drill ? "🎯 ドリル" : "📖 通し";
+  b.classList.toggle('on', drill);
+  document.getElementById('browseRow').style.display = drill?'none':'flex';
+  paintDrillRows();
+  document.getElementById('knowBtn').style.display = drill?'none':'';
+}
+function toggleIL(e){
+  if(e) e.stopPropagation();
+  interleaveOn=!interleaveOn; persist(); paintIL();
+}
+function paintIL(){
+  const b=document.getElementById('ilBtn');
+  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'⇄ 交互 ON':'⇄ 交互 OFF'; }
+}
+function toggleDir(e){
+  if(e) e.stopPropagation();
+  dir = dir==='en' ? 'ja' : 'en';
+  persist(); paintDir(); paintHints(); render();
+}
+function paintDir(){
+  const b=document.getElementById('dirBtn');
+  if(!b) return;
+  b.textContent = dir==='ja' ? 'JA→EN' : 'EN→JA';
+  b.classList.toggle('on', dir==='ja');
+}
+function toggleMode(e){
+  if(e) e.stopPropagation();
+  mode = mode==='browse' ? 'drill' : 'browse';
+  persist(); paintMode();
+  if(mode==='drill') nextDrill(); else { setBrowse(true); render(); }
+}
+
+
+// ============ タップで読み上げ／フリックでめくる ============
+function setFlipped(v){
+  isFlipped=v; card.classList.toggle('flipped',v);
+  paintDrillRows(); paintHints();
+}
+function paintDrillRows(){
+  const drill = mode==='drill';
+  const fr=document.getElementById('flipRow'), jr=document.getElementById('judgeRow');
+  if(fr) fr.classList.toggle('on', drill && !isFlipped);   // 表：めくるボタン
+  if(jr) jr.classList.toggle('on', drill && isFlipped);    // 裏：判定ボタン
+}
+function paintHints(){
+  const fh=document.getElementById('frontHint'), bh=document.getElementById('backHint');
+  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから「めくる」／ 右フリックで次・左フリックで前'
+                                     : 'タップで発音 ／ 右フリックで次・左フリックで前';
+  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前';
+}
+function inRect(el,x,y){
+  if(!el) return false;
+  const r=el.getBoundingClientRect();
+  return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+}
+function tapSpeak(x,y){
+  if(cur==null) return;
+  const c=CARDS[cur];
+  card.classList.remove('tapflash'); void card.offsetWidth; card.classList.add('tapflash');
+  if(isFlipped){
+    if(inRect(document.querySelector('.back .ex'),x,y)) speak(c.ex);   // 例文の枠
+    else speak(c.en);                                                   // それ以外は見出し語
+    return;
+  }
+  if(dir==='ja') return;      // 表が日本語のときは読まない（英語を読むと答えになる）
+  speak(c.en);
+}
+
+let tStart=null, lastSwipe=0;
+card.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){ tStart=null; return; }
+  const t=e.touches[0]; tStart={x:t.clientX,y:t.clientY,at:Date.now()};
+},{passive:true});
+card.addEventListener('touchend',e=>{
+  if(!tStart) return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tStart.x, dy=t.clientY-tStart.y;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  if(adx>45 && adx>ady*1.4 && Date.now()-tStart.at<800){      // 横フリック
+    lastSwipe=Date.now();
+    card.classList.remove('nudge-l','nudge-r'); void card.offsetWidth;
+    card.classList.add(dx<0?'nudge-l':'nudge-r');
+    if(dx>0) next(); else prev();
+  }
+  tStart=null;
+},{passive:true});
+card.addEventListener('click',e=>{
+  if(Date.now()-lastSwipe<450) return;              // フリック直後の誤タップを無視
+  if(e.target.closest('button')) return;            // 🔊ボタンは自前で処理
+  tapSpeak(e.clientX,e.clientY);
+});
+
+// ============ 操作 ============
+function flip(e){ if(e) e.stopPropagation(); if(cur==null) return; setFlipped(!isFlipped); }
+function next(e){ if(e) e.stopPropagation(); if(mode==='drill'){ nextDrill(); } else if(pos<order.length-1){ pos++; setBrowse(false); render(); } if(playing) playCard(); }
+function prev(e){ if(e) e.stopPropagation(); if(mode==='browse' && pos>0){ pos--; setBrowse(false); render(); if(playing) playCard(); } }
+function shuffle(e){
+  if(e) e.stopPropagation();
+  if(mode==='drill'){ nextDrill(); }
+  else { for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} pos=0; cur=order[0]; render(); }
+  if(playing) playCard();
+}
+function toggleKnown(e){
+  if(e) e.stopPropagation(); if(cur==null) return;
+  const w=CARDS[cur].en;
+  if(known.has(w)){ known.delete(w); } else { known.add(w); delete sched[w]; delete streak[w]; }
+  persist();
+  if(onlyUnknown){ setBrowse(false); } render();
+}
+function toggleFilter(e){ if(e) e.stopPropagation(); onlyUnknown=!onlyUnknown; pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } }
+function resetProgress(e){
+  if(e) e.stopPropagation();
+  if(!confirm('覚えた語・要再挑戦・今日の記録をすべて消します。よろしいですか？')) return;
+  known=new Set(); sched={}; streak={}; seen=new Set(); total=0; cnt=0; okCnt=0;
+  persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ============ 自動再生 ============
+function playCard(){
+  if(!playing || cur==null) return;
+  const my = ++playToken;
+  const c = CARDS[cur];
+  setFlipped(false);
+  speakSeq(dir==='ja' ? '' : c.en, ()=>{
+    if(!playing || my!==playToken) return;
+    setFlipped(true);
+    if(dir==='ja') speak(c.en);
+    speakSeq(c.ex, ()=>{
+      if(!playing || my!==playToken) return;
+      setTimeout(()=>{ if(playing && my===playToken) afterCard(); },1000);
+    });
+  });
+}
+function afterCard(){
+  if(repeatMode===2){ playCard(); return; }
+  if(mode==='drill'){ nextDrill(); playCard(); return; }
+  if(pos < order.length-1){ pos++; setBrowse(false); render(); playCard(); }
+  else if(repeatMode===1){ pos=0; setBrowse(false); render(); playCard(); }
+  else stopPlay();
+}
+function startPlay(){ if(cur==null) return; playing=true; const b=document.getElementById('playBtn'); b.classList.add('on'); b.textContent="⏸ 停止"; playCard(); }
+function stopPlay(){ playing=false; playToken++; try{speechSynthesis.cancel();}catch(e){} const b=document.getElementById('playBtn'); b.classList.remove('on'); b.textContent="▶ 自動再生"; }
+function togglePlay(e){ if(e) e.stopPropagation(); playing?stopPlay():startPlay(); }
+function cycleRepeat(e){
+  if(e) e.stopPropagation(); repeatMode=(repeatMode+1)%3;
+  const b=document.getElementById('repeatBtn');
+  b.textContent="🔁 リピート:"+["なし","全体","1枚"][repeatMode];
+  b.classList.toggle('on', repeatMode!==0);
+}
+
+document.addEventListener('keydown',(e)=>{
+  const tg=e.target.tagName;
+  if(tg==='SELECT'||tg==='INPUT'||tg==='TEXTAREA') return;
+  if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); flip(); }
+  else if(e.code==='ArrowRight'){ next(); }
+  else if(e.code==='ArrowLeft'){ prev(); }
+  else if(e.key==='k'||e.key==='K'){ toggleKnown(); }
+  else if(e.key==='s'||e.key==='S'){ speakCurrent(); }
+  else if(e.key==='p'||e.key==='P'){ togglePlay(); }
+  else if(e.key==='d'||e.key==='D'){ toggleMode(); }
+});
+
+
+// ---- Service Worker（オフライン動作）----
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+// ---- カードの追加読み込み ----
+function importCards(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        const incoming = Array.isArray(d) ? d : (d.cards||[]);
+        if(!incoming.length){ alert('カードが入っていないファイルです'); return; }
+        const before = CARDS.length;
+        const seenEn = new Set(extras.map(c=>c.en));
+        for(const c of incoming){ if(c&&c.en&&!seenEn.has(c.en)){ seenEn.add(c.en); extras.push(c); } }
+        mergeExtras(); lsSet('extra',extras); recomputeDecks(); renderDecks();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('取り込みました（+'+(CARDS.length-before)+'枚 ／ 合計'+CARDS.length+'枚）\n学習履歴はそのまま残っています。');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+function clearExtras(e){
+  if(e) e.stopPropagation();
+  if(!extras.length){ alert('追加カードはありません'); return; }
+  if(!confirm('あとから取り込んだ '+extras.length+'枚を削除します。内蔵カードと学習履歴は残ります。')) return;
+  extras=[]; lsSet('extra',extras); mergeExtras(); recomputeDecks(); renderDecks();
+  if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ---- 進捗の書き出し／読み込み（端末を変えても引き継げるように）----
+function exportProgress(e){
+  if(e) e.stopPropagation();
+  const dump={ns:NS, saved:new Date().toISOString(),
+    known:[...known], sched, streak, seen:[...seen], total, cnt, okCnt, day, rec, hist};
+  const blob=new Blob([JSON.stringify(dump,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=NS+'-progress-'+jstDay()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importProgress(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        if(d.ns && d.ns!==NS && !confirm('別のアプリの進捗ファイルに見えます。読み込みますか？')) return;
+        known=new Set(d.known||[]); sched=d.sched||{}; streak=d.streak||{};
+        seen=new Set(d.seen||[]); total=d.total||0;
+        if(d.rec) rec=d.rec;
+        if(d.hist) hist=Object.assign({}, hist, d.hist);
+        if(d.day===jstDay()){ cnt=d.cnt||0; okCnt=d.okCnt||0; }
+        persist();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('読み込みました（覚えた '+known.size+'語）');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
+function restoreSpot(){                     // 前回いた語まで戻す
+  const w = lsGet('spot','');
+  if(!w) return;
+  const i = order.findIndex(k=>CARDS[k] && CARDS[k].en===w);
+  if(i>=0){ pos=i; cur=order[pos]; }
+}
+renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL(); paintHints();
+if(mode==='drill') nextDrill(); else { setBrowse(false); restoreSpot(); render(); }
+</script>
+</body>
+</html>

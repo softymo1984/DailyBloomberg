@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Daily Bloomberg 単語帳</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0a0c11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#14181f; --desk2:#0a0c11;
+    --paper:#FBF6EA; --paper-edge:#efe6d2;
+    --ink:#1b1d22; --ink-soft:#5d626c;
+    --accent:#c9761a; --accent-soft:#eedcc2; --gold:#5bc8d6;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+    background:radial-gradient(120% 80% at 50% -10%, #222c3a 0%, var(--desk) 45%, var(--desk2) 100%);
+    color:var(--paper);min-height:100dvh;
+    display:flex;flex-direction:column;align-items:center;padding:22px 16px 36px;
+  }
+  header{width:100%;max-width:620px;text-align:center;margin-bottom:14px;}
+  .kicker{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+  h1{font-family:"Lora",serif;font-weight:600;font-size:1.9rem;margin:.15em 0 .1em;}
+  .sub{font-size:.8rem;color:#a9b2c4;}
+  .decks{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:16px 0 10px;}
+  .chip{font-family:inherit;font-size:.78rem;font-weight:500;color:#cfd6e2;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);padding:6px 13px;border-radius:999px;cursor:pointer;transition:.18s;}
+  .chip:hover{background:rgba(255,255,255,.13);}
+  .chip.active{background:var(--paper);color:var(--desk2);border-color:var(--paper);font-weight:700;}
+  .meta{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between;
+    font-size:.78rem;color:#a9b2c4;margin:4px 2px 12px;}
+  .bar{height:5px;flex:1;margin:0 12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
+  .bar > i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s;}
+  .stage{width:100%;max-width:620px;perspective:1600px;}
+  .card{position:relative;width:100%;min-height:400px;cursor:pointer;transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);}
+  .card.flipped{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;overflow-y:auto;
+    background:linear-gradient(180deg,var(--paper),var(--paper-edge));border-radius:18px;
+    box-shadow:0 18px 40px rgba(0,0,0,.32), inset 0 1px 0 #fff;
+    padding:54px 26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink);}
+  .face::before,.face::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#c9ccce 60%,#8b9094);box-shadow:0 2px 3px rgba(0,0,0,.35);}
+  .face::before{left:32%;} .face::after{right:32%;}
+  .deck-tag{position:absolute;top:16px;left:0;right:0;font-size:.66rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .en{font-family:"Lora",serif;font-weight:600;font-size:1.8rem;line-height:1.3;}
+  .ja{font-size:1.45rem;font-weight:700;line-height:1.4;}
+  .ex{margin-top:16px;width:100%;max-width:430px;text-align:left;
+    border-left:3px solid var(--accent);background:rgba(201,118,26,.07);
+    border-radius:0 10px 10px 0;padding:11px 14px 11px 13px;position:relative;}
+  .ex-speak{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:.85rem;
+    line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .ex-speak:hover{background:var(--accent);color:#fff;}
+  .ex-en{font-family:"Lora",serif;font-style:italic;font-size:1.02rem;line-height:1.45;padding-right:28px;color:#332a1e;}
+  .ex-ja{font-size:.86rem;color:var(--ink-soft);margin-top:5px;line-height:1.5;}
+  .note{margin-top:12px;font-size:.82rem;color:var(--ink-soft);line-height:1.55;max-width:42ch;}
+  .hint{margin-top:14px;font-size:.72rem;color:#9b8f80;}
+  .back{transform:rotateY(180deg);}
+  .known-flag{position:absolute;top:14px;right:16px;font-size:.7rem;font-weight:700;color:#2e7d52;
+    background:#dff3e6;border-radius:999px;padding:3px 9px;display:none;}
+  .known .known-flag{display:inline-block;}
+  .speak-btn{position:absolute;top:12px;left:14px;width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:1.1rem;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);transition:.15s;}
+  .speak-btn:hover{background:var(--accent);color:#fff;}
+  .speak-btn:active{transform:scale(.92);}
+  .speak-btn.speaking{background:var(--accent);color:#fff;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,118,26,.5);}50%{box-shadow:0 0 0 7px rgba(201,118,26,0);}}
+  .controls{width:100%;max-width:620px;display:flex;gap:10px;margin-top:18px;}
+  .btn{flex:1;font-family:inherit;font-size:.95rem;font-weight:700;padding:14px 10px;border-radius:13px;
+    border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--paper);cursor:pointer;transition:.16s;}
+  .btn:hover{background:rgba(255,255,255,.16);}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);}
+  .btn.primary:hover{background:#d9861f;}
+  .btn[disabled]{opacity:.4;cursor:default;}
+  .row2{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+  .toolbtn{flex:1 1 28%;font-family:inherit;font-size:.82rem;font-weight:500;padding:10px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;transition:.16s;}
+  .toolbtn:hover{background:rgba(255,255,255,.1);}
+  .toolbtn.on{background:var(--gold);border-color:var(--gold);color:#05282e;font-weight:700;}
+  .keys{margin-top:18px;font-size:.72rem;color:#8892a4;text-align:center;line-height:1.7;}
+  .empty{text-align:center;padding:60px 20px;color:#c6cdd9;}
+  .empty b{color:var(--gold);}
+
+  .judge{width:100%;max-width:620px;display:none;gap:10px;margin-top:18px;}
+  .judge.on{display:flex;}
+  .btn.good{background:#1f7a52;border-color:#1f7a52;}
+  .btn.good:hover{background:#249160;}
+  .btn.bad{background:rgba(255,255,255,.08);}
+  .row3{width:100%;max-width:620px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
+  .lbl{font-size:.78rem;color:#9aa6b8;}
+  .spd{font-family:inherit;font-size:.78rem;padding:7px 11px;border-radius:9px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .spd.on{background:var(--gold);border-color:var(--gold);color:#05282e;font-weight:700;}
+  #voiceSel{flex:1;min-width:150px;font-family:inherit;font-size:.76rem;padding:7px 9px;
+    border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#cfd6e2;}
+  .today{width:100%;max-width:620px;margin-top:12px;text-align:center;font-size:.8rem;
+    color:var(--gold);letter-spacing:.04em;}
+  .reset{margin-top:14px;font-family:inherit;font-size:.72rem;background:none;border:none;
+    color:#6f7a8c;text-decoration:underline;cursor:pointer;}
+
+  .judge .btn{font-size:.88rem;padding:13px 6px;}
+  .recall{font-size:1.5rem;font-weight:700;line-height:1.45;color:var(--ink);}
+  .recall-hint{margin-top:10px;font-size:.8rem;color:var(--ink-soft);}
+
+  .searchwrap{width:100%;max-width:620px;margin-top:10px;position:relative;}
+  #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
+  #q::placeholder{color:#8892a4;}
+  /* iOS/Chrome が type=search に足す消去ボタンを消す（自前の ✕ と二重になるため） */
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
+  #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
+  /* body が縦フレックスで高さ固定のため、overflow を持つこの枠は
+     放っておくと高さ 2px まで縮められて検索結果が見えなくなる。flex:none で止める。 */
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;flex:none;
+    border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
+  .hits.on{display:block;}
+  .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
+  .hit:last-child{border-bottom:none;}
+  .hit:hover{background:rgba(255,255,255,.07);}
+  .hit .he{font-family:"Lora",serif;font-size:.95rem;color:var(--paper);}
+  .hit .hj{font-size:.76rem;color:#a9b2c4;margin-top:2px;}
+  .hit .hd{font-size:.64rem;color:var(--gold);letter-spacing:.08em;}
+  .nohit{padding:12px;text-align:center;font-size:.8rem;color:#8892a4;}
+
+  .statsBtn{margin-top:10px;font-family:inherit;font-size:.82rem;padding:10px 18px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .statsBtn:hover{background:rgba(255,255,255,.1);}
+  .sheet{position:fixed;inset:0;background:rgba(5,7,11,.92);z-index:999;overflow-y:auto;
+    padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px));display:none;}
+  .sheet.on{display:block;}
+  .sheet-in{max-width:620px;margin:0 auto;}
+  .sheet h2{font-family:"Lora",serif;font-size:1.3rem;margin-bottom:4px;color:var(--paper);}
+  .sheet .close{position:sticky;top:0;float:right;background:none;border:none;color:#a9b2c4;
+    font-size:1.6rem;cursor:pointer;line-height:1;}
+  .kpis{display:flex;gap:9px;margin:14px 0 18px;flex-wrap:wrap;}
+  .kpi{flex:1 1 30%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:12px 10px;text-align:center;}
+  .kpi b{display:block;font-family:"Lora",serif;font-size:1.5rem;color:var(--gold);line-height:1.1;}
+  .kpi span{font-size:.68rem;color:#a9b2c4;letter-spacing:.05em;}
+  .sec{margin-top:22px;}
+  .sec h3{font-size:.8rem;color:var(--gold);letter-spacing:.1em;margin-bottom:9px;font-weight:700;}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);}
+  .bar{flex:1;min-width:3px;background:var(--gold);border-radius:2px 2px 0 0;opacity:.85;position:relative;}
+  .bar.zero{background:rgba(255,255,255,.1);height:2px !important;}
+  .bar.today{background:var(--accent);opacity:1;}
+  .barlab{display:flex;justify-content:space-between;font-size:.62rem;color:#8892a4;margin-top:5px;}
+  .drow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:.78rem;color:#cfd6e2;}
+  .drow .nm{width:6.5em;flex:none;color:#a9b2c4;font-size:.72rem;}
+  .dbar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+  .dbar i{display:block;height:100%;background:var(--gold);}
+  .drow .vl{width:4.5em;flex:none;text-align:right;font-size:.7rem;color:#8892a4;}
+  .weak{font-size:.8rem;color:#cfd6e2;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+  .weak .w-ja{font-size:.72rem;color:#8892a4;}
+  .weak .w-n{float:right;color:var(--accent);font-weight:700;font-size:.74rem;}
+  .empty-s{font-size:.78rem;color:#8892a4;padding:10px 0;}
+
+  .card{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  .card.nudge-l{animation:nudgeL .22s ease;} .card.nudge-r{animation:nudgeR .22s ease;}
+  @keyframes nudgeL{50%{margin-left:-14px}} @keyframes nudgeR{50%{margin-left:14px}}
+  .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
+  .flipRow.on{display:flex;}
+  .flipRow .btn{flex:1;}
+  /* タップの手ごたえ。filter を使うとカードの立体が潰れて裏の面が透けるので、
+     カード本体ではなく表示中の面の背景色だけを一瞬明るくする。 */
+  .tapflash .face{animation:tapf .35s ease;}
+  @keyframes tapf{0%,100%{background-image:linear-gradient(180deg,var(--paper),var(--paper-edge));}
+                  40%{background-image:linear-gradient(180deg,#fffcf2,#f7eeda);}}
+
+  .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Bloomberg News Now</div>
+    <h1>Daily Bloomberg</h1>
+  </header>
+
+  <div class="decks" id="decks"></div>
+
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="🔍 英語・日本語・メモから検索" oninput="doSearch()" autocomplete="off">
+    <button id="qclear" onclick="clearSearch(event)">✕</button>
+  </div>
+  <div class="hits" id="hits"></div>
+
+  <div class="meta">
+    <span id="count">0 / 0</span>
+    <span class="bar"><i id="barfill"></i></span>
+    <span id="knownCount">覚えた 0</span>
+  </div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="face front">
+        <span class="deck-tag" id="frontDeck"></span>
+        <div class="en" id="frontEn"></div>
+        <div class="hint" id="frontHint">タップで発音 ／ 右フリックで次・左フリックで前</div>
+      </div>
+      <div class="face back">
+        <span class="known-flag">✓ 覚えた</span>
+        <div class="ja" id="backJa"></div>
+        <div class="ex">
+          <p class="ex-en" id="backEx"></p>
+          <p class="ex-ja" id="backExJa"></p>
+        </div>
+        <div class="note" id="backNote"></div>
+        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="browseRow">
+    <button class="btn" id="prevBtn" onclick="prev(event)">← 前</button>
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+    <button class="btn" id="nextBtn" onclick="next(event)">次 →</button>
+  </div>
+
+  <div class="flipRow" id="flipRow">
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+  </div>
+
+  <div class="judge" id="judgeRow">
+    <button class="btn bad" onclick="judge(0,event)">もう一度</button>
+    <button class="btn" onclick="judge(1,event)">わかった</button>
+    <button class="btn good" onclick="judge(2,event)">余裕</button>
+  </div>
+
+  <div class="row2">
+    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">⇄ 交互</button>
+    <button class="toolbtn" id="dirBtn" onclick="toggleDir(event)">EN→JA</button>
+    <button class="toolbtn" id="modeBtn" onclick="toggleMode(event)">📖 通し</button>
+    <button class="toolbtn" id="knowBtn" onclick="toggleKnown(event)">この語を「覚えた」</button>
+    <button class="toolbtn" onclick="shuffle(event)">🔀 シャッフル</button>
+    <button class="toolbtn" id="filterBtn" onclick="toggleFilter(event)">未習のみ</button>
+    <button class="toolbtn" id="playBtn" onclick="togglePlay(event)">▶ 自動再生</button>
+    <button class="toolbtn" id="repeatBtn" onclick="cycleRepeat(event)">🔁 リピート:なし</button>
+  </div>
+
+  <div class="row3">
+    <span class="lbl">速度</span>
+    <button class="spd" data-sp="0.9" onclick="setSpeed(0.9,event)">0.9×</button>
+    <button class="spd" data-sp="1" onclick="setSpeed(1,event)">1.0×</button>
+    <button class="spd" data-sp="1.1" onclick="setSpeed(1.1,event)">1.1×</button>
+    <select id="voiceSel" onchange="setVoice(this.value)"><option value="">音声：自動</option></select>
+  </div>
+
+  <div class="today" id="today">今日 0枚 ／ 正答 -</div>
+
+  <div class="keys">
+    Space/Enter…めくる &nbsp;·&nbsp; ← →…前後 &nbsp;·&nbsp; S…発音 &nbsp;·&nbsp; P…自動再生 &nbsp;·&nbsp; K…覚えた &nbsp;·&nbsp; D…モード切替
+  </div>
+  <div class="row3" style="justify-content:center;margin-top:6px;">
+    <button class="spd" id="reloadBtn" style="display:none;background:#c9761a;color:#fff;border-color:#c9761a;font-weight:700;" onclick="location.reload()">🔄 音声を復帰</button>
+    <button class="spd" onclick="importCards(event)">＋ カードを取り込む</button>
+    <button class="spd" onclick="exportProgress(event)">⬇ 進捗を書き出す</button>
+    <button class="spd" onclick="importProgress(event)">⬆ 進捗を読み込む</button>
+    <a class="spd" href="./index.html" style="text-decoration:none;">🏠 メニュー</a>
+  </div>
+  <button class="statsBtn" onclick="openStats(event)">📊 学習記録</button>
+
+  <div class="sheet" id="statsSheet">
+    <div class="sheet-in">
+      <button class="close" onclick="closeStats(event)">×</button>
+      <h2>学習記録</h2>
+      <div id="statsBody"></div>
+    </div>
+  </div>
+
+  <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
+
+  <div class="vertag">更新 v20 ・ 2026-09-22</div>
+<script>
+const BUILTIN = [
+  // ===== 市場・経済 =====
+  {d:"市場・経済", en:"rate hike", ja:"利上げ", ex:"It was the first rate hike in three years.", exja:"3年ぶりの利上げだった。", note:"hike=引き上げ。引き下げは rate cut。"},
+  {d:"市場・経済", en:"accommodative", ja:"（金融が）緩和的な", ex:"If financial conditions are accommodative, the economy grows too fast.", exja:"金融環境が緩和的なら経済は行き過ぎる。", note:"反対は restrictive。金融政策の定番語。"},
+  {d:"市場・経済", en:"financial conditions", ja:"金融環境", ex:"You need to make financial conditions less accommodative.", exja:"金融環境をより引き締める必要がある。", note:"金利・信用・株価などの総体。"},
+  {d:"市場・経済", en:"price in ~", ja:"〜を織り込む", ex:"Markets are pricing in a rate hike next month.", exja:"市場は来月の利上げを織り込んでいる。", note:"相場が既に予想を反映している。"},
+  {d:"市場・経済", en:"better than even odds", ja:"5割を超える確率", ex:"Markets see better than even odds of a hike.", exja:"市場は利上げ確率を5割超と見ている。", note:"even odds = 五分五分。"},
+  {d:"市場・経済", en:"Treasury yield", ja:"米国債利回り", ex:"The 10-year Treasury yield is at 4.94 percent.", exja:"10年国債利回りは4.94%。", note:"Treasury = 米財務省証券。"},
+  {d:"市場・経済", en:"the 10-year note", ja:"10年債", ex:"Mortgage rates may fall with the 10-year note coming down.", exja:"10年債が下がれば住宅ローン金利も下がりうる。", note:"note=中期債, bond=長期債, bill=短期債。"},
+  {d:"市場・経済", en:"the yield curve flattens", ja:"イールドカーブが平坦化する", ex:"We're seeing the market move and the yield curve flatten.", exja:"相場が動き、イールドカーブの平坦化が見られる。", note:"長短金利差の縮小。"},
+  {d:"市場・経済", en:"jobless claims", ja:"失業保険申請件数", ex:"Jobless claims fell to their lowest level since July.", exja:"失業保険申請は7月以来の低水準に下がった。", note:"米国の週次雇用指標。"},
+  {d:"市場・経済", en:"continuing claims", ja:"継続受給件数", ex:"Continuing claims hit a two-year low.", exja:"継続受給件数は2年ぶりの低水準をつけた。", note:"受給を続けている人の数。"},
+  {d:"市場・経済", en:"hit a two-year low", ja:"2年ぶりの低水準をつける", ex:"Continuing claims hit a two-year low.", exja:"継続受給件数は2年ぶりの低水準をつけた。", note:"hit = （水準を）記録する。"},
+  {d:"市場・経済", en:"mortgage rates", ja:"住宅ローン金利", ex:"Maybe we'll see mortgage rates come down a little.", exja:"住宅ローン金利が少し下がるかもしれない。", note:"mortgage の t は発音しない。"},
+  {d:"市場・経済", en:"new home construction", ja:"住宅着工", ex:"New home construction unexpectedly fell by 2.6 percent.", exja:"住宅着工は予想外に2.6%減少した。", note:"housing starts とも言う。"},
+  {d:"市場・経済", en:"multifamily (projects)", ja:"集合住宅（案件）", ex:"Multifamily projects sank nearly 22 percent in August.", exja:"8月に集合住宅案件が22%近く落ち込んだ。", note:"アパート等。対は single-family。"},
+  {d:"市場・経済", en:"single-family homes", ja:"戸建て住宅", ex:"Single-family homes rose 7.6 percent.", exja:"戸建て住宅は7.6%増えた。", note:"一世帯用の住宅。"},
+  {d:"市場・経済", en:"sink / sank", ja:"急落する", ex:"Multifamily projects sank nearly 22 percent.", exja:"集合住宅案件は22%近く急落した。", note:"sink-sank-sunk。相場の下落に多用。"},
+  {d:"市場・経済", en:"a strong yen", ja:"円高", ex:"A strong yen is making the global bond market more vulnerable.", exja:"円高が世界の債券市場を脆弱にしている。", note:"「強い円」=円高。円安は a weak yen。"},
+  {d:"市場・経済", en:"vulnerable", ja:"脆弱な・弱い立場の", ex:"This is making the global bond market more vulnerable.", exja:"これが世界の債券市場をより脆弱にしている。", note:"発音は「ヴァルネラブル」。"},
+  {d:"市場・経済", en:"year-end target", ja:"年末目標（株価予想）", ex:"He cut his year-end S&P target to 7,900.", exja:"彼はS&Pの年末目標を7,900に引き下げた。", note:"アナリストの目標値。"},
+  {d:"市場・経済", en:"excess capacity", ja:"過剰生産能力", ex:"The report covers trading partners' excess manufacturing capacity.", exja:"報告書は貿易相手国の過剰生産能力を扱う。", note:"通商摩擦の頻出語。"},
+  {d:"市場・経済", en:"tariff", ja:"関税", ex:"The report would recommend a 7.5% tariff on Chinese goods.", exja:"報告書は中国製品への7.5%関税を提言する見込み。", note:"tax ではなく tariff。"},
+  {d:"市場・経済", en:"a barrel", ja:"1バレル（あたり）", ex:"WTI crude oil is approaching $102 a barrel.", exja:"WTI原油は1バレル102ドルに近づいている。", note:"crude oil = 原油。約159リットル。"},
+  {d:"市場・経済", en:"awfully good", ja:"かなり良い", ex:"That would still give us an awfully good year of returns.", exja:"それでもかなり良いリターンの年になる。", note:"awfully = very の口語強調。awful(ひどい)と逆。"},
+  {d:"市場・経済", en:"tenths of a percent", ja:"0.1%単位", ex:"The Dow is up about 7 tenths of a percent.", exja:"ダウは約0.7%上昇している。", note:"7 tenths = 0.7。口頭の相場表現。"},
+
+  // ===== 政治・司法 =====
+  {d:"政治・司法", en:"convene", ja:"（会議を）招集する", ex:"He'll convene a shadow hearing next week.", exja:"来週、非公式の公聴会を招集する。", note:"convene a meeting / hearing。"},
+  {d:"政治・司法", en:"shadow hearing", ja:"非公式（野党側）公聴会", ex:"Khanna will convene a shadow hearing next week.", exja:"カンナ議員が来週シャドー公聴会を開く。", note:"正式権限のない対抗公聴会。"},
+  {d:"政治・司法", en:"call on someone to ~", ja:"〜するよう求める", ex:"He is calling on the President to reach an agreement.", exja:"大統領に合意するよう求めている。", note:"公式な要求・呼びかけ。"},
+  {d:"政治・司法", en:"bipartisan", ja:"超党派の", ex:"Many of us have come together in a bipartisan way.", exja:"我々の多くが党派を超えて結束した。", note:"partisan = 党派的。bi- = 2つの。"},
+  {d:"政治・司法", en:"cosponsor", ja:"共同提案する", ex:"Two congressmen are cosponsoring the bill.", exja:"2人の議員が法案を共同提案している。", note:"法案の共同提出者。"},
+  {d:"政治・司法", en:"bill", ja:"法案", ex:"That bill would authorize NIST to supervise AI models.", exja:"その法案はNISTにAIモデルの監督権限を与える。", note:"可決されると act / law になる。"},
+  {d:"政治・司法", en:"stay in session", ja:"（議会が）会期を続ける", ex:"He'd like the House to stay in session until they pass it.", exja:"可決まで下院の会期を続けたいという。", note:"in session = 開会中。"},
+  {d:"政治・司法", en:"authorize", ja:"権限を与える", ex:"The bill would authorize the agency to supervise AI models.", exja:"法案は当局にAIモデルの監督権限を与える。", note:"法的な権限付与。"},
+  {d:"政治・司法", en:"administer", ja:"運用する・執行する", ex:"They would develop and administer the supervision.", exja:"彼らが監督制度を策定し運用する。", note:"「管理・執行」。薬を投与する意味も。"},
+  {d:"政治・司法", en:"supervision", ja:"監督", ex:"The bill covers government supervision of AI models.", exja:"法案は政府によるAIモデル監督を扱う。", note:"金融では「金融監督」。"},
+  {d:"政治・司法", en:"rogue", ja:"制御不能な・ならず者の", ex:"They call it the Stop Rogue AI Act.", exja:"彼らはそれをStop Rogue AI法と呼ぶ。", note:"rogue state = ならず者国家。発音は「ロウグ」。"},
+  {d:"政治・司法", en:"bad actor", ja:"悪意ある主体・不正行為者", ex:"My concern is use of AI by foreign bad actors.", exja:"懸念は悪意ある外国主体によるAI利用だ。", note:"actor は俳優ではなく「行為主体」。"},
+  {d:"政治・司法", en:"undermine", ja:"損なう・弱体化させる", ex:"They use AI to undermine our national security.", exja:"国家安全保障を損なうためAIを使う。", note:"下から徐々に崩すイメージ。"},
+  {d:"政治・司法", en:"regulators", ja:"規制当局", ex:"US regulators are seeking interviews with employees.", exja:"米規制当局が従業員への聞き取りを求めている。", note:"SEC等の監督官庁。"},
+  {d:"政治・司法", en:"wrongdoing", ja:"不正行為", ex:"They hunt for evidence of potential wrongdoing.", exja:"不正行為の証拠を探している。", note:"不可算で使うことが多い。"},
+  {d:"政治・司法", en:"ruling", ja:"判決・裁定", ex:"The judge said his ruling would avoid confusion.", exja:"裁判官は自らの判決が混乱を避けると述べた。", note:"動詞 rule = 裁定する。"},
+  {d:"政治・司法", en:"provide 30 days notice", ja:"30日前に通知する", ex:"A judge ordered them to provide 30 days notice.", exja:"裁判官は30日前の通知を命じた。", note:"give notice = 事前通知する。"},
+  {d:"政治・司法", en:"tear down / be torn down", ja:"取り壊す／取り壊される", ex:"It will have to be torn down because it's in bad shape.", exja:"状態が悪いので取り壊さざるを得ない。", note:"tear-tore-torn。demolish も同義。"},
+  {d:"政治・司法", en:"deserve recognition", ja:"評価に値する", ex:"He said his efforts deserve recognition.", exja:"自分の取り組みは評価に値すると述べた。", note:"recognition = 功績の認知。"},
+  {d:"政治・司法", en:"reportedly", ja:"報道によれば", ex:"Officials are reportedly preparing to launch the tool.", exja:"当局は報道によればツール投入を準備中だ。", note:"未確認情報に付ける定番副詞。"},
+  {d:"政治・司法", en:"rollout", ja:"（段階的な）展開・投入", ex:"It will debut in DC ahead of a nationwide rollout.", exja:"全国展開に先立ちDCで初投入される。", note:"動詞は roll out。"},
+  {d:"政治・司法", en:"debut（動詞）", ja:"初登場する", ex:"The new system will first debut in the Washington DC area.", exja:"新システムはまずDC地区で登場する。", note:"発音は「デイビュー」。名詞でも使う。"},
+  {d:"政治・司法", en:"allegations of ~", ja:"〜という疑惑・申し立て", ex:"New tariffs over allegations of excess capacity.", exja:"過剰生産能力の疑惑をめぐる新関税。", note:"動詞 allege = （証拠なく）主張する。"},
+
+  // ===== 慣用句 =====
+  {d:"慣用句", en:"on the sidelines of ~", ja:"〜の合間に・〜に際して", ex:"He spoke on the sidelines of a meeting in Scotland.", exja:"彼はスコットランドでの会議の合間に語った。", note:"本会議の場外での発言。sideline=わき。"},
+  {d:"慣用句", en:"a critical juncture", ja:"重大な岐路・正念場", ex:"He may be approaching a critical juncture in the war.", exja:"戦争で重大な岐路に近づいているかもしれない。", note:"juncture = 時点・局面。"},
+  {d:"慣用句", en:"bring ~ to a close", ja:"〜を終結させる", ex:"He must decide whether to act to bring the conflict to a close.", exja:"紛争を終結させるため動くか決めねばならない。", note:"close は名詞「終わり」。"},
+  {d:"慣用句", en:"in the works", ja:"進行中・準備中", ex:"The sale has been in the works for a number of years.", exja:"その売却は何年も前から進行中だった。", note:"まだ公になっていない計画。"},
+  {d:"慣用句", en:"in bad shape", ja:"状態が悪い", ex:"It will have to be torn down because it's in bad shape.", exja:"状態が悪いので取り壊さざるを得ない。", note:"人にも建物にも使う。"},
+  {d:"慣用句", en:"on that score", ja:"その点について", ex:"The ruling would avoid any confusion on that score.", exja:"判決はその点の混乱を避けるものだという。", note:"score = 論点・事項。"},
+  {d:"慣用句", en:"there may be more to come", ja:"さらに続くかもしれない", ex:"He says there may be more to come.", exja:"さらに続くかもしれないと彼は言う。", note:"追加の利上げなどを示唆。"},
+  {d:"慣用句", en:"the Fed's not done", ja:"FRBは打ち止めではない", ex:"The market expects that the Fed's not done.", exja:"市場はFRBが打ち止めでないと予想する。", note:"be done = 終わり・やり終えた。"},
+  {d:"慣用句", en:"come to an agreement", ja:"合意に至る", ex:"He called on the President to come to an agreement.", exja:"大統領に合意へ至るよう求めた。", note:"reach an agreement も同義。"},
+  {d:"慣用句", en:"come together", ja:"結束する・力を合わせる", ex:"Many of us have come together in a bipartisan way.", exja:"我々の多くが党派を超えて結束した。", note:"協力してまとまる。"},
+  {d:"慣用句", en:"hunt for ~", ja:"〜を探し回る", ex:"They hunt for evidence of potential wrongdoing.", exja:"不正の証拠を探し回っている。", note:"執念深く探すニュアンス。"},
+  {d:"慣用句", en:"doesn't look good for ~", ja:"〜には良い兆しではない", ex:"The data doesn't really look good for the housing market.", exja:"この指標は住宅市場に良い兆しではない。", note:"見通しの悪さを控えめに言う。"},
+  {d:"慣用句", en:"come down", ja:"（金利・価格が）下がる", ex:"Maybe mortgage rates will come down a little.", exja:"住宅ローン金利が少し下がるかもしれない。", note:"go up の対。相場で多用。"},
+  {d:"慣用句", en:"ahead of ~", ja:"〜に先立って", ex:"It will debut in DC ahead of a nationwide rollout.", exja:"全国展開に先立ってDCで登場する。", note:"before のややフォーマルな版。"},
+  {d:"慣用句", en:"quote（挿入句）", ja:"以下引用・いわゆる", ex:"The judge said his ruling would, quote, avoid any confusion.", exja:"判決は、引用すると「混乱を避ける」ものだという。", note:"話し言葉で引用符の代わり。"},
+  {d:"慣用句", en:"one of the weakest paces since ~", ja:"〜以来で最も弱いペースの一つ", ex:"That is one of the weakest paces since COVID.", exja:"コロナ以降で最も弱いペースの一つだ。", note:"pace = 進行の速さ。"},
+  {d:"慣用句", en:"the real issue is ~", ja:"本当の問題は〜だ", ex:"The real issue is that we're not building enough houses.", exja:"本当の問題は住宅の供給不足だ。", note:"論点を絞り込む言い方。"},
+
+  // ===== 9/19 Google Discloses AI Hacks / Trump 報道機関締め出し =====
+  // --- 市場・経済 ---
+  {d:"市場・経済", en:"edge up / edge higher", ja:"小幅に上昇する", ex:"The index edged up as chipmakers rallied.", exja:"半導体株の反発で指数は小幅に上昇した。", note:"edge = じりじり動く。小幅な値動き。"},
+  {d:"市場・経済", en:"rally（動詞）", ja:"反発する・持ち直す", ex:"Most firms fell, but chipmakers rallied.", exja:"多くの銘柄は下げたが半導体株は反発した。", note:"下落後の回復。名詞でも使う。"},
+  {d:"市場・経済", en:"top $X（動詞）", ja:"〜を超える", ex:"Bitcoin topped $81,000.", exja:"ビットコインは8.1万ドルを超えた。", note:"top = 上回る。exceed と同義。"},
+  {d:"市場・経済", en:"on bets that ~", ja:"〜という思惑で", ex:"Yields rose on bets that oil prices could fuel inflation.", exja:"原油がインフレを煽るとの思惑で利回りが上昇。", note:"bet = 市場の賭け・思惑。"},
+  {d:"市場・経済", en:"fuel inflation", ja:"インフレを加速させる", ex:"Oil prices near $100 could fuel inflation.", exja:"100ドル近い原油はインフレを加速させうる。", note:"fuel = 燃料を与える→煽る。"},
+  {d:"市場・経済", en:"prompt ~", ja:"〜を促す・引き起こす", ex:"That could fuel inflation, prompting Fed rate hikes.", exja:"それがインフレを煽り、利上げを促しうる。", note:"原因→結果をつなぐ定番語。"},
+  {d:"市場・経済", en:"an even 5 percent", ja:"ちょうど5%", ex:"The 10-year Treasury yielded an even 5 percent.", exja:"10年債利回りはちょうど5%だった。", note:"even = 端数なしの。"},
+  {d:"市場・経済", en:"add / drop（指数の増減）", ja:"上昇する／下落する（ポイント）", ex:"The Dow dropped 95. Nasdaq added 104.", exja:"ダウは95下げ、ナスダックは104上げた。", note:"相場実況の定型。gain も同義。"},
+  {d:"市場・経済", en:"a losing week", ja:"下落した週・負けの週", ex:"Another losing week for the US stock market.", exja:"米株市場はまたも下落した週となった。", note:"down for a third week = 3週続落。"},
+  {d:"市場・経済", en:"stage an IPO", ja:"IPOを実施する", ex:"The firm plans to stage its IPO in November.", exja:"同社は11月のIPO実施を計画している。", note:"stage = （催しを）挙行する。"},
+  {d:"市場・経済", en:"blockbuster", ja:"超大型の・特大の", ex:"They plan to stage a blockbuster initial public offering.", exja:"超大型の新規株式公開を計画している。", note:"元は大ヒット映画。規模の大きさを表す。"},
+  {d:"市場・経済", en:"initial public offering (IPO)", ja:"新規株式公開", ex:"Investors are seeking to get a piece of the IPO.", exja:"投資家はIPOの分け前を狙っている。", note:"offering = 売り出し。"},
+  {d:"市場・経済", en:"record-breaking", ja:"記録破りの", ex:"It had been expected to stage a record-breaking offering.", exja:"記録破りの売り出しが見込まれていた。", note:"break a record から。"},
+  {d:"市場・経済", en:"annualized revenue", ja:"年換算売上高", ex:"It is expected to generate more than $100 billion in annualized revenue.", exja:"年換算で1,000億ドル超の売上が見込まれる。", note:"足元の実績を年率換算した数値。"},
+  {d:"市場・経済", en:"financials（名詞・複数）", ja:"財務諸表・決算数値", ex:"Waiting would give them time to share third-quarter financials.", exja:"待てば第3四半期の決算を示す時間ができる。", note:"複数形で「決算内容」。"},
+  {d:"市場・経済", en:"soar / soaring numbers", ja:"急騰する／急伸した数字", ex:"Investors are using those soaring numbers to justify the valuation.", exja:"投資家はその急伸した数字で評価額を正当化している。", note:"soar = 舞い上がる。急上昇。"},
+  {d:"市場・経済", en:"staggering", ja:"驚異的な・度肝を抜く", ex:"They justify a staggering potential valuation of $2 trillion.", exja:"2兆ドルという驚異的な想定評価額を正当化する。", note:"stagger = よろめかせる。"},
+  {d:"市場・経済", en:"valuation", ja:"企業価値評価・評価額", ex:"Its potential valuation could reach $2 trillion.", exja:"想定評価額は2兆ドルに達しうる。", note:"value(価値)から。未上場企業にも使う。"},
+  {d:"市場・経済", en:"justify", ja:"正当化する・裏づける", ex:"They use those numbers to justify the valuation.", exja:"その数字で評価額を正当化している。", note:"just(正当)+ify。"},
+  {d:"市場・経済", en:"call for a slowdown", ja:"減速を求める", ex:"Industry leaders call for a slowdown in the development.", exja:"業界首脳は開発の減速を求めている。", note:"call for = 公に要求する。"},
+  {d:"市場・経済", en:"competitive position", ja:"競争上の地位", ex:"The financials show a strong competitive position.", exja:"決算は強い競争上の地位を示している。", note:"市場での立ち位置。"},
+
+  // --- 政治・司法 ---
+  {d:"政治・司法", en:"executive order", ja:"大統領令・知事令", ex:"The Governor has issued an executive order to deal with AI systems.", exja:"知事はAIに対処する行政命令を出した。", note:"議会を通さない行政命令。issue an ~。"},
+  {d:"政治・司法", en:"news outlet", ja:"報道機関・メディア", ex:"He will ban cable news outlets from the White House.", exja:"ケーブル報道各社をホワイトハウスから締め出すという。", note:"outlet = 発信媒体。"},
+  {d:"政治・司法", en:"coverage", ja:"報道・取り上げ方", ex:"He cited what he said was unfavorable coverage.", exja:"不利な報道だと彼が言うものを理由に挙げた。", note:"cover(報道する)の名詞。"},
+  {d:"政治・司法", en:"unfavorable", ja:"好ましくない・不利な", ex:"He complained about unfavorable coverage of his administration.", exja:"政権に不利な報道だと不満を述べた。", note:"favorable の反対。"},
+  {d:"政治・司法", en:"cite ~", ja:"〜を理由に挙げる・引き合いに出す", ex:"He announced the ban, citing unfavorable coverage.", exja:"不利な報道を理由に挙げ、禁止を発表した。", note:"根拠として示す。"},
+  {d:"政治・司法", en:"effective immediately", ja:"即時発効で", ex:"The ban would become effective immediately.", exja:"その禁止は即時発効するという。", note:"effective = 効力を持つ。"},
+  {d:"政治・司法", en:"bar someone from ~", ja:"〜から締め出す・立ち入り禁止にする", ex:"He threatened to bar other outlets from the executive mansion.", exja:"他の報道各社も公邸から締め出すと警告した。", note:"bar = 閂(かんぬき)→阻む。"},
+  {d:"政治・司法", en:"enforce", ja:"（法・規則を）執行する", ex:"It wasn't clear how he would attempt to enforce the ban.", exja:"禁止をどう執行するかは不明だった。", note:"law enforcement = 法執行機関。"},
+  {d:"政治・司法", en:"draw a legal challenge", ja:"法的な異議申し立てを招く", ex:"The move is likely to draw a legal challenge.", exja:"その措置は法廷闘争を招きそうだ。", note:"draw = 引き寄せる・招く。"},
+  {d:"政治・司法", en:"overturn", ja:"（判決・決定を）覆す", ex:"Federal courts have previously overturned those efforts.", exja:"連邦裁判所は過去にその試みを覆した。", note:"上級審が下級審の判断を破棄する。"},
+  {d:"政治・司法", en:"First Amendment", ja:"（米）憲法修正第1条", ex:"The move strikes at First Amendment protections for the news media.", exja:"報道機関の憲法修正第1条の保護を突く措置だ。", note:"言論・報道の自由を定める条項。"},
+  {d:"政治・司法", en:"strike at the heart of ~", ja:"〜の根幹を突く・揺るがす", ex:"A move that strikes at the heart of press freedom.", exja:"報道の自由の根幹を突く措置だ。", note:"核心を直撃するイメージ。"},
+  {d:"政治・司法", en:"pact", ja:"協定・盟約", ex:"They expected the pact to be signed next week.", exja:"協定は来週署名されると見込んでいた。", note:"agreement よりやや重い語。"},
+  {d:"政治・司法", en:"semi-autonomous", ja:"半自治の", ex:"He tried to take over the semi-autonomous territory.", exja:"その半自治領を手に入れようとした。", note:"autonomy = 自治。"},
+  {d:"政治・司法", en:"territory", ja:"領土・領域", ex:"Greenland is a semi-autonomous Danish territory.", exja:"グリーンランドはデンマークの半自治領だ。", note:"国家の一部だが本土とは別扱いの地域。"},
+  {d:"政治・司法", en:"permanent control over ~", ja:"〜に対する恒久的な管理権", ex:"The deal gives the US permanent control over security.", exja:"合意は米国に安全保障の恒久的管理権を与える。", note:"permanent = 恒久の。"},
+  {d:"政治・司法", en:"tout", ja:"喧伝する・大々的に宣伝する", ex:"The deal touted by the President appears to be a pullback.", exja:"大統領が喧伝した合意は後退に見える。", note:"自賛気味に売り込むニュアンス。"},
+  {d:"政治・司法", en:"pullback", ja:"後退・撤回・手じまい", ex:"It appears to be a significant pullback from his earlier demands.", exja:"以前の要求からの大幅な後退に見える。", note:"相場では「押し目」の意味も。"},
+  {d:"政治・司法", en:"foment", ja:"（不和・不信を）煽る", ex:"His repeated demands fomented distrust between the US and Europe.", exja:"再三の要求が米欧間の不信を煽った。", note:"悪いものを掻き立てる時に使う。"},
+  {d:"政治・司法", en:"grave / the gravest", ja:"深刻な／最も深刻な", ex:"It presented one of the gravest challenges to the alliance.", exja:"同盟にとって最も深刻な課題の一つとなった。", note:"grave = 重大な。名詞では「墓」。"},
+  {d:"政治・司法", en:"saga", ja:"長く続いた騒動・一連の経緯", ex:"The deal ends for now a saga that fractured the alliance.", exja:"合意は同盟に亀裂を入れた騒動を一旦終わらせた。", note:"北欧の英雄譚が語源。長い顛末。"},
+  {d:"政治・司法", en:"fracture（動詞）", ja:"亀裂を入れる・分断する", ex:"A saga that fractured the Transatlantic Alliance.", exja:"大西洋同盟に亀裂を入れた一連の騒動。", note:"骨折の fracture と同語。"},
+
+  // --- テック・AI ---
+  {d:"テック・AI", en:"inadvertently", ja:"うっかり・意図せず", ex:"The model inadvertently hacked into three company systems.", exja:"そのモデルは意図せず3社のシステムに侵入した。", note:"deliberately(故意に)の反対。"},
+  {d:"テック・AI", en:"hack into ~", ja:"〜に不正侵入する", ex:"The model hacked into three company systems during testing.", exja:"モデルはテスト中に3社のシステムに侵入した。", note:"into が必要。hack = 侵入する。"},
+  {d:"テック・AI", en:"breach", ja:"侵害・突破・情報漏えい", ex:"This adds to a string of breaches by AI agents.", exja:"AIエージェントによる一連の侵害に加わる事例だ。", note:"data breach = 情報漏えい。契約違反の意味も。"},
+  {d:"テック・AI", en:"disclose", ja:"開示する・公表する", ex:"The firm had disclosed them to the relevant AI developers.", exja:"同社は該当するAI開発者に開示していた。", note:"disclosure = 開示。非公開情報を明かす。"},
+  {d:"テック・AI", en:"retrieve information", ja:"情報を取得する・引き出す", ex:"Gemini was asked to retrieve information from a company.", exja:"Geminiはある会社から情報を取得するよう指示された。", note:"retrieval = 検索・取得。"},
+  {d:"テック・AI", en:"fictional", ja:"架空の・実在しない", ex:"It was asked about a fictional company with a real company's name.", exja:"実在社と同名の架空の会社について尋ねられた。", note:"fiction(創作)から。fictitious も同義。"},
+  {d:"テック・AI", en:"vendor", ja:"業者・供給元", ex:"The tests were run by the AI security vendor.", exja:"そのテストはAIセキュリティ業者が実施した。", note:"外部の提供会社。"},
+  {d:"テック・AI", en:"self-direct", ja:"自律的に動く・自ら方向を決める", ex:"The order deals with AI systems that can now self-direct.", exja:"その命令は自律的に動けるAIを対象とする。", note:"人の指示なしに行動する。"},
+  {d:"テック・AI", en:"kill switch", ja:"緊急停止スイッチ", ex:"They may require companies to bake a kill switch into their systems.", exja:"企業にシステムへの緊急停止装置の組み込みを求めうる。", note:"暴走時に止める仕組み。"},
+  {d:"テック・AI", en:"bake ~ into ...", ja:"〜を…に組み込む", ex:"Require companies to bake a kill switch into their systems.", exja:"緊急停止装置をシステムに組み込ませる。", note:"設計段階から内蔵させる比喩。"},
+  {d:"テック・AI", en:"vet / vetting", ja:"審査する・精査する", ex:"Other elements include vetting systems by third-party evaluators.", exja:"第三者評価機関による審査も要素に含まれる。", note:"人物・製品の適格性を調べる。"},
+  {d:"テック・AI", en:"third-party evaluator", ja:"第三者評価機関", ex:"Companies would have third-party evaluators check their systems for safety.", exja:"企業は第三者評価機関にシステムの安全性を点検させる。", note:"当事者以外の independent な検証者。"},
+  {d:"テック・AI", en:"alarm（動詞）", ja:"不安にさせる・警戒させる", ex:"The breaches have alarmed security experts.", exja:"その侵害はセキュリティ専門家を不安にさせた。", note:"alarming = 憂慮すべき。"},
+  {d:"テック・AI", en:"cybersecurity testing", ja:"セキュリティ検証・侵入テスト", ex:"The hacks happened during cybersecurity testing.", exja:"その侵入はセキュリティ検証中に起きた。", note:"脆弱性を意図的に探す試験。"},
+
+  // --- 慣用句 ---
+  {d:"慣用句", en:"a string of ~", ja:"一連の〜・相次ぐ〜", ex:"This adds to a string of breaches by AI agents.", exja:"AIによる一連の侵害に加わる事例だ。", note:"string = 数珠つなぎ。悪い出来事に多用。"},
+  {d:"慣用句", en:"~ and ... alike", ja:"〜も…も同様に", ex:"It alarmed security experts and developers alike.", exja:"専門家も開発者も同様に不安にさせた。", note:"alike は文末。両者を並べる。"},
+  {d:"慣用句", en:"happen to ~", ja:"たまたま〜する", ex:"A fictional company that happened to have the same name.", exja:"たまたま同じ名前だった架空の会社。", note:"偶然の一致を表す。"},
+  {d:"慣用句", en:"take a closer look at ~", ja:"〜をより詳しく検討する", ex:"He asked a panel to take a closer look at the rules.", exja:"規則を詳しく検討するよう委員会に求めた。", note:"closer = より近く。精査する。"},
+  {d:"慣用句", en:"get sick of ~", ja:"〜にうんざりする", ex:"It's just accumulative stories. You get sick of it.", exja:"積み重なった記事ばかりだ。うんざりする。", note:"be/get tired of と同義。"},
+  {d:"慣用句", en:"get a piece of ~", ja:"〜の分け前にあずかる", ex:"Investors are seeking to get a piece of the IPO.", exja:"投資家はIPOの分け前を得ようとしている。", note:"a piece of the action とも。"},
+  {d:"慣用句", en:"up from ~", ja:"〜から増えて", ex:"That's up from $65 billion as of July.", exja:"7月時点の650億ドルから増えている。", note:"比較の起点を示す。down from が対。"},
+  {d:"慣用句", en:"for now", ja:"今のところ・一旦", ex:"The deal ends for now a saga that fractured the alliance.", exja:"合意は同盟を分断した騒動を一旦終わらせた。", note:"暫定的であることを示す。"},
+  {d:"慣用句", en:"make sense to ~", ja:"〜するのが理にかなう", ex:"They will look at whether it makes sense to require a kill switch.", exja:"緊急停止装置の義務化が妥当か検討する。", note:"合理的かを問う定番表現。"},
+
+  // ===== 9/20 Trump Says He Will Name an AI Czar =====
+  // --- 市場・経済 ---
+  {d:"市場・経済", en:"acquire", ja:"買収する", ex:"Paramount could be closer to resolving its deal to acquire Warner Brothers.", exja:"パラマウントはワーナー買収の合意に近づきつつある。", note:"acquisition = 買収。"},
+  {d:"市場・経済", en:"takeover", ja:"買収・経営権の取得", ex:"An antitrust lawsuit is holding up its takeover.", exja:"独禁法訴訟がその買収を止めている。", note:"take over(乗っ取る)の名詞。"},
+  {d:"市場・経済", en:"merger", ja:"合併", ex:"Twelve states are suing to block the merger.", exja:"12州が合併阻止のため提訴している。", note:"M&A = mergers and acquisitions。"},
+  {d:"市場・経済", en:"antitrust lawsuit", ja:"独占禁止法訴訟", ex:"They are in talks to settle an antitrust lawsuit.", exja:"独禁法訴訟の和解に向け協議中だ。", note:"antitrust = 反トラスト・独禁。"},
+  {d:"市場・経済", en:"settle a lawsuit", ja:"訴訟を和解で解決する", ex:"They are in advanced talks to settle the lawsuit.", exja:"訴訟の和解に向け最終協議に入っている。", note:"判決でなく当事者間で決着。"},
+  {d:"市場・経済", en:"settlement", ja:"和解・示談", ex:"Any settlement would need the support of all 12 states.", exja:"いかなる和解も12州全ての同意が必要だ。", note:"settle の名詞。決済の意味も。"},
+  {d:"市場・経済", en:"in advanced talks", ja:"交渉が最終段階にある", ex:"The two sides are reportedly in advanced talks.", exja:"両者は最終段階の協議に入っていると報じられた。", note:"advanced = 進んだ段階の。"},
+  {d:"市場・経済", en:"hold up ~", ja:"〜を遅らせる・足止めする", ex:"A lawsuit that's holding up its takeover.", exja:"買収を足止めしている訴訟。", note:"「支える」の意味もあるので文脈で判断。"},
+  {d:"市場・経済", en:"sue to block ~", ja:"〜を阻止するため提訴する", ex:"All 12 states suing to block the merger.", exja:"合併阻止のため提訴している12州すべて。", note:"sue = 訴える。sue-sued-sued。"},
+  {d:"市場・経済", en:"structural changes", ja:"構造的な措置（事業分離など）", ex:"He prefers structural changes, such as the sale of assets.", exja:"資産売却のような構造的措置を望むという。", note:"独禁法の是正措置。約束より確実とされる。"},
+  {d:"市場・経済", en:"sale of assets", ja:"資産売却", ex:"He prefers structural changes such as the sale of assets.", exja:"資産売却のような構造的措置を望む。", note:"divestiture(事業売却)とも言う。"},
+  {d:"市場・経済", en:"right of first refusal", ja:"先買権・優先交渉権", ex:"It would give the US a right of first refusal on investments.", exja:"米国に投資の先買権を与えることになる。", note:"他者に売る前に先に買える権利。契約実務の頻出語。"},
+  {d:"市場・経済", en:"surge", ja:"急騰する・急増する", ex:"Gas and diesel prices keep surging in the US.", exja:"米国のガソリン・軽油価格は急騰を続けている。", note:"波が押し寄せるイメージ。"},
+  {d:"市場・経済", en:"refinery", ja:"製油所", ex:"They can't get crude to run into their refineries.", exja:"原油を製油所に回すことができない。", note:"refine = 精製する。"},
+  {d:"市場・経済", en:"crunch", ja:"逼迫・不足", ex:"We're not really seeing this crunch on diesel alleviate.", exja:"軽油の逼迫が緩む気配はない。", note:"credit crunch = 信用収縮。"},
+  {d:"市場・経済", en:"alleviate", ja:"緩和する・和らげる", ex:"We're not seeing the crunch on diesel alleviate.", exja:"軽油の逼迫が緩和する様子は見られない。", note:"ease と同義。痛み・負担を軽くする。"},
+  {d:"市場・経済", en:"alternative supplies", ja:"代替供給源", ex:"Countries around the world look for alternative supplies for crude.", exja:"各国が原油の代替供給源を探している。", note:"supply = 供給(源)。"},
+  {d:"市場・経済", en:"pull from ~", ja:"〜から調達する・引き出す", ex:"They're going to be pulling more from the US.", exja:"彼らは米国からより多く調達することになる。", note:"供給を引っ張ってくる。"},
+  {d:"市場・経済", en:"be disrupted", ja:"途絶する・混乱する", ex:"There is concern that oil flows will be disrupted.", exja:"石油の流れが途絶するとの懸念がある。", note:"disruption = 供給途絶・混乱。"},
+  {d:"市場・経済", en:"hit another record", ja:"再び最高値をつける", ex:"Diesel hit another record this morning.", exja:"軽油は今朝も最高値を更新した。", note:"record = 最高記録。"},
+  {d:"市場・経済", en:"a gallon", ja:"1ガロン（あたり）", ex:"Diesel hit a record at almost $6.50 a gallon.", exja:"軽油は1ガロン6.5ドル近い最高値をつけた。", note:"約3.79リットル。米の燃料単位。"},
+  {d:"市場・経済", en:"hurdle", ja:"障害・ハードル", ex:"It still faces massive hurdles like a tiny workforce.", exja:"少ない労働力など大きな障害を抱えている。", note:"face hurdles = 障害に直面する。"},
+  {d:"市場・経済", en:"workforce", ja:"労働力・従業員数", ex:"The island has a tiny workforce.", exja:"その島の労働力はごくわずかだ。", note:"働き手の総体。"},
+  {d:"市場・経済", en:"transport links", ja:"交通の便・輸送網", ex:"Limited transport links make development difficult.", exja:"交通の便が限られ開発が難しい。", note:"link = つながり・路線。"},
+
+  // --- 政治・司法 ---
+  {d:"政治・司法", en:"czar", ja:"（特定分野の）総括責任者", ex:"Trump says he would name an artificial intelligence czar.", exja:"トランプ氏はAI担当の総括責任者を任命するという。", note:"ロシア皇帝が語源。drug czar など。発音は「ザー」。"},
+  {d:"政治・司法", en:"impeachment", ja:"弾劾", ex:"He compared it to the scandals that led to his two impeachments.", exja:"2度の弾劾につながった醜聞になぞらえた。", note:"impeach = 弾劾訴追する。"},
+  {d:"政治・司法", en:"term（任期）", ja:"任期・在任期間", ex:"This pattern has increased during the second term.", exja:"この傾向は2期目に強まっている。", note:"first term = 1期目。"},
+  {d:"政治・司法", en:"attorney general", ja:"司法長官・州法務長官", ex:"California Attorney General Rob Bonta is in talks to settle.", exja:"カリフォルニア州法務長官が和解協議に入っている。", note:"州レベルでは「司法長官」に相当。"},
+  {d:"政治・司法", en:"deny access to ~", ja:"〜への立ち入りを拒否する", ex:"Their journalists were denied access to the White House grounds.", exja:"記者らはホワイトハウス敷地への立ち入りを拒まれた。", note:"受け身で使われることが多い。"},
+  {d:"政治・司法", en:"grounds（敷地）", ja:"敷地・構内", ex:"They were denied access to the White House grounds.", exja:"ホワイトハウスの敷地に入れなかった。", note:"複数形で「敷地」。「根拠」の意味も。"},
+  {d:"政治・司法", en:"assault on ~", ja:"〜への攻撃・侵害", ex:"CNN called the move an illegal assault on constitutional rights.", exja:"CNNはその措置を憲法上の権利への違法な攻撃と呼んだ。", note:"物理的攻撃にも権利侵害にも使う。"},
+  {d:"政治・司法", en:"hindrance", ja:"妨害・障害", ex:"The right to report without hindrance from government.", exja:"政府の妨害なく報道する権利。", note:"動詞 hinder の名詞。"},
+  {d:"政治・司法", en:"pledge to ~", ja:"〜すると誓約する", ex:"All three outlets pledged to continue covering the White House.", exja:"3社とも取材を続けると誓約した。", note:"promise より公式で重い。"},
+  {d:"政治・司法", en:"intensively", ja:"集中的に・徹底して", ex:"They pledged to continue covering the White House intensively.", exja:"徹底した取材を続けると表明した。", note:"intensive = 集中的な。"},
+  {d:"政治・司法", en:"confiscate", ja:"没収する・取り上げる", ex:"She and a photographer had their badges confiscated at the gate.", exja:"彼女とカメラマンは門で入館証を没収された。", note:"have + 物 + confiscated = 〜を没収される。"},
+  {d:"政治・司法", en:"kick out of ~", ja:"〜から追い出す", ex:"Colleagues were essentially kicked out of the Pentagon.", exja:"同僚らは事実上ペンタゴンから追い出された。", note:"口語的。強制的な排除。"},
+  {d:"政治・司法", en:"mainstream media", ja:"主流メディア・大手報道機関", ex:"Our colleagues in the mainstream media were kicked out.", exja:"大手メディアの同僚たちが追い出された。", note:"略して MSM とも。"},
+  {d:"政治・司法", en:"hostile", ja:"敵対的な", ex:"Saudi Arabia warned of a hostile aerial threat.", exja:"サウジは敵対的な空からの脅威を警告した。", note:"hostile takeover = 敵対的買収。"},
+  {d:"政治・司法", en:"aerial", ja:"空からの・航空の", ex:"They warned of a hostile aerial threat.", exja:"空からの敵対的脅威を警告した。", note:"air の形容詞形。"},
+  {d:"政治・司法", en:"escalation", ja:"激化・段階的拡大", ex:"The first alert since an escalation in fighting.", exja:"戦闘の激化以来、初の警報だった。", note:"escalate = 段階的に強まる。"},
+  {d:"政治・司法", en:"Iran-backed（X-backed）", ja:"イランが支援する（〜が後ろ盾の）", ex:"Fighting with Iran-backed rebels in neighboring Yemen.", exja:"隣国イエメンのイラン支援勢力との戦闘。", note:"back = 後援する。state-backed など応用可。"},
+  {d:"政治・司法", en:"neighboring", ja:"隣接する・近隣の", ex:"Rebels in neighboring Yemen.", exja:"隣国イエメンの反政府勢力。", note:"neighbor の形容詞形。"},
+  {d:"政治・司法", en:"mediator", ja:"仲介者・調停役", ex:"Tehran sent its conditions via Qatar, a key mediator.", exja:"テヘランは主要な仲介役カタールを通じ条件を伝えた。", note:"mediate = 仲介する。"},
+  {d:"政治・司法", en:"economic statecraft", ja:"経済を使った国家戦略・経済外交", ex:"He is economic statecraft lead for Bloomberg Economics.", exja:"彼はブルームバーグの経済安全保障担当責任者だ。", note:"statecraft = 国家運営の技術。制裁・輸出規制などを含む。"},
+  {d:"政治・司法", en:"boost one's presence", ja:"存在感・拠点を強化する", ex:"A pact that boosts Washington's presence on the island.", exja:"米国の島での存在感を高める協定。", note:"presence = 駐留・進出。"},
+  {d:"政治・司法", en:"give up land", ja:"領土を手放す", ex:"It boosts their presence without giving up any land.", exja:"領土を手放すことなく存在感を高める。", note:"give up = 譲り渡す。"},
+
+  // --- テック・AI ---
+  {d:"テック・AI", en:"race ahead with ~", ja:"先を争って〜を進める", ex:"He pushed tech companies to race ahead with development.", exja:"彼はIT各社に開発を急ぐよう促した。", note:"race = 競走する。前のめりな加速。"},
+  {d:"テック・AI", en:"pose risks to ~", ja:"〜にリスクをもたらす", ex:"Concerns that the technology may pose risks to humans.", exja:"その技術が人間にリスクをもたらすとの懸念。", note:"pose = （問題を）引き起こす。"},
+  {d:"テック・AI", en:"hoax", ja:"デマ・でっち上げ", ex:"He rejected those concerns as a hoax.", exja:"彼はその懸念をデマだと一蹴した。", note:"人を欺く作り話。発音は「ホウクス」。"},
+  {d:"テック・AI", en:"reject concerns", ja:"懸念を一蹴する・退ける", ex:"He rejected concerns that AI may pose risks.", exja:"AIがリスクを生むとの懸念を退けた。", note:"dismiss concerns も同義。"},
+  {d:"テック・AI", en:"hinder", ja:"妨げる・邪魔する", ex:"We will not in any way hinder the growth of this industry.", exja:"この産業の成長を一切妨げない。", note:"名詞は hindrance。"},
+  {d:"テック・AI", en:"stifle", ja:"抑え込む・窒息させる", ex:"We will not hinder or stifle the growth of this industry.", exja:"この産業の成長を妨げも抑え込みもしない。", note:"息を詰まらせるイメージ。stifle innovation が定番。"},
+  {d:"テック・AI", en:"impactful", ja:"影響力の大きい", ex:"AI will be even larger and more impactful.", exja:"AIはさらに大きく、より影響力を持つだろう。", note:"近年広まった語。"},
+  {d:"テック・AI", en:"ship products", ja:"製品を出荷する・世に出す", ex:"We should never ship products before they're ready.", exja:"準備が整う前に製品を出すべきではない。", note:"IT業界で「リリースする」の意味。"},
+  {d:"テック・AI", en:"prosperous", ja:"繁栄した・豊かな", ex:"Help America be as prosperous as possible.", exja:"米国を可能な限り豊かにする手助けをする。", note:"prosperity = 繁栄。"},
+
+  // --- 慣用句 ---
+  {d:"慣用句", en:"move the needle", ja:"状況を大きく動かす・効果を出す", ex:"This agreement doesn't really move the needle.", exja:"この合意は状況を大きく動かすものではない。", note:"計器の針が振れる比喩。ビジネスで多用。"},
+  {d:"慣用句", en:"for the time being", ja:"当面は・さしあたり", ex:"For the time being, we're not seeing the crunch alleviate.", exja:"当面、逼迫が緩む様子は見られない。", note:"for now より少し硬い。"},
+  {d:"慣用句", en:"irrespective of ~", ja:"〜に関係なく", ex:"We should go as fast as we can irrespective of anybody else.", exja:"他がどうであれ、できる限り速く進むべきだ。", note:"regardless of と同義。ややフォーマル。"},
+  {d:"慣用句", en:"open for business", ja:"商売を受け入れている・門戸が開いている", ex:"Greenland is open for business, but faces massive hurdles.", exja:"グリーンランドは門戸を開いているが障害も大きい。", note:"投資や取引を歓迎する状態。"},
+  {d:"慣用句", en:"off the coast of ~", ja:"〜の沖合に", ex:"Their boats aren't off the coast of Greenland.", exja:"彼らの船はグリーンランド沖にはいない。", note:"off = 岸から離れて。"},
+  {d:"慣用句", en:"part of a pattern", ja:"一連の流れの一部", ex:"This is part of a pattern with attacks against the press.", exja:"これは報道機関への攻撃という一連の流れの一部だ。", note:"単発でなく継続的傾向だと示す。"},
+  {d:"慣用句", en:"desperately want ~", ja:"切実に〜を欲しがる", ex:"This island desperately wants investment.", exja:"この島は切実に投資を求めている。", note:"desperate = 必死の。"},
+
+  // ===== 9/21 US-China Talks, Iran War Conditions =====
+  {d:"市場・経済", en:"have a lot of ground to cover", ja:"話し合うことが山ほどある", ex:"The two have a lot of ground to cover.", exja:"両者には協議すべきことが山ほどある。", note:"ground=扱う範囲。会議の冒頭で頻出。"},
+  {d:"市場・経済", en:"deliverables", ja:"成果物・目に見える成果", ex:"They are meeting to find some deliverables for their presidents.", exja:"首脳に示す成果を探るため会談している。", note:"交渉や案件で「持ち帰れる成果」。"},
+  {d:"市場・経済", en:"find common ground", ja:"共通点を見いだす", ex:"It's a long list to find common ground on trade.", exja:"通商で共通点を探るには課題が多い。", note:"合意できる土台を探す。"},
+  {d:"市場・経済", en:"borrowing costs", ja:"資金調達コスト・借入金利", ex:"The war has been a key factor pushing up borrowing costs.", exja:"戦争が調達コスト上昇の主因となってきた。", note:"金利上昇の言い換えとして頻出。"},
+  {d:"市場・経済", en:"push up ~", ja:"〜を押し上げる", ex:"A key factor pushing up consumer prices.", exja:"消費者物価を押し上げる主因。", note:"push down が対。"},
+  {d:"市場・経済", en:"efforts are underway", ja:"取り組みが進行中だ", ex:"Efforts are underway to end the conflict.", exja:"紛争終結に向けた取り組みが進行中だ。", note:"underway=進行中。受け身にしない。"},
+  {d:"市場・経済", en:"frozen funds", ja:"凍結資産", ex:"Iran's conditions include the release of frozen funds.", exja:"イランの条件には凍結資産の解除が含まれる。", note:"制裁でよく出る。freeze assets。"},
+  {d:"市場・経済", en:"naval blockade", ja:"海上封鎖", ex:"An end to the US naval blockade in the Strait of Hormuz.", exja:"ホルムズ海峡での米海上封鎖の解除。", note:"naval=海軍の。"},
+  {d:"市場・経済", en:"box office", ja:"興行収入", ex:"The film broke a franchise record at the box office.", exja:"その作品は興行収入で記録を更新した。", note:"映画の売上。"},
+  {d:"市場・経済", en:"rake in ~", ja:"（大金を）稼ぐ", ex:"The original raked in about 48 million dollars.", exja:"前作は約4,800万ドルを稼いだ。", note:"熊手でかき集めるイメージ。口語。"},
+  {d:"市場・経済", en:"way above expectations", ja:"予想を大きく上回って", ex:"That's way above expectations.", exja:"それは予想を大きく上回っている。", note:"way=強調の副詞。"},
+  {d:"市場・経済", en:"lucrative", ja:"儲かる・収益性の高い", ex:"Their most advanced and most lucrative models.", exja:"最も先進的で最も収益性の高いモデル。", note:"profitable より強い語感。"},
+  {d:"市場・経済", en:"consumer value", ja:"消費者にとっての価値", ex:"The suit argues it reduces consumer value for paid subscriptions.", exja:"訴訟は有料契約の消費者価値を損なうと主張する。", note:"独禁法の論点で使われる。"},
+  {d:"政治・司法", en:"denounce", ja:"公然と非難する", ex:"CNN and Politico have all denounced the ban.", exja:"CNNもPoliticoもその禁止措置を非難した。", note:"公式・強い非難。"},
+  {d:"政治・司法", en:"slam", ja:"激しく非難する", ex:"Its spokesman slammed the President for his decision.", exja:"報道官は大統領の決定を激しく非難した。", note:"見出しで多用される強い語。"},
+  {d:"政治・司法", en:"take any and all steps necessary", ja:"必要なあらゆる手段を取る", ex:"It plans to take any and all steps necessary to protect its reporters.", exja:"記者を守るためあらゆる手段を取る方針だ。", note:"法的措置を示唆する定型句。"},
+  {d:"政治・司法", en:"settlement talks", ja:"和解協議", ex:"Settlement talks between the two sides continue.", exja:"両者の和解協議は続いている。", note:"settle の名詞＋talks。"},
+  {d:"政治・司法", en:"terms being considered", ja:"検討中の条件", ex:"Other terms being considered include an editorial board.", exja:"検討中の他の条件には編集委員会の設置が含まれる。", note:"terms=契約・和解の条件。"},
+  {d:"政治・司法", en:"editorial board", ja:"編集委員会", ex:"An editorial board to monitor the network's coverage.", exja:"報道を監視する編集委員会。", note:"報道機関の論説・編集方針を決める組織。"},
+  {d:"政治・司法", en:"open Pandora's box", ja:"取り返しのつかない事態を招く", ex:"Once you open the Pandora's box of censorship, you can never close it.", exja:"検閲という箱を一度開けたら二度と閉じられない。", note:"ギリシャ神話由来。悪いものが出る。"},
+  {d:"政治・司法", en:"censorship", ja:"検閲", ex:"Once you open the Pandora's box of censorship.", exja:"検閲という箱を一度開けてしまえば。", note:"censor=検閲する。"},
+  {d:"政治・司法", en:"spokesman / spokesperson", ja:"報道官・広報担当", ex:"Dr. Alansari is a spokesman for the Ministry of Foreign Affairs.", exja:"アランサリ氏は外務省の報道官だ。", note:"組織を代表して話す人。"},
+  {d:"政治・司法", en:"resume negotiations", ja:"交渉を再開する", ex:"Tehran sent conditions to resume negotiations.", exja:"テヘランは交渉再開の条件を送った。", note:"resume=再開する。発音はリズューム。"},
+  {d:"政治・司法", en:"hostilities", ja:"戦闘行為・敵対行為", ex:"We've been working since the return of hostilities to the region.", exja:"地域で戦闘が再開して以来取り組んでいる。", note:"複数形で「交戦状態」。"},
+  {d:"政治・司法", en:"go back and forth over ~", ja:"〜をめぐって議論を往復させる", ex:"We've been going back and forth over different ideas.", exja:"様々な案をめぐって議論を重ねてきた。", note:"行ったり来たりの交渉。"},
+  {d:"政治・司法", en:"in-person meeting", ja:"対面での会談", ex:"This will be their third in-person meeting.", exja:"これが3回目の対面会談となる。", note:"オンラインでない直接の面会。"},
+  {d:"政治・司法", en:"grip on power", ja:"権力の掌握", ex:"The vote is set to strengthen the Kremlin's grip on power.", exja:"投票は政権の権力掌握を強めるとみられる。", note:"grip=握り。"},
+  {d:"政治・司法", en:"barrage", ja:"集中攻撃・弾幕", ex:"The refinery got hit by the largest barrage this year.", exja:"製油所は今年最大の集中攻撃を受けた。", note:"質問の集中砲火にも使う。"},
+  {d:"政治・司法", en:"press ahead with ~", ja:"〜を押し進める", ex:"The Chancellor has vowed to press ahead with reforms.", exja:"首相は改革を押し進めると明言した。", note:"反対を押し切って進める。"},
+  {d:"政治・司法", en:"vow to ~", ja:"〜すると誓う・明言する", ex:"He has vowed to press ahead with reforms.", exja:"彼は改革を進めると明言した。", note:"pledge より強い決意。"},
+  {d:"政治・司法", en:"exit polls", ja:"出口調査", ex:"Exit polls show his party received just 5%.", exja:"出口調査では同党の得票は5%にとどまった。", note:"投票直後の調査。"},
+  {d:"政治・司法", en:"preoccupied with ~", ja:"〜に気を取られている", ex:"The President has been preoccupied with the midterm elections.", exja:"大統領は中間選挙に気を取られてきた。", note:"他に手が回らない状態。"},
+  {d:"政治・司法", en:"midterm elections", ja:"中間選挙", ex:"The midterm elections are coming up.", exja:"中間選挙が近づいている。", note:"大統領任期の中間に行う議会選。"},
+  {d:"政治・司法", en:"high-profile", ja:"注目度の高い", ex:"Just days before the high-profile summit.", exja:"注目度の高い首脳会談の数日前。", note:"low-profile が対。"},
+  {d:"テック・AI", en:"slow the development pace", ja:"開発ペースを緩める", ex:"Top leaders have been warning that it's time to slow the development pace.", exja:"首脳らは開発ペースを緩める時だと警告してきた。", note:"pace=速度。"},
+  {d:"テック・AI", en:"escalating risks", ja:"増大するリスク", ex:"They cite escalating risks of the technology.", exja:"その技術の増大するリスクを挙げている。", note:"escalate=段階的に強まる。"},
+  {d:"テック・AI", en:"industry-wide cooperation", ja:"業界全体での協調", ex:"His essay urged industry-wide cooperation.", exja:"その論考は業界全体での協調を促した。", note:"-wide=全体にわたる。"},
+  {d:"テック・AI", en:"urge ~", ja:"〜を強く促す", ex:"The essay urged cooperation amid safety risks.", exja:"その論考は安全上のリスクの中で協調を促した。", note:"強い要請。"},
+  {d:"テック・AI", en:"amid ~", ja:"〜のさなかに", ex:"Cooperation amid escalating safety risks.", exja:"安全リスクが高まるさなかの協調。", note:"during より報道向き。"},
+  {d:"テック・AI", en:"violate antitrust laws", ja:"独占禁止法に違反する", ex:"The suit argues that coordination violates antitrust laws.", exja:"訴訟は協調が独禁法違反だと主張する。", note:"violate=違反する。"},
+  {d:"テック・AI", en:"coordination", ja:"（企業間の）協調・談合", ex:"The suit argues that coordination reduces consumer value.", exja:"訴訟は協調が消費者価値を損なうと主張する。", note:"文脈により「談合」の含み。"},
+  {d:"テック・AI", en:"file a suit in ~", ja:"〜で訴訟を起こす", ex:"The suit filed in California argues that.", exja:"カリフォルニアで起こされた訴訟はこう主張する。", note:"file=提出する。"},
+  {d:"慣用句", en:"sink one's teeth into ~", ja:"〜に食い込む・本腰を入れる", ex:"The film sank its teeth into 60 million dollars in ticket sales.", exja:"その作品はチケット売上6,000万ドルに食い込んだ。", note:"歯を立てるイメージ。本気で取り組む意味も。"},
+  {d:"慣用句", en:"in solidarity with ~", ja:"〜と連帯して", ex:"His supporting acts withdrew in solidarity with the opener.", exja:"前座に連帯して共演者が降板した。", note:"solidarity=連帯。"},
+  {d:"慣用句", en:"be dropped from ~", ja:"〜から外される", ex:"He was dropped from the tour after his comments on stage.", exja:"舞台での発言後、ツアーから外された。", note:"drop=降ろす。"},
+  {d:"慣用句", en:"the controversy that unfolded", ja:"巻き起こった騒動", ex:"He addressed the controversy that unfolded last week.", exja:"彼は先週巻き起こった騒動に言及した。", note:"unfold=展開する。"},
+  {d:"慣用句", en:"address the controversy", ja:"騒動について釈明する", ex:"The singer addressed the controversy on stage.", exja:"その歌手は舞台で騒動について釈明した。", note:"address=（問題に）対処・言及する。"},
+  {d:"慣用句", en:"alternate between A and B", ja:"AとBを行き来する", ex:"A relationship that's alternated between cooperation and public clashes.", exja:"協調と公然の衝突を行き来してきた関係。", note:"alternate=交互になる。"},
+  {d:"慣用句", en:"an unlikely relationship", ja:"意外な関係", ex:"The pair continue an unlikely relationship.", exja:"二人は意外な関係を続けている。", note:"unlikely=ありそうにない。"},
+  {d:"慣用句", en:"catastrophic and unjustifiable", ja:"破滅的で正当化できない", ex:"He said what's happening there is catastrophic and unjustifiable.", exja:"そこで起きていることは破滅的で正当化できないと述べた。", note:"強い非難の定型。"},
+  {d:"慣用句", en:"wrap a third day of ~", ja:"〜の3日目を終える", ex:"Russia wrapped a third and final day of elections.", exja:"ロシアは選挙の最終3日目を終えた。", note:"wrap=締めくくる。"},
+  {d:"慣用句", en:"set to ~", ja:"〜することになっている", ex:"The vote is set to strengthen the government's grip.", exja:"投票は政権の掌握を強めることになっている。", note:"予定・見込みを表す。"},
+  // ===== 2026-09-22 Bloomberg News Now から追加 =====
+  {d:"市場・経済", en:"flight disruptions", ja:"運航の乱れ", ex:"There were flight disruptions today at major airports serving New York City.", exja:"ニューヨーク市の主要空港で今日、運航の乱れがあった。", note:"disruption=中断・混乱。複数形で使うことが多い。"},
+  {d:"市場・経済", en:"stem from ~", ja:"〜に起因する", ex:"This stemmed from a circuit failure in an old telecommunication system.", exja:"これは古い通信設備の回線故障に起因していた。", note:" stem=茎。「そこから伸びている」が原義。"},
+  {d:"市場・経済", en:"circuit failure", ja:"回線の故障", ex:"The outage was traced to a circuit failure in a backup system.", exja:"障害は予備系統の回線故障までたどられた。", note:"failure=故障。outage=停止。"},
+  {d:"市場・経済", en:"resume", ja:"再開する", ex:"All airport operations in the Northeast are resuming.", exja:"北東部の空港運用はすべて再開しつつある。", note:"発音は「リズューム」。履歴書の résumé とは別語。"},
+  {d:"市場・経済", en:"clear delays", ja:"遅延を解消する", ex:"It will take some time to clear all existing flight delays.", exja:"既存の遅延をすべて解消するには時間がかかる。", note:"clear=滞留を片づける。"},
+  {d:"市場・経済", en:"wrap up ~", ja:"〜をまとめ上げる・決着させる", ex:"This will allow the company to wrap up its acquisition of Warner Brothers Discovery.", exja:"これで同社はワーナー買収を決着させられる。", note:"会議を終える意味でも使う。"},
+  {d:"市場・経済", en:"consent decree", ja:"同意判決（和解に基づく裁判所命令）", ex:"The commitments made in the consent decree will be carried out.", exja:"同意判決で約束した事項は履行される。", note:"当局と企業が合意し裁判所が承認する形式。"},
+  {d:"市場・経済", en:"guardrails", ja:"歯止め・安全装置", ex:"We have an array of guardrails and accountability requirements.", exja:"一連の歯止めと説明責任の要件を設けている。", note:"元は道路のガードレール。規制・AI文脈で多用。"},
+  {d:"市場・経済", en:"an array of ~", ja:"ずらりと並んだ〜・一連の〜", ex:"We have an array of guardrails and accountability requirements.", exja:"一連の歯止めと説明責任の要件を設けている。", note:"数の多さと種類の幅を同時に示す。"},
+  {d:"市場・経済", en:"accountability requirements", ja:"説明責任の要件", ex:"The deal adds accountability requirements for the combined company.", exja:"この取引は統合後の会社に説明責任の要件を課す。", note:"accountability=結果に対して答える責任。"},
+  {d:"市場・経済", en:"market power", ja:"市場支配力", ex:"The deal includes protections designed to limit market power.", exja:"この取引には市場支配力を抑える保護策が含まれる。", note:"独占禁止の中心概念。"},
+  {d:"市場・経済", en:"editorial independence", ja:"編集の独立性", ex:"The protections also ensure editorial independence.", exja:"保護策は編集の独立性も担保する。", note:"報道機関の買収で必ず論点になる。"},
+  {d:"市場・経済", en:"close at a record high", ja:"最高値で引ける", ex:"The NASDAQ composite closed at a record high.", exja:"ナスダック総合は最高値で引けた。", note:"close=引ける。record high=過去最高値。"},
+  {d:"市場・経済", en:"the advance was led by ~", ja:"上昇は〜が牽引した", ex:"The advance was led by AI-related shares.", exja:"上昇はAI関連株が牽引した。", note:"advance=値上がり。逆は decline。"},
+  {d:"市場・経済", en:"spark a rally", ja:"上昇に火をつける", ex:"This news on Meta sparked a rally in semiconductor stocks.", exja:"このメタの報道が半導体株の上昇に火をつけた。", note:"spark=火花。きっかけを作る。"},
+  {d:"市場・経済", en:"market cap", ja:"時価総額", ex:"The move boosted the company's market cap to above a trillion dollars.", exja:"この動きで時価総額は1兆ドル超に押し上げられた。", note:"market capitalization の略。"},
+  {d:"テック・AI", en:"AI agent", ja:"AIエージェント", ex:"The company's new AI agent is ranked as the number one free app.", exja:"同社の新しいAIエージェントは無料アプリ1位になっている。", note:"自律的に作業をこなすAIの総称。"},
+  {d:"テック・AI", en:"cutting edge ~", ja:"最先端の〜", ex:"They want standards for cutting edge artificial intelligence.", exja:"最先端のAIに関する基準を求めている。", note:"名詞なら the cutting edge=最前線。"},
+  {d:"テック・AI", en:"set standards", ja:"基準を定める", ex:"The US should lead a global effort to set standards.", exja:"米国が基準づくりの国際的取り組みを主導すべきだ。", note:"standard=守るべき水準。"},
+  {d:"テック・AI", en:"lead a global effort", ja:"国際的な取り組みを主導する", ex:"OpenAI is urging the US to lead a global effort.", exja:"OpenAIは米国に国際的な取り組みの主導を求めている。", note:"effort=（組織だった）取り組み。"},
+  {d:"テック・AI", en:"urge A to do", ja:"Aに〜するよう強く促す", ex:"OpenAI is urging the US to lead a global effort.", exja:"OpenAIは米国に主導するよう強く促している。", note:"ask より強く、order より弱い。"},
+  {d:"テック・AI", en:"incidents involving ~", ja:"〜が関わる事案", ex:"They must define what kinds of incidents involving AI models should be reported.", exja:"AIモデルが関わるどの事案を報告すべきか定める必要がある。", note:"incident=（好ましくない）出来事。"},
+  {d:"テック・AI", en:"address（名詞）", ja:"演説", ex:"The statement comes ahead of his address to the UN Security Council.", exja:"声明は国連安保理での演説に先立って出された。", note:"動詞なら「対処する」。名詞は「演説・住所」。"},
+  {d:"テック・AI", en:"come ahead of ~", ja:"〜に先立って出る・行われる", ex:"The statement comes ahead of the summit on Thursday.", exja:"声明は木曜の首脳会談に先立って出された。", note:"ahead of=時間的に前に。"},
+  {d:"政治・司法", en:"file a lawsuit", ja:"訴訟を起こす", ex:"Three news outlets have filed a lawsuit against the administration.", exja:"報道3社が政権を相手に訴訟を起こした。", note:"file=（書類を）提出する。"},
+  {d:"政治・司法", en:"news outlets", ja:"報道機関", ex:"The news outlets claim the ban is unconstitutional.", exja:"報道各社はこの締め出しは違憲だと主張している。", note:"outlet=発信の出口。媒体1社を指す。"},
+  {d:"政治・司法", en:"revoke access", ja:"立ち入り資格を取り消す", ex:"This comes after the president revoked their access.", exja:"これは大統領が彼らの立ち入り資格を取り消した後の動きだ。", note:"revoke=（一度与えた権利を）取り消す。"},
+  {d:"政治・司法", en:"a direct assault on ~", ja:"〜への正面からの攻撃", ex:"The news outlets claim the ban is a direct assault on the First Amendment.", exja:"報道各社はこの締め出しは憲法修正第1条への正面からの攻撃だと主張する。", note:"assault=急襲。比喩で「侵害」。"},
+  {d:"政治・司法", en:"the complaint", ja:"訴状", ex:"According to the complaint filed in federal court, the ban is unlawful.", exja:"連邦裁に提出された訴状によれば、その締め出しは違法だ。", note:"日常語の「不満」とは別の法律用語。"},
+  {d:"政治・司法", en:"seek a court order", ja:"裁判所の命令を求める", ex:"The news outlets are seeking a court order to restore their access.", exja:"報道各社はアクセス回復を求めて裁判所の命令を求めている。", note:"seek=求める。求めて動く含み。"},
+  {d:"政治・司法", en:"reinstate", ja:"元に戻す・復帰させる", ex:"They want the court to immediately reinstate their access to the White House.", exja:"ホワイトハウスへのアクセスを直ちに元に戻すよう求めている。", note:"解雇された人の復職にも使う。"},
+  {d:"政治・司法", en:"while the lawsuits proceed", ja:"訴訟が進む間", ex:"They asked for access while their lawsuits proceed.", exja:"訴訟が進む間のアクセスを求めた。", note:"proceed=手続きが進む。"},
+  {d:"政治・司法", en:"a hearing is scheduled for ~", ja:"審理が〜に予定されている", ex:"A hearing on that request is scheduled for Wednesday.", exja:"その申し立ての審理は水曜に予定されている。", note:"hearing=（法廷・議会の）審理。"},
+  {d:"政治・司法", en:"hold ~ to account", ja:"〜に説明責任を果たさせる", ex:"The public can hold their elected representatives to account.", exja:"国民は選出した議員に説明責任を果たさせることができる。", note:"英国寄りの言い方。米では accountable も。"},
+  {d:"政治・司法", en:"elected representatives", ja:"選挙で選ばれた議員", ex:"The public can hold their elected representatives to account.", exja:"国民は選出した議員に説明責任を果たさせることができる。", note:"representative=代表者・下院議員。"},
+  {d:"政治・司法", en:"upbeat assessment", ja:"前向きな評価", ex:"Officials offered upbeat assessments on the talks.", exja:"当局者は協議について前向きな評価を示した。", note:"upbeat=強気・明るい。逆は downbeat。"},
+  {d:"政治・司法", en:"steady ties", ja:"関係を安定させる", ex:"Both sides signaled a mutual desire to steady ties.", exja:"双方は関係を安定させたいという意向を示した。", note:"steady は動詞で「安定させる」。ties=関係。"},
+  {d:"政治・司法", en:"signal a desire to do", ja:"〜したい意向を示す", ex:"Both sides signaled a mutual desire to steady ties.", exja:"双方は関係を安定させたい意向を示した。", note:"明言せず態度で示す、の含み。"},
+  {d:"政治・司法", en:"trade truce", ja:"貿易休戦", ex:"They will continue talks on the extension of a trade truce.", exja:"貿易休戦の延長について協議を続ける。", note:"truce=一時休戦。恒久的な和解ではない。"},
+  {d:"政治・司法", en:"unfair trading practice", ja:"不公正な貿易慣行", ex:"We want to protect our market and our workers from unfair trading practice.", exja:"市場と労働者を不公正な貿易慣行から守りたい。", note:"practice=慣行。複数形でも使う。"},
+  {d:"政治・司法", en:"controls on imports", ja:"輸入規制", ex:"We have a lot of controls on Chinese imports.", exja:"中国からの輸入には多くの規制をかけている。", note:"輸出側は controls on exports。"},
+  {d:"政治・司法", en:"manage trade", ja:"貿易を管理する", ex:"So we're just going to manage trade with China.", exja:"だから中国との貿易は管理していくことになる。", note:"自由貿易でも遮断でもない中間の立場。"},
+  {d:"政治・司法", en:"federal grants", ja:"連邦補助金", ex:"The project would require more than $21 billion in federal grants.", exja:"この計画には210億ドル超の連邦補助金が必要になる。", note:"grant=返済不要の補助金。loanと対比。"},
+  {d:"政治・司法", en:"federal approvals", ja:"連邦政府の認可", ex:"You're going to need a lot of federal approvals to do it.", exja:"実行には連邦政府の認可が数多く必要になる。", note:"approval=承認・認可。"},
+  {d:"政治・司法", en:"federally oriented", ja:"連邦政府主導型の", ex:"That was a very federally oriented job.", exja:"あれはかなり連邦政府主導型の事業だった。", note:"~-oriented=〜志向の。customer-oriented など。"},
+  {d:"政治・司法", en:"rail yards", ja:"鉄道の操車場", ex:"The plan is to build thousands of homes over the rail yards.", exja:"操車場の上に数千戸の住宅を建てる計画だ。", note:"yard=構内。都市再開発の定番用地。"},
+  {d:"政治・司法", en:"technical discussions", ja:"実務レベルの協議", ex:"The two agreed to begin technical discussions on the plan.", exja:"両者はその計画について実務レベルの協議を始めることで合意した。", note:"政治決着の前段にある事務折衝。"},
+  {d:"慣用句", en:"take a step back", ja:"一歩引いて全体を見る", ex:"When you take a step back and look at it, the picture is clearer.", exja:"一歩引いて見れば、全体像はもっとはっきりする。", note:"議論が細部に入りすぎたときの定番。"},
+  {d:"慣用句", en:"bring ~ up", ja:"〜を話題に出す", ex:"The mayor brought that up at the meeting.", exja:"市長がその件を会議で持ち出した。", note:"bring-brought-brought。"},
+  {d:"慣用句", en:"That's the focus.", ja:"そこが眼目だ", ex:"We're going to manage trade. That's the focus.", exja:"貿易は管理していく。そこが眼目だ。", note:"話の力点を一言で示す締め方。"},
+  {d:"慣用句", en:"it will take some time to ~", ja:"〜には時間がかかる", ex:"He said it will take some time to clear all existing delays.", exja:"既存の遅延をすべて解消するには時間がかかると述べた。", note:"すぐには直らない、を和らげて言う。"},
+  {d:"慣用句", en:"just because ~ doesn't mean ...", ja:"〜だからといって…とは限らない", ex:"Just because it's managed doesn't mean we can't have positive areas.", exja:"管理されているからといって、前向きな分野が持てないわけではない。", note:"反論の型。会議で使いやすい。"},
+  {d:"慣用句", en:"for the very first time", ja:"史上初めて", ex:"Its market cap rose above a trillion dollars for the very first time.", exja:"時価総額が史上初めて1兆ドルを超えた。", note:"very が「まさに初」を強める。"},
+  {d:"慣用句", en:"be ranked as ~", ja:"〜に位置づけられる", ex:"The app is ranked as the number one free app.", exja:"そのアプリは無料アプリ1位に位置づけられている。", note:"rank=順位づける。"},
+  // ===== 受験英語の多義語（本人確認済みの語義のみ） =====
+  {d:"受験・多義語", en:"locate（突き止める）", ja:"〈位置・出所〉を突き止める", ex:"Engineers worked overnight to locate the source of the outage.", exja:"技術者は徹夜で障害の発生元を突き止めた。", note:"探すだけでなく「見つけて位置を確定する」。find より手順を踏む含み。"},
+  {d:"受験・多義語", en:"locate（拠点を置く）", ja:"〈施設・拠点〉を置く", ex:"The bank decided to locate its data center in Osaka.", exja:"銀行はデータセンターを大阪に置くことにした。", note:"受動の be located in ~（〜にある）が最頻出。自動詞で The firm located north of the city. とも言う。"},
+  {d:"受験・多義語", en:"adapt to ~", ja:"〜に順応する・合わせる", ex:"It took him a month to adapt to the new reporting system.", exja:"新しい報告システムに慣れるのに1か月かかった。", note:"adopt（採用する）と1字違い。意味は別物なので綴りに注意。"},
+  {d:"受験・多義語", en:"adapt（脚色する）", ja:"〈作品〉を別の媒体向けに作り直す", ex:"The novel was adapted for the screen last year.", exja:"その小説は昨年、映画用に脚色された。", note:"名詞は adaptation（脚色・翻案）。受動で使うことが多い。"},
+  {d:"受験・多義語", en:"reflect on ~", ja:"〜をじっくり考える・振り返る", ex:"Let me reflect on your proposal before I answer.", exja:"返事の前に、ご提案をじっくり考えさせてください。", note:"on が付くと「熟考」。reflect 単独なら反射・反映。"},
+  {d:"受験・多義語", en:"ridicule", ja:"をあざけり笑う", ex:"His forecast was ridiculed at the time, but he turned out to be right.", exja:"彼の予想は当時あざ笑われたが、結果的に正しかった。", note:"名詞も同形。hold ~ up to ridicule=物笑いの種にする。"},
+  {d:"受験・多義語", en:"associate A with B", ja:"AからBを連想する・結びつけて考える", ex:"Investors still associate the brand with poor quality.", exja:"投資家はいまだにそのブランドを品質の低さと結びつけている。", note:"受動の be associated with ~（〜と関連がある）が頻出。"},
+  {d:"受験・多義語", en:"associate with ~", ja:"〜と付き合う・交際する", ex:"He was told not to associate with the rival firm's traders.", exja:"競合他社のトレーダーと付き合うなと言われた。", note:"自動詞。目的語は人。物事には使わない。"},
+  {d:"受験・多義語", en:"substitute for ~", ja:"〜の代役を務める・代わりになる", ex:"Nothing can substitute for face-to-face negotiation.", exja:"対面交渉の代わりになるものはない。", note:"自動詞。他動詞の substitute A for B（Bの代わりにAを使う）とは向きが逆。"},
+  {d:"受験・多義語", en:"organize（組織する）", ja:"〈団体〉を作る・設立する", ex:"The staff organized a union last spring.", exja:"従業員は昨春、組合を結成した。", note:"organized crime=組織犯罪。名詞は organization。"},
+  {d:"受験・多義語", en:"organize（準備する）", ja:"〈催し・作業〉を段取りする", ex:"Could you organize the kickoff meeting for next week?", exja:"来週のキックオフ会議を段取りしてもらえますか。", note:"会議・出張・資料整理など日常業務で最頻出。arrange に近い。"},
+  {d:"受験・多義語", en:"adopt（採用する）", ja:"〈方針・手法〉を採り入れる", ex:"The board adopted the new capital policy in June.", exja:"取締役会は6月に新しい資本方針を採用した。", note:"adapt（順応させる）とは別語。名詞は adoption。"},
+  {d:"受験・多義語", en:"adopt（養子にする）", ja:"を養子にする・引き取る", ex:"They adopted a second child last year.", exja:"昨年、二人目の子を養子に迎えた。", note:"保護犬・保護猫を引き取る意味でも adopt a dog と言う。"},
+  {d:"受験・多義語", en:"spoil（甘やかす）", ja:"を甘やかしてだめにする", ex:"His grandparents spoil him every summer.", exja:"祖父母は毎年夏に彼を甘やかす。", note:"spoiled child=甘やかされた子。過去形は spoiled / spoilt の両方。"},
+  {d:"受験・多義語", en:"spoil（傷む）", ja:"〈食べ物が〉傷む・だめになる", ex:"The milk will spoil if you leave it out.", exja:"牛乳は出しっぱなしにすると傷む。", note:"自動詞。主語は食品。go bad とほぼ同義。"},
+  {d:"受験・多義語", en:"recover（取り戻す）", ja:"〈失ったもの〉を取り戻す・回復する", ex:"The index recovered most of its earlier losses.", exja:"指数は前半の下げをほぼ取り戻した。", note:"自動詞なら「回復する」、他動詞なら「取り戻す」。名詞は recovery。"},
+  {d:"受験・多義語", en:"recover（回収する）", ja:"〈費用・投資〉を回収する", ex:"It will take years to recover the initial investment.", exja:"初期投資の回収には何年もかかる。", note:"recover costs=費用を回収する。採算の議論で頻出。"},
+  {d:"受験・多義語", en:"identify A with B", ja:"AをBと同一視する・結びつける", ex:"Customers identify the logo with reliability.", exja:"顧客はそのロゴを信頼性と結びつけて見ている。", note:"受動の be identified with ~ も多い。associate A with B に近い。"},
+  {d:"受験・多義語", en:"identify with ~", ja:"〜に共感する・自分を重ねる", ex:"I can identify with what she went through.", exja:"彼女が経験したことには共感できる。", note:"自動詞。前置詞ひとつで「同一視する」から「共感する」に変わる。"},
+  {d:"受験・多義語", en:"beat（上回る）", ja:"〈予想・記録〉を上回る・打ち負かす", ex:"Quarterly earnings beat analysts' estimates.", exja:"四半期決算はアナリスト予想を上回った。", note:"beat-beat-beaten。決算記事の定番。逆は miss estimates。"},
+  {d:"受験・多義語", en:"wander（さまよう）", ja:"あてもなく歩き回る", ex:"We wandered around the old town for an hour.", exja:"旧市街を1時間ほどあてもなく歩いた。", note:"wonder（〜かなと思う）とは綴りも発音も別。"},
+  {d:"受験・多義語", en:"wander（気がそれる）", ja:"〈心・注意が〉それる", ex:"My mind wandered halfway through the call.", exja:"電話の途中で気が散ってしまった。", note:"主語は mind / attention / thoughts。集中が切れる状態。"},
+  {d:"受験・多義語", en:"discover that ~", ja:"〜だと判明する・あとで気づく", ex:"We later discovered that the figures had been double-counted.", exja:"その数字が二重計上だったと後で判明した。", note:"「発見する」より「わかる」。find out に近い。"},
+  {d:"受験・多義語", en:"hurt（痛む）", ja:"〈体の部位が〉痛む", ex:"My knee still hurts when I go down stairs.", exja:"階段を下りると今も膝が痛む。", note:"自動詞。主語は体の部位。hurt-hurt-hurt で形が変わらない。"},
+  {d:"受験・多義語", en:"hurt（打撃を与える）", ja:"〈業績・見通し〉に悪影響を与える", ex:"Higher funding costs hurt earnings this quarter.", exja:"調達コストの上昇が今期の収益を圧迫した。", note:"weigh on ~ と同じ使い方。記事で非常に多い。"},
+  {d:"受験・多義語", en:"care about ~", ja:"〜を気にかける・重要だと思う", ex:"Investors care more about cash flow than headline profit.", exja:"投資家は表面上の利益よりキャッシュフローを重視する。", note:"否定形の I don't care about ~ は「どうでもいい」。"},
+  {d:"受験・多義語", en:"care for ~", ja:"〜の世話をする／〜を好む", ex:"She cares for her mother at home.", exja:"彼女は自宅で母の介護をしている。", note:"もう一つ「好む」の意味。否定・疑問で I don't care for coffee.=コーヒーは好きでない。"},
+  {d:"受験・多義語", en:"compose（作曲・執筆する）", ja:"〈曲・文章〉を作る", ex:"He composed the score in under two weeks.", exja:"彼は2週間足らずでその楽譜を書き上げた。", note:"composer=作曲家。compose an email=メールを書く。"},
+  {d:"受験・多義語", en:"compose oneself", ja:"気を取り直す・落ち着く", ex:"She paused to compose herself before answering.", exja:"彼女は答える前に間を置いて気を取り直した。", note:"形容詞 composed=落ち着いた。プレゼンや面接で使える。"},
+  {d:"受験・多義語", en:"interfere with ~", ja:"〜を妨げる・邪魔をする", ex:"Background noise interfered with concentration.", exja:"周囲の雑音が集中の妨げになった。", note:"主語は物や事が多い。「妨害」の意味。"},
+  {d:"受験・多義語", en:"interfere in ~", ja:"〜に口出しする・干渉する", ex:"The government should not interfere in private negotiations.", exja:"政府は民間の交渉に口出しすべきでない。", note:"with は「妨げる」、in は「他人のことに入り込む」。前置詞で意味が分かれる。"},
+  // ===== 受験英語 追加分（第2〜5便・全語義） =====
+  {d:"受験・多義語", en:"upset（動揺させる）", ja:"をあわてさせる・動揺させる", ex:"The news upset her more than she expected.", exja:"その知らせは思った以上に彼女を動揺させた。", note:"形容詞 be upset=動揺している。名詞なら「番狂わせ」。"},
+  {d:"受験・多義語", en:"upset（計画をだめにする）", ja:"〈計画・予定〉を狂わせる", ex:"The strike upset our travel plans.", exja:"ストライキで旅行の計画が狂った。", note:"段取りを壊す。disrupt に近い。"},
+  {d:"受験・多義語", en:"upset（ひっくり返す）", ja:"をひっくり返す", ex:"He stood up too fast and upset his coffee.", exja:"勢いよく立ち上がってコーヒーをひっくり返した。", note:"物理的に倒す。upset-upset-upset で形が変わらない。"},
+  {d:"受験・多義語", en:"consist of ~", ja:"〜から成り立つ", ex:"The committee consists of seven members.", exja:"委員会は7名で構成される。", note:"受動にしない。be composed of と同義。"},
+  {d:"受験・多義語", en:"consist in ~", ja:"〜にある（本質が）", ex:"True wealth consists in having enough time.", exja:"本当の豊かさは十分な時間を持つことにある。", note:"of は構成要素、in は本質。前置詞で意味が分かれる。"},
+  {d:"受験・多義語", en:"correspond to ~", ja:"〜に相当する", ex:"One unit corresponds to ten shares.", exja:"1単位は10株に相当する。", note:"対応関係。be equivalent to に近い。"},
+  {d:"受験・多義語", en:"correspond with ~", ja:"〜と一致する", ex:"The figures correspond with last year's report.", exja:"その数字は昨年の報告と一致する。", note:"match の意味。to より「合致」寄り。"},
+  {d:"受験・多義語", en:"correspond（文通する）", ja:"文通する・やり取りする", ex:"They corresponded for years before they met.", exja:"会う前に何年も文通していた。", note:"correspondence=やり取り。correspondent=特派員。"},
+  {d:"受験・多義語", en:"contribute to ~", ja:"〜に貢献する・〜の一因となる", ex:"Lower rates contributed to the recovery.", exja:"金利低下が回復に寄与した。", note:"良い結果にも悪い結果にも使う。a contributing factor=一因。"},
+  {d:"受験・多義語", en:"contribute（寄稿・寄付する）", ja:"〈記事・金〉を提供する", ex:"She contributed an article to the journal.", exja:"彼女はその雑誌に記事を寄稿した。", note:"contribution=寄与・寄稿・寄付。"},
+  {d:"受験・多義語", en:"indicate（指し示す）", ja:"を示す・表示する", ex:"The chart indicates a sharp decline.", exja:"図表は急激な減少を示している。", note:"データが「示す」。資料説明で頻出。"},
+  {d:"受験・多義語", en:"indicate that ~", ja:"〜だとほのめかす・示唆する", ex:"He indicated that he might step down.", exja:"彼は退任の可能性をほのめかした。", note:"明言を避けた言い方。imply に近い。"},
+  {d:"受験・多義語", en:"neglect（ほうっておく）", ja:"の世話をしない・顧みない", ex:"He neglected his health for years.", exja:"彼は何年も健康を顧みなかった。", note:"名詞も同形。child neglect=育児放棄。"},
+  {d:"受験・多義語", en:"neglect to do", ja:"〜するのを怠る", ex:"She neglected to mention the deadline.", exja:"彼女は期限に触れるのを怠った。", note:"fail to do に近い。義務を果たさない。"},
+  {d:"受験・多義語", en:"neglect（見落とす）", ja:"を不注意で見落とす", ex:"We neglected an important detail in the contract.", exja:"契約書の重要な細部を見落とした。", note:"overlook に近い。"},
+  {d:"受験・多義語", en:"realize（気づく）", ja:"をはっきり理解する・気づく", ex:"I didn't realize how late it was.", exja:"そんなに遅いとは気づかなかった。", note:"「実感としてわかる」。進行形にしにくい。"},
+  {d:"受験・多義語", en:"realize（実現する）", ja:"を実現する", ex:"It took ten years to realize the plan.", exja:"その計画の実現に10年かかった。", note:"金融では realize a gain=益を実現する。"},
+  {d:"受験・多義語", en:"treat（扱う）", ja:"を扱う", ex:"Please treat this information as confidential.", exja:"この情報は機密として扱ってください。", note:"treat A as B=AをBとして扱う。"},
+  {d:"受験・多義語", en:"treat（治療する）", ja:"〈病人〉を治療する", ex:"The doctor treated her for a minor burn.", exja:"医師は彼女の軽いやけどを治療した。", note:"treatment=治療。treat A for B の型。"},
+  {d:"受験・多義語", en:"treat（おごる）", ja:"にごちそうする", ex:"Let me treat you to lunch.", exja:"昼食をおごらせてください。", note:"treat A to B の型。名詞なら「ごちそう・楽しみ」。"},
+  {d:"受験・多義語", en:"devote A to B", ja:"AをBにささげる・充てる", ex:"He devoted most of his career to risk management.", exja:"彼はキャリアの大半をリスク管理に充てた。", note:"be devoted to ~=〜に専念している。to の後は名詞か動名詞。"},
+  {d:"受験・多義語", en:"succeed（成功する）", ja:"成功する", ex:"The project succeeded beyond expectations.", exja:"その案件は期待以上に成功した。", note:"succeed in doing の型。名詞は success。"},
+  {d:"受験・多義語", en:"succeed（継承する）", ja:"〈地位〉を継ぐ", ex:"She succeeded her father as chairman.", exja:"彼女は父の後を継いで会長になった。", note:"succession=継承。successor=後任。"},
+  {d:"受験・多義語", en:"succeed（次いで起こる）", ja:"に次いで起こる", ex:"A long silence succeeded the announcement.", exja:"発表のあと長い沈黙が続いた。", note:"successive=連続した。follow に近い。"},
+  {d:"受験・多義語", en:"notice（気づく）", ja:"に気づく・注目する", ex:"I didn't notice the change until later.", exja:"その変化には後になるまで気づかなかった。", note:"名詞で「通知・掲示」。give notice=事前通知する。"},
+  {d:"受験・多義語", en:"engage（従事させる）", ja:"を関与させる・従事させる", ex:"The firm engages its staff in weekly reviews.", exja:"その会社は社員を週次の見直しに関与させている。", note:"be engaged in ~=〜に従事している。engagement=関与・約束。"},
+  {d:"受験・多義語", en:"engage（雇う）", ja:"を雇う", ex:"They engaged a consultant to review the process.", exja:"工程の見直しにコンサルタントを雇った。", note:"hire よりやや硬い。英国寄り。"},
+  {d:"受験・多義語", en:"involve（巻き込む）", ja:"を巻き込む", ex:"I don't want to involve you in this dispute.", exja:"この争いにあなたを巻き込みたくない。", note:"be involved in ~=関わっている。"},
+  {d:"受験・多義語", en:"involve（必ず含む）", ja:"を必然的に伴う", ex:"The job involves a lot of travel.", exja:"その仕事には出張が多く伴う。", note:"主語は物事。「〜が必要になる」の含み。"},
+  {d:"受験・多義語", en:"compare A with B", ja:"AをBと比較する", ex:"Compare this quarter with the same period last year.", exja:"今四半期を前年同期と比べてください。", note:"差を見る。compared with ~=〜と比べると。"},
+  {d:"受験・多義語", en:"compare A to B", ja:"AをBにたとえる", ex:"He compared the market to a pendulum.", exja:"彼は市場を振り子にたとえた。", note:"似たものとして扱う。with と to で意味が分かれる。"},
+  {d:"受験・多義語", en:"ruin（破滅させる）", ja:"を破滅させる", ex:"The scandal ruined his career.", exja:"その不祥事は彼のキャリアを破滅させた。", note:"名詞で「廃墟・破滅」。in ruins=荒廃して。"},
+  {d:"受験・多義語", en:"ruin（台なしにする）", ja:"を台なしにする", ex:"The rain ruined our picnic.", exja:"雨でピクニックが台なしになった。", note:"spoil より程度が強い。"},
+  {d:"受験・多義語", en:"match（似合う）", ja:"に似合う・調和する", ex:"That tie doesn't match your jacket.", exja:"そのネクタイは上着に合っていない。", note:"色や雰囲気が合う。名詞で「試合・相手」。"},
+  {d:"受験・多義語", en:"match（匹敵する）", ja:"に匹敵する", ex:"No rival can match their distribution network.", exja:"その販売網に匹敵する競合はない。", note:"be no match for ~=〜には敵わない。"},
+  {d:"受験・多義語", en:"deal in ~", ja:"〜を商う・売買する", ex:"The firm deals in government bonds.", exja:"その会社は国債を扱っている。", note:"商材には in。deal with ~ は「対処する」。"},
+  {d:"受験・多義語", en:"deal（分配する）", ja:"を配る・分配する", ex:"He dealt the cards to each player.", exja:"彼は各プレーヤーにカードを配った。", note:"deal-dealt-dealt。a great deal of ~=多量の。"},
+  {d:"受験・多義語", en:"provide（供給する）", ja:"〈必要な物〉を供給する", ex:"The bank provides liquidity to the market.", exja:"その銀行は市場に流動性を供給する。", note:"provide A with B / provide B for A の2型。"},
+  {d:"受験・多義語", en:"provide for ~", ja:"〜に備える・〜を扶養する", ex:"You should provide for unexpected costs.", exja:"想定外の費用に備えるべきだ。", note:"家族を養う意味でも使う。provided that ~=〜という条件で。"},
+  {d:"受験・多義語", en:"accompany（同行する）", ja:"と一緒に行く", ex:"Two staff members accompanied him on the trip.", exja:"2名の社員が出張に同行した。", note:"go with の硬い言い方。be accompanied by ~=〜を伴う。"},
+  {d:"受験・多義語", en:"accompany（伴奏する）", ja:"の伴奏をする", ex:"She accompanied the singer on the piano.", exja:"彼女はピアノでその歌手の伴奏をした。", note:"accompaniment=伴奏。"},
+  {d:"受験・多義語", en:"attach", ja:"をはり付ける・結び付ける", ex:"Please attach the file to your reply.", exja:"返信にファイルを添付してください。", note:"attachment=添付・愛着。be attached to ~=〜に愛着がある。"},
+  {d:"受験・多義語", en:"yield（産出する）", ja:"を生む・産出する", ex:"The investment yields about four percent a year.", exja:"その投資は年4%程度を生む。", note:"名詞で「利回り」。yield curve=利回り曲線。"},
+  {d:"受験・多義語", en:"yield to ~", ja:"〜に屈する・譲る", ex:"The government refused to yield to pressure.", exja:"政府は圧力に屈することを拒んだ。", note:"give in に近い。道路標識の Yield は「譲れ」。"},
+  {d:"受験・多義語", en:"bore（うんざりさせる）", ja:"をうんざりさせる", ex:"The speech bored everyone in the room.", exja:"その演説は部屋の全員を退屈させた。", note:"bored=退屈している人、boring=退屈なもの。"},
+  {d:"受験・多義語", en:"conclude that ~", ja:"〜と結論を下す", ex:"We concluded that the data was unreliable.", exja:"そのデータは信頼できないと結論づけた。", note:"conclusion=結論。in conclusion=結論として。"},
+  {d:"受験・多義語", en:"conclude（終える）", ja:"を締めくくる・終える", ex:"The chairman concluded the meeting at noon.", exja:"議長は正午に会議を締めくくった。", note:"conclude a deal=契約を締結する、も同じ発想。"},
+  {d:"受験・多義語", en:"explore（探検する）", ja:"を探検する", ex:"They explored the cave for three days.", exja:"彼らは3日かけてその洞窟を探検した。", note:"explorer=探検家。"},
+  {d:"受験・多義語", en:"explore（検討する）", ja:"を詳しく調べる・検討する", ex:"We should explore other financing options.", exja:"他の調達手段を検討すべきだ。", note:"会議で頻出。「可能性を探る」寄り。"},
+  {d:"受験・多義語", en:"despise", ja:"を軽蔑する", ex:"He despises anyone who cuts corners.", exja:"彼は手を抜く人間を軽蔑する。", note:"look down on ~ より強い。cut corners=手を抜く。"},
+  {d:"受験・多義語", en:"exhaust（使い果たす）", ja:"を使い果たす", ex:"We exhausted our budget by October.", exja:"10月には予算を使い果たした。", note:"名詞で「排気ガス」。exhaustive=網羅的な。"},
+  {d:"受験・多義語", en:"exhaust（疲れさせる）", ja:"をひどく疲れさせる", ex:"The long flight exhausted him.", exja:"長いフライトで彼は疲れ切った。", note:"exhausted=疲れ果てた、exhausting=疲れさせる。"},
+  {d:"受験・多義語", en:"absorb（吸収する）", ja:"を吸収する", ex:"Dark surfaces absorb more heat.", exja:"暗い面ほど熱を多く吸収する。", note:"absorb losses=損失を吸収する、も同じ語。"},
+  {d:"受験・多義語", en:"be absorbed in ~", ja:"〜に夢中になる", ex:"He was absorbed in the report and missed the call.", exja:"報告書に没頭していて電話に気づかなかった。", note:"受動で使う。absorbing=夢中にさせる。"},
+  {d:"受験・多義語", en:"tease", ja:"をいじめる・からかう", ex:"They teased him about his accent.", exja:"彼らは彼のなまりをからかった。", note:"悪意の薄いからかい。いじめは bully。"},
+  {d:"受験・多義語", en:"vary（変わる・異なる）", ja:"変わる・異なる", ex:"Prices vary from region to region.", exja:"価格は地域によって異なる。", note:"自動詞。variation=変動。various=さまざまな。"},
+  {d:"受験・多義語", en:"vary（を変える）", ja:"を変化させる", ex:"You should vary your approach depending on the client.", exja:"相手によって進め方を変えるべきだ。", note:"他動詞。variable=可変の・変数。"},
+  {d:"受験・多義語", en:"impress", ja:"に感銘を与える", ex:"Her presentation impressed the board.", exja:"彼女のプレゼンは取締役会に感銘を与えた。", note:"be impressed with/by ~=〜に感心する。impression=印象。"},
+  {d:"受験・多義語", en:"arrange（手はずを整える）", ja:"を取り決める・手配する", ex:"I'll arrange a call with the client tomorrow.", exja:"明日、顧客との電話を手配します。", note:"arrangement=手配・取り決め。"},
+  {d:"受験・多義語", en:"arrange（並べる）", ja:"をきちんと並べる", ex:"She arranged the documents by date.", exja:"彼女は書類を日付順に並べた。", note:"flower arrangement も同じ語。"},
+  {d:"受験・多義語", en:"feed（えさを与える）", ja:"にえさを与える", ex:"Don't feed the animals in the park.", exja:"公園の動物にえさを与えないでください。", note:"feed-fed-fed。"},
+  {d:"受験・多義語", en:"feed（供給する）", ja:"を絶えず供給する", ex:"The plant feeds electricity into the grid.", exja:"その発電所は送電網に電力を供給する。", note:"feed data into a system=データを流し込む。"},
+  {d:"受験・多義語", en:"mend", ja:"を修繕する・修理する", ex:"He mended the fence over the weekend.", exja:"彼は週末にフェンスを直した。", note:"repair より日常的。mend fences=関係を修復する。"},
+  {d:"受験・多義語", en:"impose（課す）", ja:"〈税・制限〉を課す", ex:"The government imposed new tariffs on imports.", exja:"政府は輸入品に新たな関税を課した。", note:"imposition=賦課。"},
+  {d:"受験・多義語", en:"impose A on B", ja:"AをBに押し付ける", ex:"Don't impose your values on other people.", exja:"自分の価値観を他人に押し付けるな。", note:"impose on ~ だけで「迷惑をかける」の意味にもなる。"},
+  {d:"受験・多義語", en:"declare（宣言する）", ja:"を宣言する・申告する", ex:"The company declared a dividend of 50 yen.", exja:"会社は1株50円の配当を宣言した。", note:"税関で「申告する」も declare。declaration=宣言・申告。"},
+  {d:"受験・多義語", en:"declare that ~", ja:"〜と断言する", ex:"He declared that the deal was final.", exja:"彼はその取引が最終だと断言した。", note:"強い断定。公式な場面で使う。"},
+  {d:"受験・多義語", en:"dispense（出す）", ja:"〈商品・金〉を出す・供給する", ex:"The machine dispenses both coffee and tea.", exja:"その機械はコーヒーも紅茶も出す。", note:"ATMが現金を出すのも dispense。"},
+  {d:"受験・多義語", en:"dispense with ~", ja:"〜なしで済ませる・省く", ex:"We can dispense with the formal introductions.", exja:"堅苦しい自己紹介は省いてよい。", note:"with が付くと意味が反転する。do without に近い。"},
+  {d:"受験・多義語", en:"bear（我慢する）", ja:"を我慢する", ex:"I can't bear the noise from the street.", exja:"通りの騒音には我慢できない。", note:"can't bear の形が多い。bear-bore-borne。"},
+  {d:"受験・多義語", en:"bear（身につける・帯びる）", ja:"を帯びている・記している", ex:"The document bears his signature.", exja:"その書類には彼の署名がある。", note:"「持っている・記されている」。bear a name=名を冠する。"},
+  {d:"受験・多義語", en:"bear（運ぶ・負う）", ja:"を運ぶ・負担する", ex:"The buyer bears the shipping costs.", exja:"送料は買い手が負担する。", note:"bear the cost=費用を負担する。契約書で頻出。"},
+  {d:"受験・多義語", en:"represent（象徴する）", ja:"を示す・象徴する", ex:"The figure represents about ten percent of revenue.", exja:"その数字は売上の約1割を示す。", note:"データを説明するときに使う。"},
+  {d:"受験・多義語", en:"represent（代表する）", ja:"を代表する", ex:"She represents the firm at the industry council.", exja:"彼女は業界団体で会社を代表している。", note:"representative=代表者・下院議員。"},
+  {d:"受験・多義語", en:"nod（うなずく）", ja:"うなずく", ex:"He nodded in agreement.", exja:"彼は同意してうなずいた。", note:"nod-nodded-nodded。"},
+  {d:"受験・多義語", en:"nod（会釈する）", ja:"会釈する", ex:"She nodded to me across the room.", exja:"彼女は部屋の向こうから会釈した。", note:"軽いあいさつ。nod to ~ の形。"},
+  {d:"受験・多義語", en:"nod off", ja:"居眠りする", ex:"He nodded off during the presentation.", exja:"彼はプレゼン中に居眠りした。", note:"off が付くと「うとうとする」。doze off も同義。"},
+  {d:"受験・多義語", en:"embarrass", ja:"に恥ずかしい思いをさせる・を困らせる", ex:"His question embarrassed the whole panel.", exja:"彼の質問は登壇者全員を困らせた。", note:"embarrassed=恥ずかしい人、embarrassing=恥ずかしい状況。"},
+  {d:"受験・多義語", en:"regret（後悔する）", ja:"を後悔する", ex:"I regret not asking more questions.", exja:"もっと質問しなかったことを後悔している。", note:"regret doing=したことを後悔する。"},
+  {d:"受験・多義語", en:"regret to do", ja:"残念ながら〜する", ex:"We regret to inform you that the position has been filled.", exja:"残念ながらその職は埋まりました。", note:"断りの定型。regret to do はこれから言うこと。"},
+  {d:"受験・多義語", en:"strike（打つ）", ja:"〈人・物〉を打つ", ex:"Lightning struck the tower twice.", exja:"雷がその塔に2度落ちた。", note:"strike-struck-struck。名詞でストライキ。"},
+  {d:"受験・多義語", en:"strike（心に浮かぶ）", ja:"〈考えが〉心に浮かぶ・と印象づける", ex:"It struck me that we had missed something.", exja:"何か見落としているという考えが浮かんだ。", note:"A strikes B as C=AはBにCと映る。"},
+  {d:"受験・多義語", en:"raise（上げる）", ja:"を上げる・調達する", ex:"The central bank raised rates by 25 basis points.", exja:"中央銀行は0.25%利上げした。", note:"他動詞。自動詞の rise と混同注意。raise capital=資金を調達する。"},
+  {d:"受験・多義語", en:"raise（育てる）", ja:"〈子ども〉を育てる", ex:"She was raised by her grandparents.", exja:"彼女は祖父母に育てられた。", note:"bring up とほぼ同義。米語では raise が普通。"},
+  {d:"受験・多義語", en:"frighten", ja:"をぎょっとさせる", ex:"The sudden noise frightened the children.", exja:"突然の物音が子どもたちをぎょっとさせた。", note:"frightened=怖がっている、frightening=怖い。"},
+  {d:"受験・多義語", en:"demand（要求する）", ja:"を要求する", ex:"The union demanded a pay increase.", exja:"組合は賃上げを要求した。", note:"demand that S (should) do の型。名詞で「需要」。"},
+  {d:"受験・多義語", en:"demand（必要とする）", ja:"を必要とする", ex:"This role demands close attention to detail.", exja:"この職務は細部への注意を必要とする。", note:"主語は物事。require に近い。"},
+  {d:"受験・多義語", en:"collect（集める）", ja:"を集める・集まる", ex:"We collected feedback from all branches.", exja:"全支店から意見を集めた。", note:"collection=収集・回収。"},
+  {d:"受験・多義語", en:"collect（徴収する）", ja:"〈税金など〉を徴収する", ex:"The city collects property tax twice a year.", exja:"市は年2回、固定資産税を徴収する。", note:"debt collection=債権回収。実務で頻出。"},
+  {d:"受験・多義語", en:"maintain（維持する）", ja:"を維持する", ex:"We must maintain adequate capital buffers.", exja:"十分な資本の余力を維持しなければならない。", note:"maintenance=維持・保守。"},
+  {d:"受験・多義語", en:"maintain（養う）", ja:"〈家族〉を養う", ex:"He works two jobs to maintain his family.", exja:"家族を養うために仕事を2つ掛け持ちしている。", note:"support とほぼ同義。"},
+  {d:"受験・多義語", en:"maintain that ~", ja:"〜と主張し続ける", ex:"He maintains that the estimate was reasonable.", exja:"彼はその見積もりは妥当だったと主張している。", note:"反論されても言い続ける含み。claim より粘り強い。"},
+  {d:"受験・多義語", en:"agree（同意する）", ja:"同意する", ex:"We agreed on the terms after two hours.", exja:"2時間かけて条件で合意した。", note:"agree with 人 / agree to 提案 / agree on 事項。"},
+  {d:"受験・多義語", en:"agree with ~（体に合う）", ja:"〈食物が〉体質に合う", ex:"Spicy food doesn't agree with me.", exja:"辛いものは体に合わない。", note:"否定形で使うことが多い。主語は食べ物や気候。"},
+  {d:"受験・多義語", en:"assure（保証する）", ja:"に請け合う・保証する", ex:"I can assure you that the data is accurate.", exja:"そのデータが正確であることは保証します。", note:"assure 人 that ~ の型。ensure（確実にする）insure（保険をかける）と区別。"},
+  {d:"受験・多義語", en:"assure（安心させる）", ja:"〈人〉を安心させる・確信させる", ex:"Her calm tone assured the client.", exja:"彼女の落ち着いた口調が顧客を安心させた。", note:"assurance=保証・確信。"},
+  {d:"受験・多義語", en:"bother（困らせる）", ja:"に面倒をかける・を困らせる", ex:"Sorry to bother you, but do you have a minute?", exja:"お邪魔してすみませんが、少しよろしいですか。", note:"声をかけるときの定型。"},
+  {d:"受験・多義語", en:"bother（わざわざする）", ja:"思い悩む・わざわざ〜する", ex:"Don't bother replying if you're busy.", exja:"忙しければ返信は不要です。", note:"否定の don't bother doing が頻出。"},
+  {d:"受験・多義語", en:"extinguish", ja:"〈火・光〉を消す", ex:"Firefighters extinguished the blaze in two hours.", exja:"消防隊は2時間で火を消し止めた。", note:"fire extinguisher=消火器。put out より硬い。"},
+  {d:"受験・多義語", en:"fascinate", ja:"を魅了する", ex:"The city's history fascinates visitors.", exja:"その街の歴史は訪れる人を魅了する。", note:"fascinated=魅了された、fascinating=魅力的な。"},
+  {d:"受験・多義語", en:"abandon（見捨てる）", ja:"を見捨てる・捨てる", ex:"The crew had to abandon the ship.", exja:"乗組員は船を捨てざるを得なかった。", note:"abandoned=見捨てられた・放置された。"},
+  {d:"受験・多義語", en:"abandon（断念する）", ja:"を断念する", ex:"They abandoned the plan after costs doubled.", exja:"費用が倍になり計画を断念した。", note:"give up の硬い言い方。"},
+  {d:"受験・多義語", en:"illustrate（例で説明する）", ja:"を例をあげて説明する", ex:"Let me illustrate this with a simple example.", exja:"簡単な例でこれを説明させてください。", note:"会議で頻出。illustration=説明・実例・挿絵。"},
+  {d:"受験・多義語", en:"illustrate（挿絵を入れる）", ja:"に挿絵・図を入れる", ex:"The book is illustrated with old photographs.", exja:"その本には古い写真が添えられている。", note:"illustrator=挿絵画家。"},
+  {d:"受験・多義語", en:"deserve（に値する）", ja:"に値する", ex:"Her work deserves more recognition.", exja:"彼女の仕事はもっと評価されてよい。", note:"良いことにも悪いことにも使う。deserve punishment。"},
+  {d:"受験・多義語", en:"deserve to do", ja:"〜する価値がある", ex:"This proposal deserves to be looked at again.", exja:"この提案は再検討に値する。", note:"deserve doing でも受動の意味になる。"},
+  {d:"受験・多義語", en:"escape（逃げる）", ja:"逃げる", ex:"Two prisoners escaped from the facility.", exja:"2人の受刑者が施設から逃走した。", note:"自動詞では from を伴う。"},
+  {d:"受験・多義語", en:"escape（免れる）", ja:"を逃れる・免れる", ex:"He barely escaped serious injury.", exja:"彼はかろうじて重傷を免れた。", note:"他動詞のときは前置詞を付けない。"},
+  {d:"受験・多義語", en:"escape one's notice", ja:"〈注意・記憶〉にとまらない", ex:"The error escaped our notice until the audit.", exja:"その誤りは監査まで気づかれなかった。", note:"主語は気づかれなかった側。The name escapes me=名前が出てこない。"},
+  {d:"受験・多義語", en:"retire（退職する）", ja:"退職する", ex:"He retired after thirty years at the bank.", exja:"彼は銀行に30年勤めて退職した。", note:"retirement=退職。retiree=退職者。"},
+  {d:"受験・多義語", en:"retire（引き下がる）", ja:"退席する・引き下がる", ex:"The jury retired to consider the verdict.", exja:"陪審は評決を検討するため退席した。", note:"その場を離れる。retire for the night=就寝する。"},
+  {d:"受験・多義語", en:"retire（退役させる）", ja:"を定年などで退かせる・退役させる", ex:"The airline retired its oldest aircraft last year.", exja:"その航空会社は昨年、最古の機材を退役させた。", note:"他動詞。人にも設備にも使う。"},
+  {d:"受験・多義語", en:"reserve（予約する）", ja:"を予約する", ex:"I've reserved a room for Thursday.", exja:"木曜に部屋を予約しました。", note:"英国では book が普通。reservation=予約・留保。"},
+  {d:"受験・多義語", en:"reserve（取っておく）", ja:"を取っておく・留保する", ex:"I'd like to reserve judgment until I see the numbers.", exja:"数字を見るまで判断は保留したい。", note:"名詞で「準備金・引当金」。loan loss reserves=貸倒引当金。"},
+  {d:"受験・多義語", en:"inform A of B", ja:"AにBを知らせる", ex:"Please inform me of the results by noon tomorrow.", exja:"明日の正午までに結果をお知らせください。", note:"inform 人 of 事 / inform 人 that ~。information は不可算。"},
+  {d:"受験・多義語", en:"miss（寂しく思う）", ja:"がいないのを寂しく思う", ex:"I already miss working with that team.", exja:"あのチームと働けないのがもう寂しい。", note:"miss doing=〜できないのを寂しく思う。"},
+  {d:"受験・多義語", en:"miss（逃す）", ja:"に乗り遅れる・を逃す", ex:"We missed the last train by two minutes.", exja:"2分の差で終電を逃した。", note:"miss estimates=予想を下回る。決算記事で頻出。"},
+  {d:"受験・多義語", en:"please（喜ばせる）", ja:"を喜ばせる", ex:"It's impossible to please everyone.", exja:"全員を満足させるのは無理だ。", note:"be pleased with ~=〜に満足している。pleasant=感じのよい。"},
+  {d:"受験・多義語", en:"urge A to do（勧める）", ja:"Aに〜するようせきたてる・勧める", ex:"Please don't urge me to eat anything more.", exja:"もうこれ以上は勧めないでください。", note:"名詞で「衝動」。urgent=緊急の。"},
+  {d:"受験・多義語", en:"urge that ~", ja:"〜すべきだと強く主張する", ex:"She urged that the review be completed this week.", exja:"彼女は今週中に見直しを終えるべきだと強く主張した。", note:"that 節の動詞は原形。"},
+  {d:"受験・多義語", en:"intend to do", ja:"〜するつもりである", ex:"We intend to close the deal by year-end.", exja:"年内に取引を成立させるつもりだ。", note:"be intended for ~=〜向けである。intention=意図。"},
+  {d:"受験・多義語", en:"appreciate（理解する）", ja:"を正しく理解する", ex:"I appreciate the difficulty of your position.", exja:"あなたの立場の難しさはよく分かります。", note:"実はこの「理解する」が一番よく出る。"},
+  {d:"受験・多義語", en:"appreciate（感謝する）", ja:"をありがたく思う", ex:"I'd appreciate it if you could send the file today.", exja:"今日中にファイルを送っていただけると助かります。", note:"人を目的語にしない。I appreciate you ではなく it。"},
+  {d:"受験・多義語", en:"appreciate（価値が上がる）", ja:"価値が上がる・を鑑賞する", ex:"The yen appreciated against the dollar.", exja:"円はドルに対して上昇した。", note:"為替で「増価」。逆は depreciate。美術の「鑑賞」も同語。"},
+  {d:"受験・構文", en:"persuade A to do", ja:"Aを説得して〜させる", ex:"He persuaded me to take up hill climbing.", exja:"彼に促されて私は山歩きをするようになった。", note:"= talk A into doing。persuasion=説得。"},
+  {d:"受験・構文", en:"talk A into doing", ja:"Aを説得して〜させる", ex:"He talked me into taking up hill climbing.", exja:"彼に説得されて山歩きを始めた。", note:"反対は talk A out of doing（説得してやめさせる）。"},
+  {d:"受験・構文", en:"take up ~", ja:"〈趣味など〉を始める", ex:"I took up hill climbing last year.", exja:"昨年から山歩きを始めた。", note:"場所や時間を「占める」意味もある。"},
+  {d:"受験・構文", en:"invent（でっち上げる）", ja:"〈話〉を創作する・でっち上げる", ex:"He had to invent a story for the children.", exja:"彼は子どもたちに話を創作しなければならなかった。", note:"「発明する」だけではない。make up も同義。"},
+  {d:"受験・構文", en:"by ~（期限）", ja:"〜までに（期限）", ex:"You will inform me of the results by noon tomorrow.", exja:"明日の正午までに結果を知らせてください。", note:"by=その時までに1回。until/till=その時までずっと継続。"},
+  {d:"受験・構文", en:"occupy", ja:"〈場所・地位〉を占める", ex:"What place should older people occupy in society?", exja:"高齢者は社会でどのような位置を占めるべきか。", note:"occupation=職業・占領。be occupied with ~=〜で手がふさがっている。"},
+  {d:"受験・構文", en:"seek out ~", ja:"〜を探し出す・求める", ex:"Human beings have a tendency to seek out challenging experiences.", exja:"人間にはやりがいのある経験を求める傾向がある。", note:"seek-sought-sought。out が付くと「わざわざ探す」。"},
+  {d:"受験・構文", en:"have a tendency to do", ja:"〜する傾向がある", ex:"Markets have a tendency to overreact to headlines.", exja:"市場は見出しに過剰反応する傾向がある。", note:"tend to do とほぼ同義。"},
+  {d:"受験・構文", en:"force A to do", ja:"Aに〜するよう迫る・強いる", ex:"The bank had forced the family to hold an auction.", exja:"銀行はその家族に競売を行うよう迫った。", note:"be forced to do=〜せざるを得ない。"},
+  {d:"受験・構文", en:"time to spare", ja:"余った時間・空き時間", ex:"She gave up her job, so she has a lot of time to spare.", exja:"彼女は仕事をやめたので空き時間がたくさんある。", note:"spare=割く・余分の。Can you spare a minute?=少し時間ありますか。"},
+  {d:"受験・構文", en:"be invited to do", ja:"〜するよう勧められる・招かれる", ex:"He was invited to join the study about environmental problems.", exja:"彼は環境問題の研究に加わるよう勧められた。", note:"invite は「招待」だけでなく「勧誘」。"},
+];
+let CARDS = BUILTIN.slice();
+
+// ============ 設定（Repeat Drill 仕様書の出題ロジックを流用） ============
+const NS = 'bbg';
+const GAP_FAIL = 5;    // 同一セッション内で間違えた語を戻す間隔（問数）
+const NO_REPEAT = 12;  // 直近12問は引かない
+// 日付ベースの復習間隔（日）。3択判定で伸び方が変わる。
+const STEPS_OK   = [1,3,7,16,35,75];   // 「わかった」で進む
+const STEPS_EASY = [3,7,16,35,75,150]; // 「余裕」で進む（1段飛ばし相当）
+
+// ============ 保存（localStorage。使えない環境では黙って無効化） ============
+function lsGet(k,d){ try{const v=localStorage.getItem(NS+'_'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} }
+function lsSet(k,v){ try{localStorage.setItem(NS+'_'+k,JSON.stringify(v));}catch(e){} }
+function jstDay(){ return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); }
+
+// ============ 追加カード（あとから取り込んだ分） ============
+let extras = lsGet('extra',[]);
+function mergeExtras(){
+  const have = new Set(BUILTIN.map(c=>c.en));
+  const ok = [];
+  for(const c of extras){
+    if(!c || !c.en || !c.ja) continue;          // 最低限 英語と意味は必須
+    if(have.has(c.en)) continue;                // 内蔵カードと重複したら捨てる
+    have.add(c.en);
+    ok.push({d:c.d||"追加", en:c.en, ja:c.ja, ex:c.ex||"", exja:c.exja||"", note:c.note||""});
+  }
+  extras = ok;
+  CARDS = BUILTIN.concat(ok);
+}
+function recomputeDecks(){
+  decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+  if(!decks.includes(activeDeck)) activeDeck = "すべて";
+}
+
+mergeExtras();
+let decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+let activeDeck = lsGet('deck','すべて'); if(!decks.includes(activeDeck)) activeDeck='すべて';
+let known  = new Set(lsGet('known',[]));   // 見出し語で保持（カード追加で番号がずれないため）
+let sched  = lsGet('sched',{});
+let streak = lsGet('streak',{});
+let seen   = new Set(lsGet('seen',[]));
+let total  = lsGet('total',0);
+let mode   = lsGet('mode','browse');
+let dir    = lsGet('dir','en');
+let interleaveOn = lsGet('il',1)===1;   // デッキ交互出題   // 'en'=英→日（再認） / 'ja'=日→英（想起）
+let speed  = lsGet('sp',1);
+let voiceName = lsGet('vo','');
+let day = lsGet('day',''), cnt = lsGet('cnt',0), okCnt = lsGet('ok',0);
+if(day!==jstDay()){ day=jstDay(); cnt=0; okCnt=0; lsSet('day',day); lsSet('cnt',0); lsSet('ok',0); }
+
+
+// ---- 学習データ（日付ベース）----
+// rec[見出し語] = {d:次回復習日(YYYY-MM-DD), n:段階, f:連続失敗}
+let rec = lsGet('rec', null);
+if(rec === null){
+  // 旧データ（問番号ベース）からの移行。卒業済みは1日後、要再挑戦は今日に置く。
+  rec = {};
+  const old = lsGet('sched',{});
+  for(const w of lsGet('known',[])) rec[w] = {d:addDays(jstDay(),1), n:1, f:0};
+  for(const w of Object.keys(old))  rec[w] = {d:jstDay(), n:0, f:1};
+  lsSet('rec', rec);
+}
+function addDays(ymd, n){
+  const t = new Date(ymd+'T00:00:00Z').getTime() + n*86400000;
+  return new Date(t).toISOString().slice(0,10);
+}
+function isDue(w){ const r=rec[w]; return r && r.d <= jstDay(); }
+function isNew(w){ return !rec[w]; }
+function graduated(w){ const r=rec[w]; return r && r.n>=3; }   // 1週間以上の間隔に乗った語
+
+let onlyUnknown=false, order=[], pos=0, cur=null, isFlipped=false;
+let playing=false, repeatMode=0, history=[], playToken=0;
+const card = document.getElementById('card');
+
+function persist(){
+  lsSet('known',[...known]); lsSet('sched',sched); lsSet('streak',streak);
+  lsSet('seen',[...seen]); lsSet('total',total);
+  lsSet('rec', rec);
+  lsSet('day',day); lsSet('cnt',cnt); lsSet('ok',okCnt);
+  lsSet('deck',activeDeck); lsSet('mode',mode); lsSet('dir',dir); lsSet('il', interleaveOn?1:0); lsSet('sp',speed); lsSet('vo',voiceName);
+}
+
+// ============ 読み上げ ============
+let enVoice=null, voices=[], warmed=false;
+function loadVoices(){
+  try{ voices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
+  const sel=document.getElementById('voiceSel');
+  if(sel){
+    sel.innerHTML = '<option value="">音声：自動</option>' +
+      voices.map(v=>'<option value="'+v.name+'">'+v.name+' ('+v.lang+')</option>').join('');
+    if(voiceName) sel.value = voiceName;
+  }
+  enVoice = voices.find(v=>v.name===voiceName) || voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0] || null;
+}
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+// iOS Safari は最初の発話が無音になるため、volume:0 の空発話でウォームアップする
+function warmUp(){
+  if(warmed || !('speechSynthesis' in window)) return;
+  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){}
+  warmed=true;
+}
+
+// ---- iOS対策：画面オフ／アプリ切替から戻ったときの復帰 ----
+// iOSは読み上げ中にバックグラウンドへ回ると音声合成が壊れ、
+// ページを読み込み直すまで鳴らなくなる。戻ってきたら作り直す。
+let synthBroken=false;
+function showReload(on){
+  const b=document.getElementById('reloadBtn');
+  if(b) b.style.display = on?'inline-block':'none';
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    stopPlay();                    // 裏に回ったら再生状態を畳む
+  }else{
+    try{ speechSynthesis.cancel(); }catch(e){}
+    warmed=false;                  // ウォームアップからやり直す
+    synthBroken=false; showReload(false);
+    setTimeout(loadVoices, 300);
+  }
+});
+
+function cleanForSpeech(t){ return t.replace(/~/g,' ').replace(/\.\.\./g,' ').replace(/…/g,' ').replace(/（[^）]*）/g,' ').replace(/\s+/g,' ').trim(); }
+function speakSeq(text, cb){
+  if(!('speechSynthesis' in window) || !text){ if(cb) cb(); return; }
+  speechSynthesis.cancel(); warmUp();
+  const u=new SpeechSynthesisUtterance(cleanForSpeech(text));
+  u.lang='en-US'; u.rate=speed; if(enVoice) u.voice=enVoice;
+  const btns=document.querySelectorAll('.speak-btn');
+  let started=false, done=false;
+  const finish=()=>{                   // ★次へ進む処理は必ず1回だけ
+    if(done) return; done=true;
+    clearTimeout(watchdog);
+    btns.forEach(b=>b.classList.remove('speaking'));
+    if(cb) cb();
+  };
+  const watchdog=setTimeout(()=>{      // 鳴り始めないまま4秒なら本当に壊れている
+    if(!started){ synthBroken=true; showReload(true); finish(); }
+  },4000);
+  u.onstart=()=>{ started=true; showReload(false); btns.forEach(b=>b.classList.add('speaking')); };
+  u.onend  = finish;
+  u.onerror= finish;
+  speechSynthesis.speak(u);
+}
+function speak(t){ speakSeq(t,null); }
+function speakCurrent(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].en); }
+function speakEx(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].ex); }
+function setSpeed(v,e){ if(e) e.stopPropagation(); speed=v; persist(); paintSpeed(); }
+function setVoice(name){ voiceName=name; loadVoices(); persist(); }
+function paintSpeed(){
+  document.querySelectorAll('.spd').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.sp)===speed));
+}
+
+
+// ============ 検索 ============
+function doSearch(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const box=document.getElementById('hits');
+  document.getElementById('qclear').style.display = q?'block':'none';
+  if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+  const hits=[];
+  for(let i=0;i<CARDS.length && hits.length<40;i++){
+    const c=CARDS[i];
+    const hay=(c.en+' '+c.ja+' '+(c.ex||'')+' '+(c.exja||'')+' '+(c.note||'')+' '+c.d).toLowerCase();
+    if(hay.includes(q)) hits.push(i);
+  }
+  if(!hits.length){ box.innerHTML='<div class="nohit">見つかりません</div>'; box.classList.add('on'); return; }
+  box.innerHTML = hits.map(i=>{
+    const c=CARDS[i];
+    return '<div class="hit" onclick="jumpTo('+i+')">'
+      + '<div class="hd">'+c.d+'</div>'
+      + '<div class="he">'+esc(c.en)+'</div>'
+      + '<div class="hj">'+esc(c.ja)+'</div></div>';
+  }).join('');
+  box.classList.add('on');
+}
+function esc(t){ return (t||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function clearSearch(e){
+  if(e) e.stopPropagation();
+  document.getElementById('q').value='';
+  doSearch();
+}
+function jumpTo(i){                       // 検索結果からそのカードへ
+  clearSearch();
+  cur=i;
+  if(mode==='browse'){
+    activeDeck='すべて'; onlyUnknown=false; renderDecks();
+    order=workingList(); pos=Math.max(0, order.indexOf(i));
+  }
+  render();
+  try{ document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+}
+
+// ---- インターリービング（デッキを意図的に交互に出す）----
+// 同じデッキが3枚続いたら、別デッキの候補を優先する。
+// ブロック練習より交互練習の方が長期保持に有利、という知見に基づく。
+function interleave(cands){
+  if(!interleaveOn || cands.length<2) return null;
+  const last = history.slice(-2).map(i=>CARDS[i] && CARDS[i].d);
+  if(last.length<2 || last[0]!==last[1]) return null;   // 直近2枚が同デッキのときだけ介入
+  const other = cands.filter(i=>CARDS[i].d!==last[1]);
+  return other.length ? other[Math.floor(Math.random()*other.length)] : null;
+}
+
+// ============ 出題 ============
+function workingList(){
+  let list = CARDS.map((c,i)=>i);
+  if(activeDeck!=="すべて") list=list.filter(i=>CARDS[i].d===activeDeck);
+  if(onlyUnknown)          list=list.filter(i=>!known.has(CARDS[i].en));
+  return list;
+}
+function pick(){
+  const pool = workingList();
+  if(!pool.length) return null;
+  let cut = Math.min(NO_REPEAT, Math.max(0, pool.length-2));
+  const excl = new Set(history.slice(-cut));
+  let use = pool.filter(i=>!excl.has(i)); if(!use.length) use = pool;
+  const rnd = a => a[Math.floor(Math.random()*a.length)];
+  // ①同一セッションで間違えた語（すぐ戻す）
+  const again = use.filter(i=>sched[CARDS[i].en]!=null && sched[CARDS[i].en]<=total);
+  if(again.length) return rnd(again);
+  // ②今日が復習日の語
+  const due = use.filter(i=>isDue(CARDS[i].en));
+  if(due.length) return interleave(due) || rnd(due);
+  // ③未出題
+  const fresh = use.filter(i=>isNew(CARDS[i].en));
+  if(fresh.length) return interleave(fresh) || rnd(fresh);
+  // ④前倒し復習（期日が近い順）
+  const rest = use.slice().sort((a,b)=>(rec[CARDS[a].en]?.d||'9') < (rec[CARDS[b].en]?.d||'9') ? -1 : 1);
+  return rest[0];
+}
+function nextDrill(){
+  cur = pick();
+  if(cur!=null){ history.push(cur); if(history.length>60) history.shift(); }
+  render();
+}
+function judge(grade,e){     // grade: 0=もう一度 1=わかった 2=余裕
+  if(e) e.stopPropagation();
+  if(cur==null) return;
+  const w = CARDS[cur].en;
+  total++; cnt++; if(grade>0) okCnt++;
+  logDay(grade>0);
+  seen.add(w);
+  const r = rec[w] || {d:jstDay(), n:0, f:0};
+  if(grade===0){
+    r.n = 0; r.f = (r.f||0)+1;
+    r.d = jstDay();                                  // 今日のうちにもう一度
+    sched[w] = total + GAP_FAIL;                     // セッション内で戻す
+    known.delete(w);
+  }else{
+    delete sched[w];
+    const steps = grade===2 ? STEPS_EASY : STEPS_OK;
+    const idx = Math.min(r.n, steps.length-1);
+    r.d = addDays(jstDay(), steps[idx]);
+    r.n = Math.min(r.n+1, steps.length);
+    r.f = 0;
+    if(r.n>=3) known.add(w);                         // 1週間間隔に乗ったら「覚えた」扱い
+  }
+  rec[w] = r;
+  persist(); nextDrill();
+  if(playing) playCard();
+}
+
+
+// ============ 学習記録 ============
+// hist[YYYY-MM-DD] = {n:枚数, ok:正解数}
+let hist = lsGet('hist',{});
+function logDay(good){
+  const d=jstDay();
+  const h=hist[d]||{n:0,ok:0};
+  h.n++; if(good) h.ok++;
+  hist[d]=h;
+  const keys=Object.keys(hist).sort();
+  while(keys.length>120){ delete hist[keys.shift()]; }   // 120日分だけ残す
+  lsSet('hist',hist);
+}
+function streakDays(){
+  let n=0, d=jstDay();
+  while(hist[d] && hist[d].n>0){ n++; d=addDays(d,-1); }
+  return n;
+}
+function dueBuckets(){
+  const t=jstDay(), t1=addDays(t,1), t7=addDays(t,7);
+  const b={today:0,tomorrow:0,week:0,later:0,none:0};
+  for(const c of CARDS){
+    const r=rec[c.en];
+    if(!r){ b.none++; continue; }
+    if(r.d<=t) b.today++;
+    else if(r.d===t1) b.tomorrow++;
+    else if(r.d<=t7) b.week++;
+    else b.later++;
+  }
+  return b;
+}
+function openStats(e){
+  if(e) e.stopPropagation();
+  const box=document.getElementById('statsBody');
+  const days=[]; for(let i=29;i>=0;i--) days.push(addDays(jstDay(),-i));
+  const vals=days.map(d=>hist[d]?hist[d].n:0);
+  const max=Math.max(10,...vals);
+  const tot30=vals.reduce((a,b)=>a+b,0);
+  const活=vals.filter(v=>v>0).length;
+  const b=dueBuckets();
+  const done=CARDS.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+
+  // デッキ別
+  const decksAll=Array.from(new Set(CARDS.map(c=>c.d)));
+  const drows=decksAll.map(d=>{
+    const cs=CARDS.filter(c=>c.d===d);
+    const ok=cs.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+    return {d, ok, all:cs.length, pct:Math.round(ok/cs.length*100)};
+  }).sort((a,b)=>a.pct-b.pct);
+
+  // 苦手な語（失敗回数の多い順）
+  const weak=CARDS.filter(c=>rec[c.en]&&(rec[c.en].f||0)>0)
+    .sort((a,b)=>(rec[b.en].f||0)-(rec[a.en].f||0)).slice(0,8);
+
+  box.innerHTML =
+   '<div class="kpis">'
+   + '<div class="kpi"><b>'+streakDays()+'</b><span>連続日数</span></div>'
+   + '<div class="kpi"><b>'+done+'</b><span>定着（1週間超）</span></div>'
+   + '<div class="kpi"><b>'+b.today+'</b><span>今日の復習</span></div>'
+   + '</div>'
+
+   + '<div class="sec"><h3>直近30日</h3>'
+   + '<div class="bars">'
+   + days.map((d,i)=>{
+       const v=vals[i], h=v?Math.max(4,Math.round(v/max*100)):0;
+       return '<div class="bar'+(v?'':' zero')+(i===29?' today':'')+'" style="height:'+h+'%" title="'+d+' '+v+'枚"></div>';
+     }).join('')
+   + '</div>'
+   + '<div class="barlab"><span>'+days[0].slice(5)+'</span><span>30日で '+tot30+'枚 ／ 学習 '+活+'日</span><span>今日</span></div></div>'
+
+   + '<div class="sec"><h3>復習の予定</h3>'
+   + row('今日', b.today) + row('明日', b.tomorrow) + row('今週中', b.week)
+   + row('それ以降', b.later) + row('未学習', b.none)
+   + '</div>'
+
+   + '<div class="sec"><h3>デッキ別の定着</h3>'
+   + drows.map(r=>'<div class="drow"><span class="nm">'+r.d+'</span>'
+       +'<span class="dbar"><i style="width:'+r.pct+'%"></i></span>'
+       +'<span class="vl">'+r.ok+'/'+r.all+'</span></div>').join('')
+   + '</div>'
+
+   + '<div class="sec"><h3>つまずいた語</h3>'
+   + (weak.length ? weak.map(c=>'<div class="weak"><span class="w-n">'+(rec[c.en].f||0)+'回</span>'
+       +esc(c.en)+'<div class="w-ja">'+esc(c.ja)+'</div></div>').join('')
+     : '<div class="empty-s">まだありません</div>')
+   + '</div>';
+
+  document.getElementById('statsSheet').classList.add('on');
+  function row(lab,n){
+    const pct=CARDS.length?Math.round(n/CARDS.length*100):0;
+    return '<div class="drow"><span class="nm">'+lab+'</span>'
+      +'<span class="dbar"><i style="width:'+pct+'%"></i></span>'
+      +'<span class="vl">'+n+'枚</span></div>';
+  }
+}
+function closeStats(e){ if(e) e.stopPropagation(); document.getElementById('statsSheet').classList.remove('on'); }
+
+// ============ 表示 ============
+function setBrowse(keep){
+  const prevCur = cur;
+  order = workingList();
+  if(keep && prevCur!=null){ const i=order.indexOf(prevCur); pos = i>=0?i:0; }
+  else if(pos>=order.length) pos=0;
+  cur = order.length ? order[pos] : null;
+}
+function renderDecks(){
+  const wrap=document.getElementById('decks'); wrap.innerHTML="";
+  decks.forEach(d=>{
+    const b=document.createElement('button');
+    b.className="chip"+(d===activeDeck?" active":""); b.textContent=d;
+    b.onclick=()=>{ activeDeck=d; persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } renderDecks(); if(playing) playCard(); };
+    wrap.appendChild(b);
+  });
+}
+function render(){
+  const pool = workingList();
+  const stage = document.querySelector('.stage');
+  if(cur==null || !pool.length){
+    stage.innerHTML='<div class="empty">この条件のカードが<b>ありません</b><br>デッキか「未習のみ」を切り替えてください。</div>';
+    document.getElementById('count').textContent="0 / 0";
+    document.getElementById('barfill').style.width="0%";
+    document.getElementById('knownCount').textContent="覚えた "+known.size;
+    paintToday(); return;
+  }
+  setFlipped(false);
+  const c=CARDS[cur];
+  document.getElementById('frontDeck').textContent=c.d + (dir==='ja'?' ／ 日→英':'');
+  if(dir==='ja'){
+    document.getElementById('frontEn').innerHTML =
+      '<div class="recall">'+c.ja+'</div><div class="recall-hint">英語で言ってからめくる</div>';
+    document.getElementById('backJa').textContent=c.en;
+  }else{
+    document.getElementById('frontEn').textContent=c.en;
+    document.getElementById('backJa').textContent=c.ja;
+  }
+  document.getElementById('backEx').textContent=c.ex||"";
+  document.getElementById('backExJa').textContent=c.exja||"";
+  document.getElementById('backNote').textContent=c.note||"";
+  card.classList.toggle('known', known.has(c.en));
+
+  if(mode==='browse'){
+    lsSet('spot', c.en);                      // 次に開いたとき、この語から再開する
+    document.getElementById('count').textContent=(pos+1)+" / "+order.length;
+    document.getElementById('barfill').style.width=((pos+1)/order.length*100)+"%";
+    document.getElementById('prevBtn').disabled = pos===0;
+    document.getElementById('nextBtn').disabled = pos===order.length-1;
+  } else {
+    const done = pool.filter(i=>known.has(CARDS[i].en)).length;
+    document.getElementById('count').textContent="卒業 "+done+" / "+pool.length;
+    document.getElementById('barfill').style.width=(done/pool.length*100)+"%";
+  }
+  document.getElementById('knownCount').textContent="要再挑戦 "+Object.keys(sched).length;
+
+  const kb=document.getElementById('knowBtn');
+  kb.classList.toggle('on', known.has(c.en));
+  kb.textContent = known.has(c.en) ? "✓ 覚えた（解除）" : "この語を「覚えた」";
+  document.getElementById('filterBtn').classList.toggle('on', onlyUnknown);
+  paintToday();
+}
+function paintToday(){
+  const rate = cnt? Math.round(okCnt/cnt*100)+"%" : "-";
+  document.getElementById('today').textContent = (extras.length? "＋"+extras.length+"枚 ／ ":"")+"今日 "+cnt+"枚 ／ 正答 "+rate+" ／ 覚えた "+known.size+"語";
+}
+function paintMode(){
+  const b=document.getElementById('modeBtn');
+  const drill = mode==='drill';
+  b.textContent = drill ? "🎯 ドリル" : "📖 通し";
+  b.classList.toggle('on', drill);
+  document.getElementById('browseRow').style.display = drill?'none':'flex';
+  paintDrillRows();
+  document.getElementById('knowBtn').style.display = drill?'none':'';
+}
+function toggleIL(e){
+  if(e) e.stopPropagation();
+  interleaveOn=!interleaveOn; persist(); paintIL();
+}
+function paintIL(){
+  const b=document.getElementById('ilBtn');
+  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'⇄ 交互 ON':'⇄ 交互 OFF'; }
+}
+function toggleDir(e){
+  if(e) e.stopPropagation();
+  dir = dir==='en' ? 'ja' : 'en';
+  persist(); paintDir(); paintHints(); render();
+}
+function paintDir(){
+  const b=document.getElementById('dirBtn');
+  if(!b) return;
+  b.textContent = dir==='ja' ? 'JA→EN' : 'EN→JA';
+  b.classList.toggle('on', dir==='ja');
+}
+function toggleMode(e){
+  if(e) e.stopPropagation();
+  mode = mode==='browse' ? 'drill' : 'browse';
+  persist(); paintMode();
+  if(mode==='drill') nextDrill(); else { setBrowse(true); render(); }
+}
+
+
+// ============ タップで読み上げ／フリックでめくる ============
+function setFlipped(v){
+  isFlipped=v; card.classList.toggle('flipped',v);
+  paintDrillRows(); paintHints();
+}
+function paintDrillRows(){
+  const drill = mode==='drill';
+  const fr=document.getElementById('flipRow'), jr=document.getElementById('judgeRow');
+  if(fr) fr.classList.toggle('on', drill && !isFlipped);   // 表：めくるボタン
+  if(jr) jr.classList.toggle('on', drill && isFlipped);    // 裏：判定ボタン
+}
+function paintHints(){
+  const fh=document.getElementById('frontHint'), bh=document.getElementById('backHint');
+  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから「めくる」／ 右フリックで次・左フリックで前'
+                                     : 'タップで発音 ／ 右フリックで次・左フリックで前';
+  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前';
+}
+function inRect(el,x,y){
+  if(!el) return false;
+  const r=el.getBoundingClientRect();
+  return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+}
+function tapSpeak(x,y){
+  if(cur==null) return;
+  const c=CARDS[cur];
+  card.classList.remove('tapflash'); void card.offsetWidth; card.classList.add('tapflash');
+  if(isFlipped){
+    if(inRect(document.querySelector('.back .ex'),x,y)) speak(c.ex);   // 例文の枠
+    else speak(c.en);                                                   // それ以外は見出し語
+    return;
+  }
+  if(dir==='ja') return;      // 表が日本語のときは読まない（英語を読むと答えになる）
+  speak(c.en);
+}
+
+let tStart=null, lastSwipe=0;
+card.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){ tStart=null; return; }
+  const t=e.touches[0]; tStart={x:t.clientX,y:t.clientY,at:Date.now()};
+},{passive:true});
+card.addEventListener('touchend',e=>{
+  if(!tStart) return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tStart.x, dy=t.clientY-tStart.y;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  if(adx>45 && adx>ady*1.4 && Date.now()-tStart.at<800){      // 横フリック
+    lastSwipe=Date.now();
+    card.classList.remove('nudge-l','nudge-r'); void card.offsetWidth;
+    card.classList.add(dx<0?'nudge-l':'nudge-r');
+    if(dx>0) next(); else prev();
+  }
+  tStart=null;
+},{passive:true});
+card.addEventListener('click',e=>{
+  if(Date.now()-lastSwipe<450) return;              // フリック直後の誤タップを無視
+  if(e.target.closest('button')) return;            // 🔊ボタンは自前で処理
+  tapSpeak(e.clientX,e.clientY);
+});
+
+// ============ 操作 ============
+function flip(e){ if(e) e.stopPropagation(); if(cur==null) return; setFlipped(!isFlipped); }
+function next(e){ if(e) e.stopPropagation(); if(mode==='drill'){ nextDrill(); } else if(pos<order.length-1){ pos++; setBrowse(false); render(); } if(playing) playCard(); }
+function prev(e){ if(e) e.stopPropagation(); if(mode==='browse' && pos>0){ pos--; setBrowse(false); render(); if(playing) playCard(); } }
+function shuffle(e){
+  if(e) e.stopPropagation();
+  if(mode==='drill'){ nextDrill(); }
+  else { for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} pos=0; cur=order[0]; render(); }
+  if(playing) playCard();
+}
+function toggleKnown(e){
+  if(e) e.stopPropagation(); if(cur==null) return;
+  const w=CARDS[cur].en;
+  if(known.has(w)){ known.delete(w); } else { known.add(w); delete sched[w]; delete streak[w]; }
+  persist();
+  if(onlyUnknown){ setBrowse(false); } render();
+}
+function toggleFilter(e){ if(e) e.stopPropagation(); onlyUnknown=!onlyUnknown; pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } }
+function resetProgress(e){
+  if(e) e.stopPropagation();
+  if(!confirm('覚えた語・要再挑戦・今日の記録をすべて消します。よろしいですか？')) return;
+  known=new Set(); sched={}; streak={}; seen=new Set(); total=0; cnt=0; okCnt=0;
+  persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ============ 自動再生 ============
+function playCard(){
+  if(!playing || cur==null) return;
+  const my = ++playToken;
+  const c = CARDS[cur];
+  setFlipped(false);
+  speakSeq(dir==='ja' ? '' : c.en, ()=>{
+    if(!playing || my!==playToken) return;
+    setFlipped(true);
+    if(dir==='ja') speak(c.en);
+    speakSeq(c.ex, ()=>{
+      if(!playing || my!==playToken) return;
+      setTimeout(()=>{ if(playing && my===playToken) afterCard(); },1000);
+    });
+  });
+}
+function afterCard(){
+  if(repeatMode===2){ playCard(); return; }
+  if(mode==='drill'){ nextDrill(); playCard(); return; }
+  if(pos < order.length-1){ pos++; setBrowse(false); render(); playCard(); }
+  else if(repeatMode===1){ pos=0; setBrowse(false); render(); playCard(); }
+  else stopPlay();
+}
+function startPlay(){ if(cur==null) return; playing=true; const b=document.getElementById('playBtn'); b.classList.add('on'); b.textContent="⏸ 停止"; playCard(); }
+function stopPlay(){ playing=false; playToken++; try{speechSynthesis.cancel();}catch(e){} const b=document.getElementById('playBtn'); b.classList.remove('on'); b.textContent="▶ 自動再生"; }
+function togglePlay(e){ if(e) e.stopPropagation(); playing?stopPlay():startPlay(); }
+function cycleRepeat(e){
+  if(e) e.stopPropagation(); repeatMode=(repeatMode+1)%3;
+  const b=document.getElementById('repeatBtn');
+  b.textContent="🔁 リピート:"+["なし","全体","1枚"][repeatMode];
+  b.classList.toggle('on', repeatMode!==0);
+}
+
+document.addEventListener('keydown',(e)=>{
+  const tg=e.target.tagName;
+  if(tg==='SELECT'||tg==='INPUT'||tg==='TEXTAREA') return;
+  if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); flip(); }
+  else if(e.code==='ArrowRight'){ next(); }
+  else if(e.code==='ArrowLeft'){ prev(); }
+  else if(e.key==='k'||e.key==='K'){ toggleKnown(); }
+  else if(e.key==='s'||e.key==='S'){ speakCurrent(); }
+  else if(e.key==='p'||e.key==='P'){ togglePlay(); }
+  else if(e.key==='d'||e.key==='D'){ toggleMode(); }
+});
+
+
+// ---- Service Worker（オフライン動作）----
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+// ---- カードの追加読み込み ----
+function importCards(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        const incoming = Array.isArray(d) ? d : (d.cards||[]);
+        if(!incoming.length){ alert('カードが入っていないファイルです'); return; }
+        const before = CARDS.length;
+        const seenEn = new Set(extras.map(c=>c.en));
+        for(const c of incoming){ if(c&&c.en&&!seenEn.has(c.en)){ seenEn.add(c.en); extras.push(c); } }
+        mergeExtras(); lsSet('extra',extras); recomputeDecks(); renderDecks();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('取り込みました（+'+(CARDS.length-before)+'枚 ／ 合計'+CARDS.length+'枚）\n学習履歴はそのまま残っています。');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+function clearExtras(e){
+  if(e) e.stopPropagation();
+  if(!extras.length){ alert('追加カードはありません'); return; }
+  if(!confirm('あとから取り込んだ '+extras.length+'枚を削除します。内蔵カードと学習履歴は残ります。')) return;
+  extras=[]; lsSet('extra',extras); mergeExtras(); recomputeDecks(); renderDecks();
+  if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ---- 進捗の書き出し／読み込み（端末を変えても引き継げるように）----
+function exportProgress(e){
+  if(e) e.stopPropagation();
+  const dump={ns:NS, saved:new Date().toISOString(),
+    known:[...known], sched, streak, seen:[...seen], total, cnt, okCnt, day, rec, hist};
+  const blob=new Blob([JSON.stringify(dump,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=NS+'-progress-'+jstDay()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importProgress(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        if(d.ns && d.ns!==NS && !confirm('別のアプリの進捗ファイルに見えます。読み込みますか？')) return;
+        known=new Set(d.known||[]); sched=d.sched||{}; streak=d.streak||{};
+        seen=new Set(d.seen||[]); total=d.total||0;
+        if(d.rec) rec=d.rec;
+        if(d.hist) hist=Object.assign({}, hist, d.hist);
+        if(d.day===jstDay()){ cnt=d.cnt||0; okCnt=d.okCnt||0; }
+        persist();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('読み込みました（覚えた '+known.size+'語）');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
+function restoreSpot(){                     // 前回いた語まで戻す
+  const w = lsGet('spot','');
+  if(!w) return;
+  const i = order.findIndex(k=>CARDS[k] && CARDS[k].en===w);
+  if(i>=0){ pos=i; cur=order[pos]; }
+}
+renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL(); paintHints();
+if(mode==='drill') nextDrill(); else { setBrowse(false); restoreSpot(); render(); }
+</script>
+</body>
+</html>
