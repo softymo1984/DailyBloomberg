@@ -47,12 +47,14 @@
   a.app.bep{border-left-color:var(--teal);}
   a.app.repeat{border-left-color:#66d9a0;}
   a.app.speak{border-left-color:#5b3fb8;}
+  a.app.juken{border-left-color:#3f7fb8;}
   a.app:active{transform:translateY(1px);}
   .app h2{font-family:"Lora",serif;font-size:1.25rem;font-weight:600;margin-bottom:4px;}
   .app .meta{font-size:.74rem;color:var(--amber);font-weight:700;letter-spacing:.06em;margin-bottom:8px;}
   .app.bep .meta{color:var(--teal);}
   .app.repeat .meta{color:#2e8f62;}
   .app.speak .meta{color:#5b3fb8;}
+  .app.juken .meta{color:#2f6da3;}
   .app p{font-size:.84rem;color:var(--ink-soft);line-height:1.6;}
 
   .note{max-width:560px;width:100%;margin-top:26px;font-size:.78rem;color:#8892a4;line-height:1.8;}
@@ -77,7 +79,7 @@
 
   <div class="cards">
     <a class="app" href="./bloomberg.html">
-      <div class="meta">DAILY BLOOMBERG ／ 244枚</div>
+      <div class="meta">DAILY BLOOMBERG ／ 298枚</div>
       <h2>ニュース英語</h2>
       <p>市場・経済／政治・司法／テック・AI／慣用句。Bloomberg News Now から抽出した語彙と例文。</p>
     </a>
@@ -85,6 +87,11 @@
       <div class="meta">BUSINESS ENGLISH POD ／ 193枚</div>
       <h2>ビジネス英語</h2>
       <p>プレゼン導入／アイデアのつなぎ／会議の進行・締め／口語・短縮。会議とプレゼンの実務表現。</p>
+    </a>
+    <a class="app juken" href="./juken.html">
+      <div class="meta">REVIEW ／ 166枚</div>
+      <h2>受験英語 復習</h2>
+      <p>基本動詞の多義語を語義ごとに1枚ずつ。escape・maintain・appreciate のように、前置詞や構文で意味が変わるものを分けて確認する。構文・語法も収録。</p>
     </a>
     <a class="app repeat" href="./repeat.html">
       <div class="meta">REPEAT DRILL ／ 486文</div>
@@ -107,7 +114,7 @@
   <button class="diag" onclick="diag()">動作診断</button>
   <div id="out"></div>
 
-  <div class="vertag">更新 v14 ・ 2026-09-21</div>
+  <div class="vertag">更新 v22 ・ 2026-09-22</div>
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });

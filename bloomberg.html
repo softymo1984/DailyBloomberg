@@ -121,9 +121,13 @@
   #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
     border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
   #q::placeholder{color:#8892a4;}
+  /* iOS/Chrome が type=search に足す消去ボタンを消す（自前の ✕ と二重になるため） */
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
   #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
     color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
-  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;
+  /* body が縦フレックスで高さ固定のため、overflow を持つこの枠は
+     放っておくと高さ 2px まで縮められて検索結果が見えなくなる。flex:none で止める。 */
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;flex:none;
     border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
   .hits.on{display:block;}
   .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
@@ -173,8 +177,11 @@
   .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
   .flipRow.on{display:flex;}
   .flipRow .btn{flex:1;}
-  .tapflash{animation:tapf .35s ease;}
-  @keyframes tapf{0%{filter:brightness(1)}40%{filter:brightness(1.08)}100%{filter:brightness(1)}}
+  /* タップの手ごたえ。filter を使うとカードの立体が潰れて裏の面が透けるので、
+     カード本体ではなく表示中の面の背景色だけを一瞬明るくする。 */
+  .tapflash .face{animation:tapf .35s ease;}
+  @keyframes tapf{0%,100%{background-image:linear-gradient(180deg,var(--paper),var(--paper-edge));}
+                  40%{background-image:linear-gradient(180deg,#fffcf2,#f7eeda);}}
 
   .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
 </style>
@@ -278,7 +285,7 @@
 
   <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
 
-  <div class="vertag">更新 v14 ・ 2026-09-21</div>
+  <div class="vertag">更新 v22 ・ 2026-09-22</div>
 <script>
 const BUILTIN = [
   // ===== 市場・経済 =====
@@ -550,6 +557,61 @@ const BUILTIN = [
   {d:"慣用句", en:"catastrophic and unjustifiable", ja:"破滅的で正当化できない", ex:"He said what's happening there is catastrophic and unjustifiable.", exja:"そこで起きていることは破滅的で正当化できないと述べた。", note:"強い非難の定型。"},
   {d:"慣用句", en:"wrap a third day of ~", ja:"〜の3日目を終える", ex:"Russia wrapped a third and final day of elections.", exja:"ロシアは選挙の最終3日目を終えた。", note:"wrap=締めくくる。"},
   {d:"慣用句", en:"set to ~", ja:"〜することになっている", ex:"The vote is set to strengthen the government's grip.", exja:"投票は政権の掌握を強めることになっている。", note:"予定・見込みを表す。"},
+  // ===== 2026-09-22 Bloomberg News Now から追加 =====
+  {d:"市場・経済", en:"flight disruptions", ja:"運航の乱れ", ex:"There were flight disruptions today at major airports serving New York City.", exja:"ニューヨーク市の主要空港で今日、運航の乱れがあった。", note:"disruption=中断・混乱。複数形で使うことが多い。"},
+  {d:"市場・経済", en:"stem from ~", ja:"〜に起因する", ex:"This stemmed from a circuit failure in an old telecommunication system.", exja:"これは古い通信設備の回線故障に起因していた。", note:" stem=茎。「そこから伸びている」が原義。"},
+  {d:"市場・経済", en:"circuit failure", ja:"回線の故障", ex:"The outage was traced to a circuit failure in a backup system.", exja:"障害は予備系統の回線故障までたどられた。", note:"failure=故障。outage=停止。"},
+  {d:"市場・経済", en:"resume", ja:"再開する", ex:"All airport operations in the Northeast are resuming.", exja:"北東部の空港運用はすべて再開しつつある。", note:"発音は「リズューム」。履歴書の résumé とは別語。"},
+  {d:"市場・経済", en:"clear delays", ja:"遅延を解消する", ex:"It will take some time to clear all existing flight delays.", exja:"既存の遅延をすべて解消するには時間がかかる。", note:"clear=滞留を片づける。"},
+  {d:"市場・経済", en:"wrap up ~", ja:"〜をまとめ上げる・決着させる", ex:"This will allow the company to wrap up its acquisition of Warner Brothers Discovery.", exja:"これで同社はワーナー買収を決着させられる。", note:"会議を終える意味でも使う。"},
+  {d:"市場・経済", en:"consent decree", ja:"同意判決（和解に基づく裁判所命令）", ex:"The commitments made in the consent decree will be carried out.", exja:"同意判決で約束した事項は履行される。", note:"当局と企業が合意し裁判所が承認する形式。"},
+  {d:"市場・経済", en:"guardrails", ja:"歯止め・安全装置", ex:"We have an array of guardrails and accountability requirements.", exja:"一連の歯止めと説明責任の要件を設けている。", note:"元は道路のガードレール。規制・AI文脈で多用。"},
+  {d:"市場・経済", en:"an array of ~", ja:"ずらりと並んだ〜・一連の〜", ex:"We have an array of guardrails and accountability requirements.", exja:"一連の歯止めと説明責任の要件を設けている。", note:"数の多さと種類の幅を同時に示す。"},
+  {d:"市場・経済", en:"accountability requirements", ja:"説明責任の要件", ex:"The deal adds accountability requirements for the combined company.", exja:"この取引は統合後の会社に説明責任の要件を課す。", note:"accountability=結果に対して答える責任。"},
+  {d:"市場・経済", en:"market power", ja:"市場支配力", ex:"The deal includes protections designed to limit market power.", exja:"この取引には市場支配力を抑える保護策が含まれる。", note:"独占禁止の中心概念。"},
+  {d:"市場・経済", en:"editorial independence", ja:"編集の独立性", ex:"The protections also ensure editorial independence.", exja:"保護策は編集の独立性も担保する。", note:"報道機関の買収で必ず論点になる。"},
+  {d:"市場・経済", en:"close at a record high", ja:"最高値で引ける", ex:"The NASDAQ composite closed at a record high.", exja:"ナスダック総合は最高値で引けた。", note:"close=引ける。record high=過去最高値。"},
+  {d:"市場・経済", en:"the advance was led by ~", ja:"上昇は〜が牽引した", ex:"The advance was led by AI-related shares.", exja:"上昇はAI関連株が牽引した。", note:"advance=値上がり。逆は decline。"},
+  {d:"市場・経済", en:"spark a rally", ja:"上昇に火をつける", ex:"This news on Meta sparked a rally in semiconductor stocks.", exja:"このメタの報道が半導体株の上昇に火をつけた。", note:"spark=火花。きっかけを作る。"},
+  {d:"市場・経済", en:"market cap", ja:"時価総額", ex:"The move boosted the company's market cap to above a trillion dollars.", exja:"この動きで時価総額は1兆ドル超に押し上げられた。", note:"market capitalization の略。"},
+  {d:"テック・AI", en:"AI agent", ja:"AIエージェント", ex:"The company's new AI agent is ranked as the number one free app.", exja:"同社の新しいAIエージェントは無料アプリ1位になっている。", note:"自律的に作業をこなすAIの総称。"},
+  {d:"テック・AI", en:"cutting edge ~", ja:"最先端の〜", ex:"They want standards for cutting edge artificial intelligence.", exja:"最先端のAIに関する基準を求めている。", note:"名詞なら the cutting edge=最前線。"},
+  {d:"テック・AI", en:"set standards", ja:"基準を定める", ex:"The US should lead a global effort to set standards.", exja:"米国が基準づくりの国際的取り組みを主導すべきだ。", note:"standard=守るべき水準。"},
+  {d:"テック・AI", en:"lead a global effort", ja:"国際的な取り組みを主導する", ex:"OpenAI is urging the US to lead a global effort.", exja:"OpenAIは米国に国際的な取り組みの主導を求めている。", note:"effort=（組織だった）取り組み。"},
+  {d:"テック・AI", en:"urge A to do", ja:"Aに〜するよう強く促す", ex:"OpenAI is urging the US to lead a global effort.", exja:"OpenAIは米国に主導するよう強く促している。", note:"ask より強く、order より弱い。"},
+  {d:"テック・AI", en:"incidents involving ~", ja:"〜が関わる事案", ex:"They must define what kinds of incidents involving AI models should be reported.", exja:"AIモデルが関わるどの事案を報告すべきか定める必要がある。", note:"incident=（好ましくない）出来事。"},
+  {d:"テック・AI", en:"address（名詞）", ja:"演説", ex:"The statement comes ahead of his address to the UN Security Council.", exja:"声明は国連安保理での演説に先立って出された。", note:"動詞なら「対処する」。名詞は「演説・住所」。"},
+  {d:"テック・AI", en:"come ahead of ~", ja:"〜に先立って出る・行われる", ex:"The statement comes ahead of the summit on Thursday.", exja:"声明は木曜の首脳会談に先立って出された。", note:"ahead of=時間的に前に。"},
+  {d:"政治・司法", en:"file a lawsuit", ja:"訴訟を起こす", ex:"Three news outlets have filed a lawsuit against the administration.", exja:"報道3社が政権を相手に訴訟を起こした。", note:"file=（書類を）提出する。"},
+  {d:"政治・司法", en:"news outlets", ja:"報道機関", ex:"The news outlets claim the ban is unconstitutional.", exja:"報道各社はこの締め出しは違憲だと主張している。", note:"outlet=発信の出口。媒体1社を指す。"},
+  {d:"政治・司法", en:"revoke access", ja:"立ち入り資格を取り消す", ex:"This comes after the president revoked their access.", exja:"これは大統領が彼らの立ち入り資格を取り消した後の動きだ。", note:"revoke=（一度与えた権利を）取り消す。"},
+  {d:"政治・司法", en:"a direct assault on ~", ja:"〜への正面からの攻撃", ex:"The news outlets claim the ban is a direct assault on the First Amendment.", exja:"報道各社はこの締め出しは憲法修正第1条への正面からの攻撃だと主張する。", note:"assault=急襲。比喩で「侵害」。"},
+  {d:"政治・司法", en:"the complaint", ja:"訴状", ex:"According to the complaint filed in federal court, the ban is unlawful.", exja:"連邦裁に提出された訴状によれば、その締め出しは違法だ。", note:"日常語の「不満」とは別の法律用語。"},
+  {d:"政治・司法", en:"seek a court order", ja:"裁判所の命令を求める", ex:"The news outlets are seeking a court order to restore their access.", exja:"報道各社はアクセス回復を求めて裁判所の命令を求めている。", note:"seek=求める。求めて動く含み。"},
+  {d:"政治・司法", en:"reinstate", ja:"元に戻す・復帰させる", ex:"They want the court to immediately reinstate their access to the White House.", exja:"ホワイトハウスへのアクセスを直ちに元に戻すよう求めている。", note:"解雇された人の復職にも使う。"},
+  {d:"政治・司法", en:"while the lawsuits proceed", ja:"訴訟が進む間", ex:"They asked for access while their lawsuits proceed.", exja:"訴訟が進む間のアクセスを求めた。", note:"proceed=手続きが進む。"},
+  {d:"政治・司法", en:"a hearing is scheduled for ~", ja:"審理が〜に予定されている", ex:"A hearing on that request is scheduled for Wednesday.", exja:"その申し立ての審理は水曜に予定されている。", note:"hearing=（法廷・議会の）審理。"},
+  {d:"政治・司法", en:"hold ~ to account", ja:"〜に説明責任を果たさせる", ex:"The public can hold their elected representatives to account.", exja:"国民は選出した議員に説明責任を果たさせることができる。", note:"英国寄りの言い方。米では accountable も。"},
+  {d:"政治・司法", en:"elected representatives", ja:"選挙で選ばれた議員", ex:"The public can hold their elected representatives to account.", exja:"国民は選出した議員に説明責任を果たさせることができる。", note:"representative=代表者・下院議員。"},
+  {d:"政治・司法", en:"upbeat assessment", ja:"前向きな評価", ex:"Officials offered upbeat assessments on the talks.", exja:"当局者は協議について前向きな評価を示した。", note:"upbeat=強気・明るい。逆は downbeat。"},
+  {d:"政治・司法", en:"steady ties", ja:"関係を安定させる", ex:"Both sides signaled a mutual desire to steady ties.", exja:"双方は関係を安定させたいという意向を示した。", note:"steady は動詞で「安定させる」。ties=関係。"},
+  {d:"政治・司法", en:"signal a desire to do", ja:"〜したい意向を示す", ex:"Both sides signaled a mutual desire to steady ties.", exja:"双方は関係を安定させたい意向を示した。", note:"明言せず態度で示す、の含み。"},
+  {d:"政治・司法", en:"trade truce", ja:"貿易休戦", ex:"They will continue talks on the extension of a trade truce.", exja:"貿易休戦の延長について協議を続ける。", note:"truce=一時休戦。恒久的な和解ではない。"},
+  {d:"政治・司法", en:"unfair trading practice", ja:"不公正な貿易慣行", ex:"We want to protect our market and our workers from unfair trading practice.", exja:"市場と労働者を不公正な貿易慣行から守りたい。", note:"practice=慣行。複数形でも使う。"},
+  {d:"政治・司法", en:"controls on imports", ja:"輸入規制", ex:"We have a lot of controls on Chinese imports.", exja:"中国からの輸入には多くの規制をかけている。", note:"輸出側は controls on exports。"},
+  {d:"政治・司法", en:"manage trade", ja:"貿易を管理する", ex:"So we're just going to manage trade with China.", exja:"だから中国との貿易は管理していくことになる。", note:"自由貿易でも遮断でもない中間の立場。"},
+  {d:"政治・司法", en:"federal grants", ja:"連邦補助金", ex:"The project would require more than $21 billion in federal grants.", exja:"この計画には210億ドル超の連邦補助金が必要になる。", note:"grant=返済不要の補助金。loanと対比。"},
+  {d:"政治・司法", en:"federal approvals", ja:"連邦政府の認可", ex:"You're going to need a lot of federal approvals to do it.", exja:"実行には連邦政府の認可が数多く必要になる。", note:"approval=承認・認可。"},
+  {d:"政治・司法", en:"federally oriented", ja:"連邦政府主導型の", ex:"That was a very federally oriented job.", exja:"あれはかなり連邦政府主導型の事業だった。", note:"~-oriented=〜志向の。customer-oriented など。"},
+  {d:"政治・司法", en:"rail yards", ja:"鉄道の操車場", ex:"The plan is to build thousands of homes over the rail yards.", exja:"操車場の上に数千戸の住宅を建てる計画だ。", note:"yard=構内。都市再開発の定番用地。"},
+  {d:"政治・司法", en:"technical discussions", ja:"実務レベルの協議", ex:"The two agreed to begin technical discussions on the plan.", exja:"両者はその計画について実務レベルの協議を始めることで合意した。", note:"政治決着の前段にある事務折衝。"},
+  {d:"慣用句", en:"take a step back", ja:"一歩引いて全体を見る", ex:"When you take a step back and look at it, the picture is clearer.", exja:"一歩引いて見れば、全体像はもっとはっきりする。", note:"議論が細部に入りすぎたときの定番。"},
+  {d:"慣用句", en:"bring ~ up", ja:"〜を話題に出す", ex:"The mayor brought that up at the meeting.", exja:"市長がその件を会議で持ち出した。", note:"bring-brought-brought。"},
+  {d:"慣用句", en:"That's the focus.", ja:"そこが眼目だ", ex:"We're going to manage trade. That's the focus.", exja:"貿易は管理していく。そこが眼目だ。", note:"話の力点を一言で示す締め方。"},
+  {d:"慣用句", en:"it will take some time to ~", ja:"〜には時間がかかる", ex:"He said it will take some time to clear all existing delays.", exja:"既存の遅延をすべて解消するには時間がかかると述べた。", note:"すぐには直らない、を和らげて言う。"},
+  {d:"慣用句", en:"just because ~ doesn't mean ...", ja:"〜だからといって…とは限らない", ex:"Just because it's managed doesn't mean we can't have positive areas.", exja:"管理されているからといって、前向きな分野が持てないわけではない。", note:"反論の型。会議で使いやすい。"},
+  {d:"慣用句", en:"for the very first time", ja:"史上初めて", ex:"Its market cap rose above a trillion dollars for the very first time.", exja:"時価総額が史上初めて1兆ドルを超えた。", note:"very が「まさに初」を強める。"},
+  {d:"慣用句", en:"be ranked as ~", ja:"〜に位置づけられる", ex:"The app is ranked as the number one free app.", exja:"そのアプリは無料アプリ1位に位置づけられている。", note:"rank=順位づける。"},
 ];
 let CARDS = BUILTIN.slice();
 

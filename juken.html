@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>受験英語 復習</title>
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0a0c11">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;1,500&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk:#14181f; --desk2:#0a0c11;
+    --paper:#FBF6EA; --paper-edge:#efe6d2;
+    --ink:#1b1d22; --ink-soft:#5d626c;
+    --accent:#3f7fb8; --accent-soft:#cfe0ef; --gold:#8fb98f;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+    background:radial-gradient(120% 80% at 50% -10%, #222c3a 0%, var(--desk) 45%, var(--desk2) 100%);
+    color:var(--paper);min-height:100dvh;
+    display:flex;flex-direction:column;align-items:center;padding:22px 16px 36px;
+  }
+  header{width:100%;max-width:620px;text-align:center;margin-bottom:14px;}
+  .kicker{font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:var(--gold);font-weight:700;}
+  h1{font-family:"Lora",serif;font-weight:600;font-size:1.9rem;margin:.15em 0 .1em;}
+  .sub{font-size:.8rem;color:#a9b2c4;}
+  .decks{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin:16px 0 10px;}
+  .chip{font-family:inherit;font-size:.78rem;font-weight:500;color:#cfd6e2;background:rgba(255,255,255,.06);
+    border:1px solid rgba(255,255,255,.16);padding:6px 13px;border-radius:999px;cursor:pointer;transition:.18s;}
+  .chip:hover{background:rgba(255,255,255,.13);}
+  .chip.active{background:var(--paper);color:var(--desk2);border-color:var(--paper);font-weight:700;}
+  .meta{width:100%;max-width:620px;display:flex;align-items:center;justify-content:space-between;
+    font-size:.78rem;color:#a9b2c4;margin:4px 2px 12px;}
+  .bar{height:5px;flex:1;margin:0 12px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;}
+  .bar > i{display:block;height:100%;width:0;background:var(--gold);transition:width .25s;}
+  .stage{width:100%;max-width:620px;perspective:1600px;}
+  .card{position:relative;width:100%;min-height:400px;cursor:pointer;transform-style:preserve-3d;
+    transition:transform .5s cubic-bezier(.2,.7,.2,1);}
+  .card.flipped{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;overflow-y:auto;
+    background:linear-gradient(180deg,var(--paper),var(--paper-edge));border-radius:18px;
+    box-shadow:0 18px 40px rgba(0,0,0,.32), inset 0 1px 0 #fff;
+    padding:54px 26px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    text-align:center;color:var(--ink);}
+  .face::before,.face::after{content:"";position:absolute;top:-9px;width:16px;height:16px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#c9ccce 60%,#8b9094);box-shadow:0 2px 3px rgba(0,0,0,.35);}
+  .face::before{left:32%;} .face::after{right:32%;}
+  .deck-tag{position:absolute;top:16px;left:0;right:0;font-size:.66rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--accent);font-weight:700;}
+  .en{font-family:"Lora",serif;font-weight:600;font-size:1.8rem;line-height:1.3;}
+  .ja{font-size:1.45rem;font-weight:700;line-height:1.4;}
+  /* 表に出す例文（語義を文脈で見分けるための手がかり）。答えは出さない。 */
+  .fex{margin-top:18px;width:100%;max-width:430px;text-align:left;
+    border-left:3px solid var(--accent-soft);background:rgba(63,127,184,.06);
+    border-radius:0 10px 10px 0;padding:11px 14px;
+    font-family:"Lora",serif;font-style:italic;font-size:1.0rem;line-height:1.5;color:#3a3f47;}
+  .ex{margin-top:16px;width:100%;max-width:430px;text-align:left;
+    border-left:3px solid var(--accent);background:rgba(201,118,26,.07);
+    border-radius:0 10px 10px 0;padding:11px 14px 11px 13px;position:relative;}
+  .ex-speak{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:.85rem;
+    line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .ex-speak:hover{background:var(--accent);color:#fff;}
+  .ex-en{font-family:"Lora",serif;font-style:italic;font-size:1.02rem;line-height:1.45;padding-right:28px;color:#332a1e;}
+  .ex-ja{font-size:.86rem;color:var(--ink-soft);margin-top:5px;line-height:1.5;}
+  .note{margin-top:12px;font-size:.82rem;color:var(--ink-soft);line-height:1.55;max-width:42ch;}
+  .hint{margin-top:14px;font-size:.72rem;color:#9b8f80;}
+  .back{transform:rotateY(180deg);}
+  .known-flag{position:absolute;top:14px;right:16px;font-size:.7rem;font-weight:700;color:#2e7d52;
+    background:#dff3e6;border-radius:999px;padding:3px 9px;display:none;}
+  .known .known-flag{display:inline-block;}
+  .speak-btn{position:absolute;top:12px;left:14px;width:40px;height:40px;border-radius:50%;
+    border:1px solid var(--accent-soft);background:#fff;color:var(--accent);font-size:1.1rem;line-height:1;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.12);transition:.15s;}
+  .speak-btn:hover{background:var(--accent);color:#fff;}
+  .speak-btn:active{transform:scale(.92);}
+  .speak-btn.speaking{background:var(--accent);color:#fff;animation:pulse 1s infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,118,26,.5);}50%{box-shadow:0 0 0 7px rgba(201,118,26,0);}}
+  .controls{width:100%;max-width:620px;display:flex;gap:10px;margin-top:18px;}
+  .btn{flex:1;font-family:inherit;font-size:.95rem;font-weight:700;padding:14px 10px;border-radius:13px;
+    border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:var(--paper);cursor:pointer;transition:.16s;}
+  .btn:hover{background:rgba(255,255,255,.16);}
+  .btn:active{transform:translateY(1px);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);}
+  .btn.primary:hover{background:#356c9e;}
+  .btn[disabled]{opacity:.4;cursor:default;}
+  .row2{width:100%;max-width:620px;display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;}
+  .toolbtn{flex:1 1 28%;font-family:inherit;font-size:.82rem;font-weight:500;padding:10px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;transition:.16s;}
+  .toolbtn:hover{background:rgba(255,255,255,.1);}
+  .toolbtn.on{background:var(--gold);border-color:var(--gold);color:#05282e;font-weight:700;}
+  .keys{margin-top:18px;font-size:.72rem;color:#8892a4;text-align:center;line-height:1.7;}
+  .empty{text-align:center;padding:60px 20px;color:#c6cdd9;}
+  .empty b{color:var(--gold);}
+
+  .judge{width:100%;max-width:620px;display:none;gap:10px;margin-top:18px;}
+  .judge.on{display:flex;}
+  .btn.good{background:#1f7a52;border-color:#1f7a52;}
+  .btn.good:hover{background:#249160;}
+  .btn.bad{background:rgba(255,255,255,.08);}
+  .row3{width:100%;max-width:620px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px;}
+  .lbl{font-size:.78rem;color:#9aa6b8;}
+  .spd{font-family:inherit;font-size:.78rem;padding:7px 11px;border-radius:9px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .spd.on{background:var(--gold);border-color:var(--gold);color:#05282e;font-weight:700;}
+  #voiceSel{flex:1;min-width:150px;font-family:inherit;font-size:.76rem;padding:7px 9px;
+    border-radius:9px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:#cfd6e2;}
+  .today{width:100%;max-width:620px;margin-top:12px;text-align:center;font-size:.8rem;
+    color:var(--gold);letter-spacing:.04em;}
+  .reset{margin-top:14px;font-family:inherit;font-size:.72rem;background:none;border:none;
+    color:#6f7a8c;text-decoration:underline;cursor:pointer;}
+
+  .judge .btn{font-size:.88rem;padding:13px 6px;}
+  .recall{font-size:1.5rem;font-weight:700;line-height:1.45;color:var(--ink);}
+  .recall-hint{margin-top:10px;font-size:.8rem;color:var(--ink-soft);}
+
+  .searchwrap{width:100%;max-width:620px;margin-top:10px;position:relative;}
+  #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
+  #q::placeholder{color:#8892a4;}
+  /* iOS/Chrome が type=search に足す消去ボタンを消す（自前の ✕ と二重になるため） */
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
+  #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
+    color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
+  /* body が縦フレックスで高さ固定のため、overflow を持つこの枠は
+     放っておくと高さ 2px まで縮められて検索結果が見えなくなる。flex:none で止める。 */
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;flex:none;
+    border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
+  .hits.on{display:block;}
+  .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
+  .hit:last-child{border-bottom:none;}
+  .hit:hover{background:rgba(255,255,255,.07);}
+  .hit .he{font-family:"Lora",serif;font-size:.95rem;color:var(--paper);}
+  .hit .hj{font-size:.76rem;color:#a9b2c4;margin-top:2px;}
+  .hit .hd{font-size:.64rem;color:var(--gold);letter-spacing:.08em;}
+  .nohit{padding:12px;text-align:center;font-size:.8rem;color:#8892a4;}
+
+  .statsBtn{margin-top:10px;font-family:inherit;font-size:.82rem;padding:10px 18px;border-radius:11px;
+    border:1px solid rgba(255,255,255,.16);background:transparent;color:#cfd6e2;cursor:pointer;}
+  .statsBtn:hover{background:rgba(255,255,255,.1);}
+  .sheet{position:fixed;inset:0;background:rgba(5,7,11,.92);z-index:999;overflow-y:auto;
+    padding:calc(22px + env(safe-area-inset-top,0px)) 16px calc(30px + env(safe-area-inset-bottom,0px));display:none;}
+  .sheet.on{display:block;}
+  .sheet-in{max-width:620px;margin:0 auto;}
+  .sheet h2{font-family:"Lora",serif;font-size:1.3rem;margin-bottom:4px;color:var(--paper);}
+  .sheet .close{position:sticky;top:0;float:right;background:none;border:none;color:#a9b2c4;
+    font-size:1.6rem;cursor:pointer;line-height:1;}
+  .kpis{display:flex;gap:9px;margin:14px 0 18px;flex-wrap:wrap;}
+  .kpi{flex:1 1 30%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);
+    border-radius:12px;padding:12px 10px;text-align:center;}
+  .kpi b{display:block;font-family:"Lora",serif;font-size:1.5rem;color:var(--gold);line-height:1.1;}
+  .kpi span{font-size:.68rem;color:#a9b2c4;letter-spacing:.05em;}
+  .sec{margin-top:22px;}
+  .sec h3{font-size:.8rem;color:var(--gold);letter-spacing:.1em;margin-bottom:9px;font-weight:700;}
+  .bars{display:flex;align-items:flex-end;gap:2px;height:110px;padding:6px 0;
+    border-bottom:1px solid rgba(255,255,255,.14);}
+  .bar{flex:1;min-width:3px;background:var(--gold);border-radius:2px 2px 0 0;opacity:.85;position:relative;}
+  .bar.zero{background:rgba(255,255,255,.1);height:2px !important;}
+  .bar.today{background:var(--accent);opacity:1;}
+  .barlab{display:flex;justify-content:space-between;font-size:.62rem;color:#8892a4;margin-top:5px;}
+  .drow{display:flex;align-items:center;gap:9px;margin-bottom:7px;font-size:.78rem;color:#cfd6e2;}
+  .drow .nm{width:6.5em;flex:none;color:#a9b2c4;font-size:.72rem;}
+  .dbar{flex:1;height:7px;background:rgba(255,255,255,.1);border-radius:99px;overflow:hidden;}
+  .dbar i{display:block;height:100%;background:var(--gold);}
+  .drow .vl{width:4.5em;flex:none;text-align:right;font-size:.7rem;color:#8892a4;}
+  .weak{font-size:.8rem;color:#cfd6e2;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.07);}
+  .weak .w-ja{font-size:.72rem;color:#8892a4;}
+  .weak .w-n{float:right;color:var(--accent);font-weight:700;font-size:.74rem;}
+  .empty-s{font-size:.78rem;color:#8892a4;padding:10px 0;}
+
+  .card{touch-action:pan-y;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+  .card.nudge-l{animation:nudgeL .22s ease;} .card.nudge-r{animation:nudgeR .22s ease;}
+  @keyframes nudgeL{50%{margin-left:-14px}} @keyframes nudgeR{50%{margin-left:14px}}
+  .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
+  .flipRow.on{display:flex;}
+  .flipRow .btn{flex:1;}
+  /* タップの手ごたえ。filter を使うとカードの立体が潰れて裏の面が透けるので、
+     カード本体ではなく表示中の面の背景色だけを一瞬明るくする。 */
+  .tapflash .face{animation:tapf .35s ease;}
+  @keyframes tapf{0%,100%{background-image:linear-gradient(180deg,var(--paper),var(--paper-edge));}
+                  40%{background-image:linear-gradient(180deg,#fffcf2,#f7eeda);}}
+
+  .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
+</style>
+</head>
+<body>
+  <header>
+    <div class="kicker">Review · Core Verbs</div>
+    <h1>受験英語 復習</h1>
+  </header>
+
+  <div class="decks" id="decks"></div>
+
+  <div class="searchwrap">
+    <input id="q" type="search" placeholder="🔍 英語・日本語・メモから検索" oninput="doSearch()" autocomplete="off">
+    <button id="qclear" onclick="clearSearch(event)">✕</button>
+  </div>
+  <div class="hits" id="hits"></div>
+
+  <div class="meta">
+    <span id="count">0 / 0</span>
+    <span class="bar"><i id="barfill"></i></span>
+    <span id="knownCount">覚えた 0</span>
+  </div>
+
+  <div class="stage">
+    <div class="card" id="card">
+      <div class="face front">
+        <span class="deck-tag" id="frontDeck"></span>
+        <div class="en" id="frontEn"></div>
+        <div class="hint" id="frontHint">タップで発音（例文の枠は例文）／ めくると語義</div>
+      </div>
+      <div class="face back">
+        <span class="known-flag">✓ 覚えた</span>
+        <div class="ja" id="backJa"></div>
+        <div class="ex">
+          <p class="ex-en" id="backEx"></p>
+          <p class="ex-ja" id="backExJa"></p>
+        </div>
+        <div class="note" id="backNote"></div>
+        <div class="hint" id="backHint">タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls" id="browseRow">
+    <button class="btn" id="prevBtn" onclick="prev(event)">← 前</button>
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+    <button class="btn" id="nextBtn" onclick="next(event)">次 →</button>
+  </div>
+
+  <div class="flipRow" id="flipRow">
+    <button class="btn primary" onclick="flip(event)">めくる</button>
+  </div>
+
+  <div class="judge" id="judgeRow">
+    <button class="btn bad" onclick="judge(0,event)">もう一度</button>
+    <button class="btn" onclick="judge(1,event)">わかった</button>
+    <button class="btn good" onclick="judge(2,event)">余裕</button>
+  </div>
+
+  <div class="row2">
+    <button class="toolbtn" id="ilBtn" onclick="toggleIL(event)">⇄ 交互</button>
+    <button class="toolbtn" id="dirBtn" onclick="toggleDir(event)">EN→JA</button>
+    <button class="toolbtn" id="modeBtn" onclick="toggleMode(event)">📖 通し</button>
+    <button class="toolbtn" id="knowBtn" onclick="toggleKnown(event)">この語を「覚えた」</button>
+    <button class="toolbtn" onclick="shuffle(event)">🔀 シャッフル</button>
+    <button class="toolbtn" id="filterBtn" onclick="toggleFilter(event)">未習のみ</button>
+    <button class="toolbtn" id="playBtn" onclick="togglePlay(event)">▶ 自動再生</button>
+    <button class="toolbtn" id="repeatBtn" onclick="cycleRepeat(event)">🔁 リピート:なし</button>
+  </div>
+
+  <div class="row3">
+    <span class="lbl">速度</span>
+    <button class="spd" data-sp="0.9" onclick="setSpeed(0.9,event)">0.9×</button>
+    <button class="spd" data-sp="1" onclick="setSpeed(1,event)">1.0×</button>
+    <button class="spd" data-sp="1.1" onclick="setSpeed(1.1,event)">1.1×</button>
+    <select id="voiceSel" onchange="setVoice(this.value)"><option value="">音声：自動</option></select>
+  </div>
+
+  <div class="today" id="today">今日 0枚 ／ 正答 -</div>
+
+  <div class="keys">
+    Space/Enter…めくる &nbsp;·&nbsp; ← →…前後 &nbsp;·&nbsp; S…発音 &nbsp;·&nbsp; P…自動再生 &nbsp;·&nbsp; K…覚えた &nbsp;·&nbsp; D…モード切替
+  </div>
+  <div class="row3" style="justify-content:center;margin-top:6px;">
+    <button class="spd" id="reloadBtn" style="display:none;background:#3f7fb8;color:#fff;border-color:#3f7fb8;font-weight:700;" onclick="location.reload()">🔄 音声を復帰</button>
+    <button class="spd" onclick="importCards(event)">＋ カードを取り込む</button>
+    <button class="spd" onclick="exportProgress(event)">⬇ 進捗を書き出す</button>
+    <button class="spd" onclick="importProgress(event)">⬆ 進捗を読み込む</button>
+    <a class="spd" href="./index.html" style="text-decoration:none;">🏠 メニュー</a>
+  </div>
+  <button class="statsBtn" onclick="openStats(event)">📊 学習記録</button>
+
+  <div class="sheet" id="statsSheet">
+    <div class="sheet-in">
+      <button class="close" onclick="closeStats(event)">×</button>
+      <h2>学習記録</h2>
+      <div id="statsBody"></div>
+    </div>
+  </div>
+
+  <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
+
+  <div class="vertag">更新 v22 ・ 2026-09-22</div>
+<script>
+const BUILTIN = [
+  // ===== 受験英語の多義語（本人確認済みの語義のみ） =====
+  {d:"受験・多義語", en:"locate（突き止める）", ja:"〈位置・出所〉を突き止める", ex:"Engineers worked overnight to locate the source of the outage.", exja:"技術者は徹夜で障害の発生元を突き止めた。", note:"探すだけでなく「見つけて位置を確定する」。find より手順を踏む含み。"},
+  {d:"受験・多義語", en:"locate（拠点を置く）", ja:"〈施設・拠点〉を置く", ex:"The bank decided to locate its data center in Osaka.", exja:"銀行はデータセンターを大阪に置くことにした。", note:"受動の be located in ~（〜にある）が最頻出。自動詞で The firm located north of the city. とも言う。"},
+  {d:"受験・多義語", en:"adapt to ~", ja:"〜に順応する・合わせる", ex:"It took him a month to adapt to the new reporting system.", exja:"新しい報告システムに慣れるのに1か月かかった。", note:"adopt（採用する）と1字違い。意味は別物なので綴りに注意。"},
+  {d:"受験・多義語", en:"adapt（脚色する）", ja:"〈作品〉を別の媒体向けに作り直す", ex:"The novel was adapted for the screen last year.", exja:"その小説は昨年、映画用に脚色された。", note:"名詞は adaptation（脚色・翻案）。受動で使うことが多い。"},
+  {d:"受験・多義語", en:"reflect on ~", ja:"〜をじっくり考える・振り返る", ex:"Let me reflect on your proposal before I answer.", exja:"返事の前に、ご提案をじっくり考えさせてください。", note:"on が付くと「熟考」。reflect 単独なら反射・反映。"},
+  {d:"受験・多義語", en:"ridicule", ja:"をあざけり笑う", ex:"His forecast was ridiculed at the time, but he turned out to be right.", exja:"彼の予想は当時あざ笑われたが、結果的に正しかった。", note:"名詞も同形。hold ~ up to ridicule=物笑いの種にする。"},
+  {d:"受験・多義語", en:"associate A with B", ja:"AからBを連想する・結びつけて考える", ex:"Investors still associate the brand with poor quality.", exja:"投資家はいまだにそのブランドを品質の低さと結びつけている。", note:"受動の be associated with ~（〜と関連がある）が頻出。"},
+  {d:"受験・多義語", en:"associate with ~", ja:"〜と付き合う・交際する", ex:"He was told not to associate with the rival firm's traders.", exja:"競合他社のトレーダーと付き合うなと言われた。", note:"自動詞。目的語は人。物事には使わない。"},
+  {d:"受験・多義語", en:"substitute for ~", ja:"〜の代役を務める・代わりになる", ex:"Nothing can substitute for face-to-face negotiation.", exja:"対面交渉の代わりになるものはない。", note:"自動詞。他動詞の substitute A for B（Bの代わりにAを使う）とは向きが逆。"},
+  {d:"受験・多義語", en:"organize（組織する）", ja:"〈団体〉を作る・設立する", ex:"The staff organized a union last spring.", exja:"従業員は昨春、組合を結成した。", note:"organized crime=組織犯罪。名詞は organization。"},
+  {d:"受験・多義語", en:"organize（準備する）", ja:"〈催し・作業〉を段取りする", ex:"Could you organize the kickoff meeting for next week?", exja:"来週のキックオフ会議を段取りしてもらえますか。", note:"会議・出張・資料整理など日常業務で最頻出。arrange に近い。"},
+  {d:"受験・多義語", en:"adopt（採用する）", ja:"〈方針・手法〉を採り入れる", ex:"The board adopted the new capital policy in June.", exja:"取締役会は6月に新しい資本方針を採用した。", note:"adapt（順応させる）とは別語。名詞は adoption。"},
+  {d:"受験・多義語", en:"adopt（養子にする）", ja:"を養子にする・引き取る", ex:"They adopted a second child last year.", exja:"昨年、二人目の子を養子に迎えた。", note:"保護犬・保護猫を引き取る意味でも adopt a dog と言う。"},
+  {d:"受験・多義語", en:"spoil（甘やかす）", ja:"を甘やかしてだめにする", ex:"His grandparents spoil him every summer.", exja:"祖父母は毎年夏に彼を甘やかす。", note:"spoiled child=甘やかされた子。過去形は spoiled / spoilt の両方。"},
+  {d:"受験・多義語", en:"spoil（傷む）", ja:"〈食べ物が〉傷む・だめになる", ex:"The milk will spoil if you leave it out.", exja:"牛乳は出しっぱなしにすると傷む。", note:"自動詞。主語は食品。go bad とほぼ同義。"},
+  {d:"受験・多義語", en:"recover（取り戻す）", ja:"〈失ったもの〉を取り戻す・回復する", ex:"The index recovered most of its earlier losses.", exja:"指数は前半の下げをほぼ取り戻した。", note:"自動詞なら「回復する」、他動詞なら「取り戻す」。名詞は recovery。"},
+  {d:"受験・多義語", en:"recover（回収する）", ja:"〈費用・投資〉を回収する", ex:"It will take years to recover the initial investment.", exja:"初期投資の回収には何年もかかる。", note:"recover costs=費用を回収する。採算の議論で頻出。"},
+  {d:"受験・多義語", en:"identify A with B", ja:"AをBと同一視する・結びつける", ex:"Customers identify the logo with reliability.", exja:"顧客はそのロゴを信頼性と結びつけて見ている。", note:"受動の be identified with ~ も多い。associate A with B に近い。"},
+  {d:"受験・多義語", en:"identify with ~", ja:"〜に共感する・自分を重ねる", ex:"I can identify with what she went through.", exja:"彼女が経験したことには共感できる。", note:"自動詞。前置詞ひとつで「同一視する」から「共感する」に変わる。"},
+  {d:"受験・多義語", en:"beat（上回る）", ja:"〈予想・記録〉を上回る・打ち負かす", ex:"Quarterly earnings beat analysts' estimates.", exja:"四半期決算はアナリスト予想を上回った。", note:"beat-beat-beaten。決算記事の定番。逆は miss estimates。"},
+  {d:"受験・多義語", en:"wander（さまよう）", ja:"あてもなく歩き回る", ex:"We wandered around the old town for an hour.", exja:"旧市街を1時間ほどあてもなく歩いた。", note:"wonder（〜かなと思う）とは綴りも発音も別。"},
+  {d:"受験・多義語", en:"wander（気がそれる）", ja:"〈心・注意が〉それる", ex:"My mind wandered halfway through the call.", exja:"電話の途中で気が散ってしまった。", note:"主語は mind / attention / thoughts。集中が切れる状態。"},
+  {d:"受験・多義語", en:"discover that ~", ja:"〜だと判明する・あとで気づく", ex:"We later discovered that the figures had been double-counted.", exja:"その数字が二重計上だったと後で判明した。", note:"「発見する」より「わかる」。find out に近い。"},
+  {d:"受験・多義語", en:"hurt（痛む）", ja:"〈体の部位が〉痛む", ex:"My knee still hurts when I go down stairs.", exja:"階段を下りると今も膝が痛む。", note:"自動詞。主語は体の部位。hurt-hurt-hurt で形が変わらない。"},
+  {d:"受験・多義語", en:"hurt（打撃を与える）", ja:"〈業績・見通し〉に悪影響を与える", ex:"Higher funding costs hurt earnings this quarter.", exja:"調達コストの上昇が今期の収益を圧迫した。", note:"weigh on ~ と同じ使い方。記事で非常に多い。"},
+  {d:"受験・多義語", en:"care about ~", ja:"〜を気にかける・重要だと思う", ex:"Investors care more about cash flow than headline profit.", exja:"投資家は表面上の利益よりキャッシュフローを重視する。", note:"否定形の I don't care about ~ は「どうでもいい」。"},
+  {d:"受験・多義語", en:"care for ~", ja:"〜の世話をする／〜を好む", ex:"She cares for her mother at home.", exja:"彼女は自宅で母の介護をしている。", note:"もう一つ「好む」の意味。否定・疑問で I don't care for coffee.=コーヒーは好きでない。"},
+  {d:"受験・多義語", en:"compose（作曲・執筆する）", ja:"〈曲・文章〉を作る", ex:"He composed the score in under two weeks.", exja:"彼は2週間足らずでその楽譜を書き上げた。", note:"composer=作曲家。compose an email=メールを書く。"},
+  {d:"受験・多義語", en:"compose oneself", ja:"気を取り直す・落ち着く", ex:"She paused to compose herself before answering.", exja:"彼女は答える前に間を置いて気を取り直した。", note:"形容詞 composed=落ち着いた。プレゼンや面接で使える。"},
+  {d:"受験・多義語", en:"interfere with ~", ja:"〜を妨げる・邪魔をする", ex:"Background noise interfered with concentration.", exja:"周囲の雑音が集中の妨げになった。", note:"主語は物や事が多い。「妨害」の意味。"},
+  {d:"受験・多義語", en:"interfere in ~", ja:"〜に口出しする・干渉する", ex:"The government should not interfere in private negotiations.", exja:"政府は民間の交渉に口出しすべきでない。", note:"with は「妨げる」、in は「他人のことに入り込む」。前置詞で意味が分かれる。"},
+  // ===== 受験英語 追加分（第2〜5便・全語義） =====
+  {d:"受験・多義語", en:"upset（動揺させる）", ja:"をあわてさせる・動揺させる", ex:"The news upset her more than she expected.", exja:"その知らせは思った以上に彼女を動揺させた。", note:"形容詞 be upset=動揺している。名詞なら「番狂わせ」。"},
+  {d:"受験・多義語", en:"upset（計画をだめにする）", ja:"〈計画・予定〉を狂わせる", ex:"The strike upset our travel plans.", exja:"ストライキで旅行の計画が狂った。", note:"段取りを壊す。disrupt に近い。"},
+  {d:"受験・多義語", en:"upset（ひっくり返す）", ja:"をひっくり返す", ex:"He stood up too fast and upset his coffee.", exja:"勢いよく立ち上がってコーヒーをひっくり返した。", note:"物理的に倒す。upset-upset-upset で形が変わらない。"},
+  {d:"受験・多義語", en:"consist of ~", ja:"〜から成り立つ", ex:"The committee consists of seven members.", exja:"委員会は7名で構成される。", note:"受動にしない。be composed of と同義。"},
+  {d:"受験・多義語", en:"consist in ~", ja:"〜にある（本質が）", ex:"True wealth consists in having enough time.", exja:"本当の豊かさは十分な時間を持つことにある。", note:"of は構成要素、in は本質。前置詞で意味が分かれる。"},
+  {d:"受験・多義語", en:"correspond to ~", ja:"〜に相当する", ex:"One unit corresponds to ten shares.", exja:"1単位は10株に相当する。", note:"対応関係。be equivalent to に近い。"},
+  {d:"受験・多義語", en:"correspond with ~", ja:"〜と一致する", ex:"The figures correspond with last year's report.", exja:"その数字は昨年の報告と一致する。", note:"match の意味。to より「合致」寄り。"},
+  {d:"受験・多義語", en:"correspond（文通する）", ja:"文通する・やり取りする", ex:"They corresponded for years before they met.", exja:"会う前に何年も文通していた。", note:"correspondence=やり取り。correspondent=特派員。"},
+  {d:"受験・多義語", en:"contribute to ~", ja:"〜に貢献する・〜の一因となる", ex:"Lower rates contributed to the recovery.", exja:"金利低下が回復に寄与した。", note:"良い結果にも悪い結果にも使う。a contributing factor=一因。"},
+  {d:"受験・多義語", en:"contribute（寄稿・寄付する）", ja:"〈記事・金〉を提供する", ex:"She contributed an article to the journal.", exja:"彼女はその雑誌に記事を寄稿した。", note:"contribution=寄与・寄稿・寄付。"},
+  {d:"受験・多義語", en:"indicate（指し示す）", ja:"を示す・表示する", ex:"The chart indicates a sharp decline.", exja:"図表は急激な減少を示している。", note:"データが「示す」。資料説明で頻出。"},
+  {d:"受験・多義語", en:"indicate that ~", ja:"〜だとほのめかす・示唆する", ex:"He indicated that he might step down.", exja:"彼は退任の可能性をほのめかした。", note:"明言を避けた言い方。imply に近い。"},
+  {d:"受験・多義語", en:"neglect（ほうっておく）", ja:"の世話をしない・顧みない", ex:"He neglected his health for years.", exja:"彼は何年も健康を顧みなかった。", note:"名詞も同形。child neglect=育児放棄。"},
+  {d:"受験・多義語", en:"neglect to do", ja:"〜するのを怠る", ex:"She neglected to mention the deadline.", exja:"彼女は期限に触れるのを怠った。", note:"fail to do に近い。義務を果たさない。"},
+  {d:"受験・多義語", en:"neglect（見落とす）", ja:"を不注意で見落とす", ex:"We neglected an important detail in the contract.", exja:"契約書の重要な細部を見落とした。", note:"overlook に近い。"},
+  {d:"受験・多義語", en:"realize（気づく）", ja:"をはっきり理解する・気づく", ex:"I didn't realize how late it was.", exja:"そんなに遅いとは気づかなかった。", note:"「実感としてわかる」。進行形にしにくい。"},
+  {d:"受験・多義語", en:"realize（実現する）", ja:"を実現する", ex:"It took ten years to realize the plan.", exja:"その計画の実現に10年かかった。", note:"金融では realize a gain=益を実現する。"},
+  {d:"受験・多義語", en:"treat（扱う）", ja:"を扱う", ex:"Please treat this information as confidential.", exja:"この情報は機密として扱ってください。", note:"treat A as B=AをBとして扱う。"},
+  {d:"受験・多義語", en:"treat（治療する）", ja:"〈病人〉を治療する", ex:"The doctor treated her for a minor burn.", exja:"医師は彼女の軽いやけどを治療した。", note:"treatment=治療。treat A for B の型。"},
+  {d:"受験・多義語", en:"treat（おごる）", ja:"にごちそうする", ex:"Let me treat you to lunch.", exja:"昼食をおごらせてください。", note:"treat A to B の型。名詞なら「ごちそう・楽しみ」。"},
+  {d:"受験・多義語", en:"devote A to B", ja:"AをBにささげる・充てる", ex:"He devoted most of his career to risk management.", exja:"彼はキャリアの大半をリスク管理に充てた。", note:"be devoted to ~=〜に専念している。to の後は名詞か動名詞。"},
+  {d:"受験・多義語", en:"succeed（成功する）", ja:"成功する", ex:"The project succeeded beyond expectations.", exja:"その案件は期待以上に成功した。", note:"succeed in doing の型。名詞は success。"},
+  {d:"受験・多義語", en:"succeed（継承する）", ja:"〈地位〉を継ぐ", ex:"She succeeded her father as chairman.", exja:"彼女は父の後を継いで会長になった。", note:"succession=継承。successor=後任。"},
+  {d:"受験・多義語", en:"succeed（次いで起こる）", ja:"に次いで起こる", ex:"A long silence succeeded the announcement.", exja:"発表のあと長い沈黙が続いた。", note:"successive=連続した。follow に近い。"},
+  {d:"受験・多義語", en:"notice（気づく）", ja:"に気づく・注目する", ex:"I didn't notice the change until later.", exja:"その変化には後になるまで気づかなかった。", note:"名詞で「通知・掲示」。give notice=事前通知する。"},
+  {d:"受験・多義語", en:"engage（従事させる）", ja:"を関与させる・従事させる", ex:"The firm engages its staff in weekly reviews.", exja:"その会社は社員を週次の見直しに関与させている。", note:"be engaged in ~=〜に従事している。engagement=関与・約束。"},
+  {d:"受験・多義語", en:"engage（雇う）", ja:"を雇う", ex:"They engaged a consultant to review the process.", exja:"工程の見直しにコンサルタントを雇った。", note:"hire よりやや硬い。英国寄り。"},
+  {d:"受験・多義語", en:"involve（巻き込む）", ja:"を巻き込む", ex:"I don't want to involve you in this dispute.", exja:"この争いにあなたを巻き込みたくない。", note:"be involved in ~=関わっている。"},
+  {d:"受験・多義語", en:"involve（必ず含む）", ja:"を必然的に伴う", ex:"The job involves a lot of travel.", exja:"その仕事には出張が多く伴う。", note:"主語は物事。「〜が必要になる」の含み。"},
+  {d:"受験・多義語", en:"compare A with B", ja:"AをBと比較する", ex:"Compare this quarter with the same period last year.", exja:"今四半期を前年同期と比べてください。", note:"差を見る。compared with ~=〜と比べると。"},
+  {d:"受験・多義語", en:"compare A to B", ja:"AをBにたとえる", ex:"He compared the market to a pendulum.", exja:"彼は市場を振り子にたとえた。", note:"似たものとして扱う。with と to で意味が分かれる。"},
+  {d:"受験・多義語", en:"ruin（破滅させる）", ja:"を破滅させる", ex:"The scandal ruined his career.", exja:"その不祥事は彼のキャリアを破滅させた。", note:"名詞で「廃墟・破滅」。in ruins=荒廃して。"},
+  {d:"受験・多義語", en:"ruin（台なしにする）", ja:"を台なしにする", ex:"The rain ruined our picnic.", exja:"雨でピクニックが台なしになった。", note:"spoil より程度が強い。"},
+  {d:"受験・多義語", en:"match（似合う）", ja:"に似合う・調和する", ex:"That tie doesn't match your jacket.", exja:"そのネクタイは上着に合っていない。", note:"色や雰囲気が合う。名詞で「試合・相手」。"},
+  {d:"受験・多義語", en:"match（匹敵する）", ja:"に匹敵する", ex:"No rival can match their distribution network.", exja:"その販売網に匹敵する競合はない。", note:"be no match for ~=〜には敵わない。"},
+  {d:"受験・多義語", en:"deal in ~", ja:"〜を商う・売買する", ex:"The firm deals in government bonds.", exja:"その会社は国債を扱っている。", note:"商材には in。deal with ~ は「対処する」。"},
+  {d:"受験・多義語", en:"deal（分配する）", ja:"を配る・分配する", ex:"He dealt the cards to each player.", exja:"彼は各プレーヤーにカードを配った。", note:"deal-dealt-dealt。a great deal of ~=多量の。"},
+  {d:"受験・多義語", en:"provide（供給する）", ja:"〈必要な物〉を供給する", ex:"The bank provides liquidity to the market.", exja:"その銀行は市場に流動性を供給する。", note:"provide A with B / provide B for A の2型。"},
+  {d:"受験・多義語", en:"provide for ~", ja:"〜に備える・〜を扶養する", ex:"You should provide for unexpected costs.", exja:"想定外の費用に備えるべきだ。", note:"家族を養う意味でも使う。provided that ~=〜という条件で。"},
+  {d:"受験・多義語", en:"accompany（同行する）", ja:"と一緒に行く", ex:"Two staff members accompanied him on the trip.", exja:"2名の社員が出張に同行した。", note:"go with の硬い言い方。be accompanied by ~=〜を伴う。"},
+  {d:"受験・多義語", en:"accompany（伴奏する）", ja:"の伴奏をする", ex:"She accompanied the singer on the piano.", exja:"彼女はピアノでその歌手の伴奏をした。", note:"accompaniment=伴奏。"},
+  {d:"受験・多義語", en:"attach", ja:"をはり付ける・結び付ける", ex:"Please attach the file to your reply.", exja:"返信にファイルを添付してください。", note:"attachment=添付・愛着。be attached to ~=〜に愛着がある。"},
+  {d:"受験・多義語", en:"yield（産出する）", ja:"を生む・産出する", ex:"The investment yields about four percent a year.", exja:"その投資は年4%程度を生む。", note:"名詞で「利回り」。yield curve=利回り曲線。"},
+  {d:"受験・多義語", en:"yield to ~", ja:"〜に屈する・譲る", ex:"The government refused to yield to pressure.", exja:"政府は圧力に屈することを拒んだ。", note:"give in に近い。道路標識の Yield は「譲れ」。"},
+  {d:"受験・多義語", en:"bore（うんざりさせる）", ja:"をうんざりさせる", ex:"The speech bored everyone in the room.", exja:"その演説は部屋の全員を退屈させた。", note:"bored=退屈している人、boring=退屈なもの。"},
+  {d:"受験・多義語", en:"conclude that ~", ja:"〜と結論を下す", ex:"We concluded that the data was unreliable.", exja:"そのデータは信頼できないと結論づけた。", note:"conclusion=結論。in conclusion=結論として。"},
+  {d:"受験・多義語", en:"conclude（終える）", ja:"を締めくくる・終える", ex:"The chairman concluded the meeting at noon.", exja:"議長は正午に会議を締めくくった。", note:"conclude a deal=契約を締結する、も同じ発想。"},
+  {d:"受験・多義語", en:"explore（探検する）", ja:"を探検する", ex:"They explored the cave for three days.", exja:"彼らは3日かけてその洞窟を探検した。", note:"explorer=探検家。"},
+  {d:"受験・多義語", en:"explore（検討する）", ja:"を詳しく調べる・検討する", ex:"We should explore other financing options.", exja:"他の調達手段を検討すべきだ。", note:"会議で頻出。「可能性を探る」寄り。"},
+  {d:"受験・多義語", en:"despise", ja:"を軽蔑する", ex:"He despises anyone who cuts corners.", exja:"彼は手を抜く人間を軽蔑する。", note:"look down on ~ より強い。cut corners=手を抜く。"},
+  {d:"受験・多義語", en:"exhaust（使い果たす）", ja:"を使い果たす", ex:"We exhausted our budget by October.", exja:"10月には予算を使い果たした。", note:"名詞で「排気ガス」。exhaustive=網羅的な。"},
+  {d:"受験・多義語", en:"exhaust（疲れさせる）", ja:"をひどく疲れさせる", ex:"The long flight exhausted him.", exja:"長いフライトで彼は疲れ切った。", note:"exhausted=疲れ果てた、exhausting=疲れさせる。"},
+  {d:"受験・多義語", en:"absorb（吸収する）", ja:"を吸収する", ex:"Dark surfaces absorb more heat.", exja:"暗い面ほど熱を多く吸収する。", note:"absorb losses=損失を吸収する、も同じ語。"},
+  {d:"受験・多義語", en:"be absorbed in ~", ja:"〜に夢中になる", ex:"He was absorbed in the report and missed the call.", exja:"報告書に没頭していて電話に気づかなかった。", note:"受動で使う。absorbing=夢中にさせる。"},
+  {d:"受験・多義語", en:"tease", ja:"をいじめる・からかう", ex:"They teased him about his accent.", exja:"彼らは彼のなまりをからかった。", note:"悪意の薄いからかい。いじめは bully。"},
+  {d:"受験・多義語", en:"vary（変わる・異なる）", ja:"変わる・異なる", ex:"Prices vary from region to region.", exja:"価格は地域によって異なる。", note:"自動詞。variation=変動。various=さまざまな。"},
+  {d:"受験・多義語", en:"vary（を変える）", ja:"を変化させる", ex:"You should vary your approach depending on the client.", exja:"相手によって進め方を変えるべきだ。", note:"他動詞。variable=可変の・変数。"},
+  {d:"受験・多義語", en:"impress", ja:"に感銘を与える", ex:"Her presentation impressed the board.", exja:"彼女のプレゼンは取締役会に感銘を与えた。", note:"be impressed with/by ~=〜に感心する。impression=印象。"},
+  {d:"受験・多義語", en:"arrange（手はずを整える）", ja:"を取り決める・手配する", ex:"I'll arrange a call with the client tomorrow.", exja:"明日、顧客との電話を手配します。", note:"arrangement=手配・取り決め。"},
+  {d:"受験・多義語", en:"arrange（並べる）", ja:"をきちんと並べる", ex:"She arranged the documents by date.", exja:"彼女は書類を日付順に並べた。", note:"flower arrangement も同じ語。"},
+  {d:"受験・多義語", en:"feed（えさを与える）", ja:"にえさを与える", ex:"Don't feed the animals in the park.", exja:"公園の動物にえさを与えないでください。", note:"feed-fed-fed。"},
+  {d:"受験・多義語", en:"feed（供給する）", ja:"を絶えず供給する", ex:"The plant feeds electricity into the grid.", exja:"その発電所は送電網に電力を供給する。", note:"feed data into a system=データを流し込む。"},
+  {d:"受験・多義語", en:"mend", ja:"を修繕する・修理する", ex:"He mended the fence over the weekend.", exja:"彼は週末にフェンスを直した。", note:"repair より日常的。mend fences=関係を修復する。"},
+  {d:"受験・多義語", en:"impose（課す）", ja:"〈税・制限〉を課す", ex:"The government imposed new tariffs on imports.", exja:"政府は輸入品に新たな関税を課した。", note:"imposition=賦課。"},
+  {d:"受験・多義語", en:"impose A on B", ja:"AをBに押し付ける", ex:"Don't impose your values on other people.", exja:"自分の価値観を他人に押し付けるな。", note:"impose on ~ だけで「迷惑をかける」の意味にもなる。"},
+  {d:"受験・多義語", en:"declare（宣言する）", ja:"を宣言する・申告する", ex:"The company declared a dividend of 50 yen.", exja:"会社は1株50円の配当を宣言した。", note:"税関で「申告する」も declare。declaration=宣言・申告。"},
+  {d:"受験・多義語", en:"declare that ~", ja:"〜と断言する", ex:"He declared that the deal was final.", exja:"彼はその取引が最終だと断言した。", note:"強い断定。公式な場面で使う。"},
+  {d:"受験・多義語", en:"dispense（出す）", ja:"〈商品・金〉を出す・供給する", ex:"The machine dispenses both coffee and tea.", exja:"その機械はコーヒーも紅茶も出す。", note:"ATMが現金を出すのも dispense。"},
+  {d:"受験・多義語", en:"dispense with ~", ja:"〜なしで済ませる・省く", ex:"We can dispense with the formal introductions.", exja:"堅苦しい自己紹介は省いてよい。", note:"with が付くと意味が反転する。do without に近い。"},
+  {d:"受験・多義語", en:"bear（我慢する）", ja:"を我慢する", ex:"I can't bear the noise from the street.", exja:"通りの騒音には我慢できない。", note:"can't bear の形が多い。bear-bore-borne。"},
+  {d:"受験・多義語", en:"bear（身につける・帯びる）", ja:"を帯びている・記している", ex:"The document bears his signature.", exja:"その書類には彼の署名がある。", note:"「持っている・記されている」。bear a name=名を冠する。"},
+  {d:"受験・多義語", en:"bear（運ぶ・負う）", ja:"を運ぶ・負担する", ex:"The buyer bears the shipping costs.", exja:"送料は買い手が負担する。", note:"bear the cost=費用を負担する。契約書で頻出。"},
+  {d:"受験・多義語", en:"represent（象徴する）", ja:"を示す・象徴する", ex:"The figure represents about ten percent of revenue.", exja:"その数字は売上の約1割を示す。", note:"データを説明するときに使う。"},
+  {d:"受験・多義語", en:"represent（代表する）", ja:"を代表する", ex:"She represents the firm at the industry council.", exja:"彼女は業界団体で会社を代表している。", note:"representative=代表者・下院議員。"},
+  {d:"受験・多義語", en:"nod（うなずく）", ja:"うなずく", ex:"He nodded in agreement.", exja:"彼は同意してうなずいた。", note:"nod-nodded-nodded。"},
+  {d:"受験・多義語", en:"nod（会釈する）", ja:"会釈する", ex:"She nodded to me across the room.", exja:"彼女は部屋の向こうから会釈した。", note:"軽いあいさつ。nod to ~ の形。"},
+  {d:"受験・多義語", en:"nod off", ja:"居眠りする", ex:"He nodded off during the presentation.", exja:"彼はプレゼン中に居眠りした。", note:"off が付くと「うとうとする」。doze off も同義。"},
+  {d:"受験・多義語", en:"embarrass", ja:"に恥ずかしい思いをさせる・を困らせる", ex:"His question embarrassed the whole panel.", exja:"彼の質問は登壇者全員を困らせた。", note:"embarrassed=恥ずかしい人、embarrassing=恥ずかしい状況。"},
+  {d:"受験・多義語", en:"regret（後悔する）", ja:"を後悔する", ex:"I regret not asking more questions.", exja:"もっと質問しなかったことを後悔している。", note:"regret doing=したことを後悔する。"},
+  {d:"受験・多義語", en:"regret to do", ja:"残念ながら〜する", ex:"We regret to inform you that the position has been filled.", exja:"残念ながらその職は埋まりました。", note:"断りの定型。regret to do はこれから言うこと。"},
+  {d:"受験・多義語", en:"strike（打つ）", ja:"〈人・物〉を打つ", ex:"Lightning struck the tower twice.", exja:"雷がその塔に2度落ちた。", note:"strike-struck-struck。名詞でストライキ。"},
+  {d:"受験・多義語", en:"strike（心に浮かぶ）", ja:"〈考えが〉心に浮かぶ・と印象づける", ex:"It struck me that we had missed something.", exja:"何か見落としているという考えが浮かんだ。", note:"A strikes B as C=AはBにCと映る。"},
+  {d:"受験・多義語", en:"raise（上げる）", ja:"を上げる・調達する", ex:"The central bank raised rates by 25 basis points.", exja:"中央銀行は0.25%利上げした。", note:"他動詞。自動詞の rise と混同注意。raise capital=資金を調達する。"},
+  {d:"受験・多義語", en:"raise（育てる）", ja:"〈子ども〉を育てる", ex:"She was raised by her grandparents.", exja:"彼女は祖父母に育てられた。", note:"bring up とほぼ同義。米語では raise が普通。"},
+  {d:"受験・多義語", en:"frighten", ja:"をぎょっとさせる", ex:"The sudden noise frightened the children.", exja:"突然の物音が子どもたちをぎょっとさせた。", note:"frightened=怖がっている、frightening=怖い。"},
+  {d:"受験・多義語", en:"demand（要求する）", ja:"を要求する", ex:"The union demanded a pay increase.", exja:"組合は賃上げを要求した。", note:"demand that S (should) do の型。名詞で「需要」。"},
+  {d:"受験・多義語", en:"demand（必要とする）", ja:"を必要とする", ex:"This role demands close attention to detail.", exja:"この職務は細部への注意を必要とする。", note:"主語は物事。require に近い。"},
+  {d:"受験・多義語", en:"collect（集める）", ja:"を集める・集まる", ex:"We collected feedback from all branches.", exja:"全支店から意見を集めた。", note:"collection=収集・回収。"},
+  {d:"受験・多義語", en:"collect（徴収する）", ja:"〈税金など〉を徴収する", ex:"The city collects property tax twice a year.", exja:"市は年2回、固定資産税を徴収する。", note:"debt collection=債権回収。実務で頻出。"},
+  {d:"受験・多義語", en:"maintain（維持する）", ja:"を維持する", ex:"We must maintain adequate capital buffers.", exja:"十分な資本の余力を維持しなければならない。", note:"maintenance=維持・保守。"},
+  {d:"受験・多義語", en:"maintain（養う）", ja:"〈家族〉を養う", ex:"He works two jobs to maintain his family.", exja:"家族を養うために仕事を2つ掛け持ちしている。", note:"support とほぼ同義。"},
+  {d:"受験・多義語", en:"maintain that ~", ja:"〜と主張し続ける", ex:"He maintains that the estimate was reasonable.", exja:"彼はその見積もりは妥当だったと主張している。", note:"反論されても言い続ける含み。claim より粘り強い。"},
+  {d:"受験・多義語", en:"agree（同意する）", ja:"同意する", ex:"We agreed on the terms after two hours.", exja:"2時間かけて条件で合意した。", note:"agree with 人 / agree to 提案 / agree on 事項。"},
+  {d:"受験・多義語", en:"agree with ~（体に合う）", ja:"〈食物が〉体質に合う", ex:"Spicy food doesn't agree with me.", exja:"辛いものは体に合わない。", note:"否定形で使うことが多い。主語は食べ物や気候。"},
+  {d:"受験・多義語", en:"assure（保証する）", ja:"に請け合う・保証する", ex:"I can assure you that the data is accurate.", exja:"そのデータが正確であることは保証します。", note:"assure 人 that ~ の型。ensure（確実にする）insure（保険をかける）と区別。"},
+  {d:"受験・多義語", en:"assure（安心させる）", ja:"〈人〉を安心させる・確信させる", ex:"Her calm tone assured the client.", exja:"彼女の落ち着いた口調が顧客を安心させた。", note:"assurance=保証・確信。"},
+  {d:"受験・多義語", en:"bother（困らせる）", ja:"に面倒をかける・を困らせる", ex:"Sorry to bother you, but do you have a minute?", exja:"お邪魔してすみませんが、少しよろしいですか。", note:"声をかけるときの定型。"},
+  {d:"受験・多義語", en:"bother（わざわざする）", ja:"思い悩む・わざわざ〜する", ex:"Don't bother replying if you're busy.", exja:"忙しければ返信は不要です。", note:"否定の don't bother doing が頻出。"},
+  {d:"受験・多義語", en:"extinguish", ja:"〈火・光〉を消す", ex:"Firefighters extinguished the blaze in two hours.", exja:"消防隊は2時間で火を消し止めた。", note:"fire extinguisher=消火器。put out より硬い。"},
+  {d:"受験・多義語", en:"fascinate", ja:"を魅了する", ex:"The city's history fascinates visitors.", exja:"その街の歴史は訪れる人を魅了する。", note:"fascinated=魅了された、fascinating=魅力的な。"},
+  {d:"受験・多義語", en:"abandon（見捨てる）", ja:"を見捨てる・捨てる", ex:"The crew had to abandon the ship.", exja:"乗組員は船を捨てざるを得なかった。", note:"abandoned=見捨てられた・放置された。"},
+  {d:"受験・多義語", en:"abandon（断念する）", ja:"を断念する", ex:"They abandoned the plan after costs doubled.", exja:"費用が倍になり計画を断念した。", note:"give up の硬い言い方。"},
+  {d:"受験・多義語", en:"illustrate（例で説明する）", ja:"を例をあげて説明する", ex:"Let me illustrate this with a simple example.", exja:"簡単な例でこれを説明させてください。", note:"会議で頻出。illustration=説明・実例・挿絵。"},
+  {d:"受験・多義語", en:"illustrate（挿絵を入れる）", ja:"に挿絵・図を入れる", ex:"The book is illustrated with old photographs.", exja:"その本には古い写真が添えられている。", note:"illustrator=挿絵画家。"},
+  {d:"受験・多義語", en:"deserve（に値する）", ja:"に値する", ex:"Her work deserves more recognition.", exja:"彼女の仕事はもっと評価されてよい。", note:"良いことにも悪いことにも使う。deserve punishment。"},
+  {d:"受験・多義語", en:"deserve to do", ja:"〜する価値がある", ex:"This proposal deserves to be looked at again.", exja:"この提案は再検討に値する。", note:"deserve doing でも受動の意味になる。"},
+  {d:"受験・多義語", en:"escape（逃げる）", ja:"逃げる", ex:"Two prisoners escaped from the facility.", exja:"2人の受刑者が施設から逃走した。", note:"自動詞では from を伴う。"},
+  {d:"受験・多義語", en:"escape（免れる）", ja:"を逃れる・免れる", ex:"He barely escaped serious injury.", exja:"彼はかろうじて重傷を免れた。", note:"他動詞のときは前置詞を付けない。"},
+  {d:"受験・多義語", en:"escape one's notice", ja:"〈注意・記憶〉にとまらない", ex:"The error escaped our notice until the audit.", exja:"その誤りは監査まで気づかれなかった。", note:"主語は気づかれなかった側。The name escapes me=名前が出てこない。"},
+  {d:"受験・多義語", en:"retire（退職する）", ja:"退職する", ex:"He retired after thirty years at the bank.", exja:"彼は銀行に30年勤めて退職した。", note:"retirement=退職。retiree=退職者。"},
+  {d:"受験・多義語", en:"retire（引き下がる）", ja:"退席する・引き下がる", ex:"The jury retired to consider the verdict.", exja:"陪審は評決を検討するため退席した。", note:"その場を離れる。retire for the night=就寝する。"},
+  {d:"受験・多義語", en:"retire（退役させる）", ja:"を定年などで退かせる・退役させる", ex:"The airline retired its oldest aircraft last year.", exja:"その航空会社は昨年、最古の機材を退役させた。", note:"他動詞。人にも設備にも使う。"},
+  {d:"受験・多義語", en:"reserve（予約する）", ja:"を予約する", ex:"I've reserved a room for Thursday.", exja:"木曜に部屋を予約しました。", note:"英国では book が普通。reservation=予約・留保。"},
+  {d:"受験・多義語", en:"reserve（取っておく）", ja:"を取っておく・留保する", ex:"I'd like to reserve judgment until I see the numbers.", exja:"数字を見るまで判断は保留したい。", note:"名詞で「準備金・引当金」。loan loss reserves=貸倒引当金。"},
+  {d:"受験・多義語", en:"inform A of B", ja:"AにBを知らせる", ex:"Please inform me of the results by noon tomorrow.", exja:"明日の正午までに結果をお知らせください。", note:"inform 人 of 事 / inform 人 that ~。information は不可算。"},
+  {d:"受験・多義語", en:"miss（寂しく思う）", ja:"がいないのを寂しく思う", ex:"I already miss working with that team.", exja:"あのチームと働けないのがもう寂しい。", note:"miss doing=〜できないのを寂しく思う。"},
+  {d:"受験・多義語", en:"miss（逃す）", ja:"に乗り遅れる・を逃す", ex:"We missed the last train by two minutes.", exja:"2分の差で終電を逃した。", note:"miss estimates=予想を下回る。決算記事で頻出。"},
+  {d:"受験・多義語", en:"please（喜ばせる）", ja:"を喜ばせる", ex:"It's impossible to please everyone.", exja:"全員を満足させるのは無理だ。", note:"be pleased with ~=〜に満足している。pleasant=感じのよい。"},
+  {d:"受験・多義語", en:"urge A to do（勧める）", ja:"Aに〜するようせきたてる・勧める", ex:"Please don't urge me to eat anything more.", exja:"もうこれ以上は勧めないでください。", note:"名詞で「衝動」。urgent=緊急の。"},
+  {d:"受験・多義語", en:"urge that ~", ja:"〜すべきだと強く主張する", ex:"She urged that the review be completed this week.", exja:"彼女は今週中に見直しを終えるべきだと強く主張した。", note:"that 節の動詞は原形。"},
+  {d:"受験・多義語", en:"intend to do", ja:"〜するつもりである", ex:"We intend to close the deal by year-end.", exja:"年内に取引を成立させるつもりだ。", note:"be intended for ~=〜向けである。intention=意図。"},
+  {d:"受験・多義語", en:"appreciate（理解する）", ja:"を正しく理解する", ex:"I appreciate the difficulty of your position.", exja:"あなたの立場の難しさはよく分かります。", note:"実はこの「理解する」が一番よく出る。"},
+  {d:"受験・多義語", en:"appreciate（感謝する）", ja:"をありがたく思う", ex:"I'd appreciate it if you could send the file today.", exja:"今日中にファイルを送っていただけると助かります。", note:"人を目的語にしない。I appreciate you ではなく it。"},
+  {d:"受験・多義語", en:"appreciate（価値が上がる）", ja:"価値が上がる・を鑑賞する", ex:"The yen appreciated against the dollar.", exja:"円はドルに対して上昇した。", note:"為替で「増価」。逆は depreciate。美術の「鑑賞」も同語。"},
+  {d:"受験・構文", en:"persuade A to do", ja:"Aを説得して〜させる", ex:"He persuaded me to take up hill climbing.", exja:"彼に促されて私は山歩きをするようになった。", note:"= talk A into doing。persuasion=説得。"},
+  {d:"受験・構文", en:"talk A into doing", ja:"Aを説得して〜させる", ex:"He talked me into taking up hill climbing.", exja:"彼に説得されて山歩きを始めた。", note:"反対は talk A out of doing（説得してやめさせる）。"},
+  {d:"受験・構文", en:"take up ~", ja:"〈趣味など〉を始める", ex:"I took up hill climbing last year.", exja:"昨年から山歩きを始めた。", note:"場所や時間を「占める」意味もある。"},
+  {d:"受験・構文", en:"invent（でっち上げる）", ja:"〈話〉を創作する・でっち上げる", ex:"He had to invent a story for the children.", exja:"彼は子どもたちに話を創作しなければならなかった。", note:"「発明する」だけではない。make up も同義。"},
+  {d:"受験・構文", en:"by ~（期限）", ja:"〜までに（期限）", ex:"You will inform me of the results by noon tomorrow.", exja:"明日の正午までに結果を知らせてください。", note:"by=その時までに1回。until/till=その時までずっと継続。"},
+  {d:"受験・構文", en:"occupy", ja:"〈場所・地位〉を占める", ex:"What place should older people occupy in society?", exja:"高齢者は社会でどのような位置を占めるべきか。", note:"occupation=職業・占領。be occupied with ~=〜で手がふさがっている。"},
+  {d:"受験・構文", en:"seek out ~", ja:"〜を探し出す・求める", ex:"Human beings have a tendency to seek out challenging experiences.", exja:"人間にはやりがいのある経験を求める傾向がある。", note:"seek-sought-sought。out が付くと「わざわざ探す」。"},
+  {d:"受験・構文", en:"have a tendency to do", ja:"〜する傾向がある", ex:"Markets have a tendency to overreact to headlines.", exja:"市場は見出しに過剰反応する傾向がある。", note:"tend to do とほぼ同義。"},
+  {d:"受験・構文", en:"force A to do", ja:"Aに〜するよう迫る・強いる", ex:"The bank had forced the family to hold an auction.", exja:"銀行はその家族に競売を行うよう迫った。", note:"be forced to do=〜せざるを得ない。"},
+  {d:"受験・構文", en:"time to spare", ja:"余った時間・空き時間", ex:"She gave up her job, so she has a lot of time to spare.", exja:"彼女は仕事をやめたので空き時間がたくさんある。", note:"spare=割く・余分の。Can you spare a minute?=少し時間ありますか。"},
+  {d:"受験・構文", en:"be invited to do", ja:"〜するよう勧められる・招かれる", ex:"He was invited to join the study about environmental problems.", exja:"彼は環境問題の研究に加わるよう勧められた。", note:"invite は「招待」だけでなく「勧誘」。"},
+];
+let CARDS = BUILTIN.slice();
+
+// ============ 設定（Repeat Drill 仕様書の出題ロジックを流用） ============
+const NS = 'juk';
+const GAP_FAIL = 5;    // 同一セッション内で間違えた語を戻す間隔（問数）
+const NO_REPEAT = 12;  // 直近12問は引かない
+// 日付ベースの復習間隔（日）。3択判定で伸び方が変わる。
+const STEPS_OK   = [1,3,7,16,35,75];   // 「わかった」で進む
+const STEPS_EASY = [3,7,16,35,75,150]; // 「余裕」で進む（1段飛ばし相当）
+
+// ============ 保存（localStorage。使えない環境では黙って無効化） ============
+function lsGet(k,d){ try{const v=localStorage.getItem(NS+'_'+k); return v==null?d:JSON.parse(v);}catch(e){return d;} }
+function lsSet(k,v){ try{localStorage.setItem(NS+'_'+k,JSON.stringify(v));}catch(e){} }
+function jstDay(){ return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); }
+
+// ============ 追加カード（あとから取り込んだ分） ============
+let extras = lsGet('extra',[]);
+function mergeExtras(){
+  const have = new Set(BUILTIN.map(c=>c.en));
+  const ok = [];
+  for(const c of extras){
+    if(!c || !c.en || !c.ja) continue;          // 最低限 英語と意味は必須
+    if(have.has(c.en)) continue;                // 内蔵カードと重複したら捨てる
+    have.add(c.en);
+    ok.push({d:c.d||"追加", en:c.en, ja:c.ja, ex:c.ex||"", exja:c.exja||"", note:c.note||""});
+  }
+  extras = ok;
+  CARDS = BUILTIN.concat(ok);
+}
+function recomputeDecks(){
+  decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+  if(!decks.includes(activeDeck)) activeDeck = "すべて";
+}
+
+mergeExtras();
+let decks = ["すべて", ...Array.from(new Set(CARDS.map(c=>c.d)))];
+let activeDeck = lsGet('deck','すべて'); if(!decks.includes(activeDeck)) activeDeck='すべて';
+let known  = new Set(lsGet('known',[]));   // 見出し語で保持（カード追加で番号がずれないため）
+let sched  = lsGet('sched',{});
+let streak = lsGet('streak',{});
+let seen   = new Set(lsGet('seen',[]));
+let total  = lsGet('total',0);
+let mode   = lsGet('mode','browse');
+let dir    = lsGet('dir','en');
+let interleaveOn = lsGet('il',1)===1;   // デッキ交互出題   // 'en'=英→日（再認） / 'ja'=日→英（想起）
+let speed  = lsGet('sp',1);
+let voiceName = lsGet('vo','');
+let day = lsGet('day',''), cnt = lsGet('cnt',0), okCnt = lsGet('ok',0);
+if(day!==jstDay()){ day=jstDay(); cnt=0; okCnt=0; lsSet('day',day); lsSet('cnt',0); lsSet('ok',0); }
+
+
+// ---- 学習データ（日付ベース）----
+// rec[見出し語] = {d:次回復習日(YYYY-MM-DD), n:段階, f:連続失敗}
+let rec = lsGet('rec', null);
+if(rec === null){
+  // 旧データ（問番号ベース）からの移行。卒業済みは1日後、要再挑戦は今日に置く。
+  rec = {};
+  const old = lsGet('sched',{});
+  for(const w of lsGet('known',[])) rec[w] = {d:addDays(jstDay(),1), n:1, f:0};
+  for(const w of Object.keys(old))  rec[w] = {d:jstDay(), n:0, f:1};
+  lsSet('rec', rec);
+}
+function addDays(ymd, n){
+  const t = new Date(ymd+'T00:00:00Z').getTime() + n*86400000;
+  return new Date(t).toISOString().slice(0,10);
+}
+function isDue(w){ const r=rec[w]; return r && r.d <= jstDay(); }
+function isNew(w){ return !rec[w]; }
+function graduated(w){ const r=rec[w]; return r && r.n>=3; }   // 1週間以上の間隔に乗った語
+
+let onlyUnknown=false, order=[], pos=0, cur=null, isFlipped=false;
+let playing=false, repeatMode=0, history=[], playToken=0;
+const card = document.getElementById('card');
+
+function persist(){
+  lsSet('known',[...known]); lsSet('sched',sched); lsSet('streak',streak);
+  lsSet('seen',[...seen]); lsSet('total',total);
+  lsSet('rec', rec);
+  lsSet('day',day); lsSet('cnt',cnt); lsSet('ok',okCnt);
+  lsSet('deck',activeDeck); lsSet('mode',mode); lsSet('dir',dir); lsSet('il', interleaveOn?1:0); lsSet('sp',speed); lsSet('vo',voiceName);
+}
+
+// ============ 読み上げ ============
+let enVoice=null, voices=[], warmed=false;
+function loadVoices(){
+  try{ voices = speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)); }catch(e){ voices=[]; }
+  const sel=document.getElementById('voiceSel');
+  if(sel){
+    sel.innerHTML = '<option value="">音声：自動</option>' +
+      voices.map(v=>'<option value="'+v.name+'">'+v.name+' ('+v.lang+')</option>').join('');
+    if(voiceName) sel.value = voiceName;
+  }
+  enVoice = voices.find(v=>v.name===voiceName) || voices.find(v=>/en[-_]US/i.test(v.lang)) || voices[0] || null;
+}
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+
+// iOS Safari は最初の発話が無音になるため、volume:0 の空発話でウォームアップする
+function warmUp(){
+  if(warmed || !('speechSynthesis' in window)) return;
+  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){}
+  warmed=true;
+}
+
+// ---- iOS対策：画面オフ／アプリ切替から戻ったときの復帰 ----
+// iOSは読み上げ中にバックグラウンドへ回ると音声合成が壊れ、
+// ページを読み込み直すまで鳴らなくなる。戻ってきたら作り直す。
+let synthBroken=false;
+function showReload(on){
+  const b=document.getElementById('reloadBtn');
+  if(b) b.style.display = on?'inline-block':'none';
+}
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    stopPlay();                    // 裏に回ったら再生状態を畳む
+  }else{
+    try{ speechSynthesis.cancel(); }catch(e){}
+    warmed=false;                  // ウォームアップからやり直す
+    synthBroken=false; showReload(false);
+    setTimeout(loadVoices, 300);
+  }
+});
+
+function cleanForSpeech(t){ return t.replace(/~/g,' ').replace(/\.\.\./g,' ').replace(/…/g,' ').replace(/（[^）]*）/g,' ').replace(/\s+/g,' ').trim(); }
+function speakSeq(text, cb){
+  if(!('speechSynthesis' in window) || !text){ if(cb) cb(); return; }
+  speechSynthesis.cancel(); warmUp();
+  const u=new SpeechSynthesisUtterance(cleanForSpeech(text));
+  u.lang='en-US'; u.rate=speed; if(enVoice) u.voice=enVoice;
+  const btns=document.querySelectorAll('.speak-btn');
+  let started=false, done=false;
+  const finish=()=>{                   // ★次へ進む処理は必ず1回だけ
+    if(done) return; done=true;
+    clearTimeout(watchdog);
+    btns.forEach(b=>b.classList.remove('speaking'));
+    if(cb) cb();
+  };
+  const watchdog=setTimeout(()=>{      // 鳴り始めないまま4秒なら本当に壊れている
+    if(!started){ synthBroken=true; showReload(true); finish(); }
+  },4000);
+  u.onstart=()=>{ started=true; showReload(false); btns.forEach(b=>b.classList.add('speaking')); };
+  u.onend  = finish;
+  u.onerror= finish;
+  speechSynthesis.speak(u);
+}
+function speak(t){ speakSeq(t,null); }
+function speakCurrent(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].en); }
+function speakEx(e){ if(e) e.stopPropagation(); if(cur!=null) speak(CARDS[cur].ex); }
+function setSpeed(v,e){ if(e) e.stopPropagation(); speed=v; persist(); paintSpeed(); }
+function setVoice(name){ voiceName=name; loadVoices(); persist(); }
+function paintSpeed(){
+  document.querySelectorAll('.spd').forEach(b=>b.classList.toggle('on', parseFloat(b.dataset.sp)===speed));
+}
+
+
+// ============ 検索 ============
+function doSearch(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  const box=document.getElementById('hits');
+  document.getElementById('qclear').style.display = q?'block':'none';
+  if(!q){ box.classList.remove('on'); box.innerHTML=''; return; }
+  const hits=[];
+  for(let i=0;i<CARDS.length && hits.length<40;i++){
+    const c=CARDS[i];
+    const hay=(c.en+' '+c.ja+' '+(c.ex||'')+' '+(c.exja||'')+' '+(c.note||'')+' '+c.d).toLowerCase();
+    if(hay.includes(q)) hits.push(i);
+  }
+  if(!hits.length){ box.innerHTML='<div class="nohit">見つかりません</div>'; box.classList.add('on'); return; }
+  box.innerHTML = hits.map(i=>{
+    const c=CARDS[i];
+    return '<div class="hit" onclick="jumpTo('+i+')">'
+      + '<div class="hd">'+c.d+'</div>'
+      + '<div class="he">'+esc(c.en)+'</div>'
+      + '<div class="hj">'+esc(c.ja)+'</div></div>';
+  }).join('');
+  box.classList.add('on');
+}
+function esc(t){ return (t||'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function clearSearch(e){
+  if(e) e.stopPropagation();
+  document.getElementById('q').value='';
+  doSearch();
+}
+function jumpTo(i){                       // 検索結果からそのカードへ
+  clearSearch();
+  cur=i;
+  if(mode==='browse'){
+    activeDeck='すべて'; onlyUnknown=false; renderDecks();
+    order=workingList(); pos=Math.max(0, order.indexOf(i));
+  }
+  render();
+  try{ document.querySelector('.stage').scrollIntoView({behavior:'smooth',block:'center'}); }catch(e){}
+}
+
+// ---- インターリービング（デッキを意図的に交互に出す）----
+// 同じデッキが3枚続いたら、別デッキの候補を優先する。
+// ブロック練習より交互練習の方が長期保持に有利、という知見に基づく。
+function interleave(cands){
+  if(!interleaveOn || cands.length<2) return null;
+  const last = history.slice(-2).map(i=>CARDS[i] && CARDS[i].d);
+  if(last.length<2 || last[0]!==last[1]) return null;   // 直近2枚が同デッキのときだけ介入
+  const other = cands.filter(i=>CARDS[i].d!==last[1]);
+  return other.length ? other[Math.floor(Math.random()*other.length)] : null;
+}
+
+// ============ 出題 ============
+function workingList(){
+  let list = CARDS.map((c,i)=>i);
+  if(activeDeck!=="すべて") list=list.filter(i=>CARDS[i].d===activeDeck);
+  if(onlyUnknown)          list=list.filter(i=>!known.has(CARDS[i].en));
+  return list;
+}
+function pick(){
+  const pool = workingList();
+  if(!pool.length) return null;
+  let cut = Math.min(NO_REPEAT, Math.max(0, pool.length-2));
+  const excl = new Set(history.slice(-cut));
+  let use = pool.filter(i=>!excl.has(i)); if(!use.length) use = pool;
+  const rnd = a => a[Math.floor(Math.random()*a.length)];
+  // ①同一セッションで間違えた語（すぐ戻す）
+  const again = use.filter(i=>sched[CARDS[i].en]!=null && sched[CARDS[i].en]<=total);
+  if(again.length) return rnd(again);
+  // ②今日が復習日の語
+  const due = use.filter(i=>isDue(CARDS[i].en));
+  if(due.length) return interleave(due) || rnd(due);
+  // ③未出題
+  const fresh = use.filter(i=>isNew(CARDS[i].en));
+  if(fresh.length) return interleave(fresh) || rnd(fresh);
+  // ④前倒し復習（期日が近い順）
+  const rest = use.slice().sort((a,b)=>(rec[CARDS[a].en]?.d||'9') < (rec[CARDS[b].en]?.d||'9') ? -1 : 1);
+  return rest[0];
+}
+function nextDrill(){
+  cur = pick();
+  if(cur!=null){ history.push(cur); if(history.length>60) history.shift(); }
+  render();
+}
+function judge(grade,e){     // grade: 0=もう一度 1=わかった 2=余裕
+  if(e) e.stopPropagation();
+  if(cur==null) return;
+  const w = CARDS[cur].en;
+  total++; cnt++; if(grade>0) okCnt++;
+  logDay(grade>0);
+  seen.add(w);
+  const r = rec[w] || {d:jstDay(), n:0, f:0};
+  if(grade===0){
+    r.n = 0; r.f = (r.f||0)+1;
+    r.d = jstDay();                                  // 今日のうちにもう一度
+    sched[w] = total + GAP_FAIL;                     // セッション内で戻す
+    known.delete(w);
+  }else{
+    delete sched[w];
+    const steps = grade===2 ? STEPS_EASY : STEPS_OK;
+    const idx = Math.min(r.n, steps.length-1);
+    r.d = addDays(jstDay(), steps[idx]);
+    r.n = Math.min(r.n+1, steps.length);
+    r.f = 0;
+    if(r.n>=3) known.add(w);                         // 1週間間隔に乗ったら「覚えた」扱い
+  }
+  rec[w] = r;
+  persist(); nextDrill();
+  if(playing) playCard();
+}
+
+
+// ============ 学習記録 ============
+// hist[YYYY-MM-DD] = {n:枚数, ok:正解数}
+let hist = lsGet('hist',{});
+function logDay(good){
+  const d=jstDay();
+  const h=hist[d]||{n:0,ok:0};
+  h.n++; if(good) h.ok++;
+  hist[d]=h;
+  const keys=Object.keys(hist).sort();
+  while(keys.length>120){ delete hist[keys.shift()]; }   // 120日分だけ残す
+  lsSet('hist',hist);
+}
+function streakDays(){
+  let n=0, d=jstDay();
+  while(hist[d] && hist[d].n>0){ n++; d=addDays(d,-1); }
+  return n;
+}
+function dueBuckets(){
+  const t=jstDay(), t1=addDays(t,1), t7=addDays(t,7);
+  const b={today:0,tomorrow:0,week:0,later:0,none:0};
+  for(const c of CARDS){
+    const r=rec[c.en];
+    if(!r){ b.none++; continue; }
+    if(r.d<=t) b.today++;
+    else if(r.d===t1) b.tomorrow++;
+    else if(r.d<=t7) b.week++;
+    else b.later++;
+  }
+  return b;
+}
+function openStats(e){
+  if(e) e.stopPropagation();
+  const box=document.getElementById('statsBody');
+  const days=[]; for(let i=29;i>=0;i--) days.push(addDays(jstDay(),-i));
+  const vals=days.map(d=>hist[d]?hist[d].n:0);
+  const max=Math.max(10,...vals);
+  const tot30=vals.reduce((a,b)=>a+b,0);
+  const活=vals.filter(v=>v>0).length;
+  const b=dueBuckets();
+  const done=CARDS.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+
+  // デッキ別
+  const decksAll=Array.from(new Set(CARDS.map(c=>c.d)));
+  const drows=decksAll.map(d=>{
+    const cs=CARDS.filter(c=>c.d===d);
+    const ok=cs.filter(c=>rec[c.en]&&rec[c.en].n>=3).length;
+    return {d, ok, all:cs.length, pct:Math.round(ok/cs.length*100)};
+  }).sort((a,b)=>a.pct-b.pct);
+
+  // 苦手な語（失敗回数の多い順）
+  const weak=CARDS.filter(c=>rec[c.en]&&(rec[c.en].f||0)>0)
+    .sort((a,b)=>(rec[b.en].f||0)-(rec[a.en].f||0)).slice(0,8);
+
+  box.innerHTML =
+   '<div class="kpis">'
+   + '<div class="kpi"><b>'+streakDays()+'</b><span>連続日数</span></div>'
+   + '<div class="kpi"><b>'+done+'</b><span>定着（1週間超）</span></div>'
+   + '<div class="kpi"><b>'+b.today+'</b><span>今日の復習</span></div>'
+   + '</div>'
+
+   + '<div class="sec"><h3>直近30日</h3>'
+   + '<div class="bars">'
+   + days.map((d,i)=>{
+       const v=vals[i], h=v?Math.max(4,Math.round(v/max*100)):0;
+       return '<div class="bar'+(v?'':' zero')+(i===29?' today':'')+'" style="height:'+h+'%" title="'+d+' '+v+'枚"></div>';
+     }).join('')
+   + '</div>'
+   + '<div class="barlab"><span>'+days[0].slice(5)+'</span><span>30日で '+tot30+'枚 ／ 学習 '+活+'日</span><span>今日</span></div></div>'
+
+   + '<div class="sec"><h3>復習の予定</h3>'
+   + row('今日', b.today) + row('明日', b.tomorrow) + row('今週中', b.week)
+   + row('それ以降', b.later) + row('未学習', b.none)
+   + '</div>'
+
+   + '<div class="sec"><h3>デッキ別の定着</h3>'
+   + drows.map(r=>'<div class="drow"><span class="nm">'+r.d+'</span>'
+       +'<span class="dbar"><i style="width:'+r.pct+'%"></i></span>'
+       +'<span class="vl">'+r.ok+'/'+r.all+'</span></div>').join('')
+   + '</div>'
+
+   + '<div class="sec"><h3>つまずいた語</h3>'
+   + (weak.length ? weak.map(c=>'<div class="weak"><span class="w-n">'+(rec[c.en].f||0)+'回</span>'
+       +esc(c.en)+'<div class="w-ja">'+esc(c.ja)+'</div></div>').join('')
+     : '<div class="empty-s">まだありません</div>')
+   + '</div>';
+
+  document.getElementById('statsSheet').classList.add('on');
+  function row(lab,n){
+    const pct=CARDS.length?Math.round(n/CARDS.length*100):0;
+    return '<div class="drow"><span class="nm">'+lab+'</span>'
+      +'<span class="dbar"><i style="width:'+pct+'%"></i></span>'
+      +'<span class="vl">'+n+'枚</span></div>';
+  }
+}
+function closeStats(e){ if(e) e.stopPropagation(); document.getElementById('statsSheet').classList.remove('on'); }
+
+// ============ 表示 ============
+function setBrowse(keep){
+  const prevCur = cur;
+  order = workingList();
+  if(keep && prevCur!=null){ const i=order.indexOf(prevCur); pos = i>=0?i:0; }
+  else if(pos>=order.length) pos=0;
+  cur = order.length ? order[pos] : null;
+}
+function renderDecks(){
+  const wrap=document.getElementById('decks'); wrap.innerHTML="";
+  decks.forEach(d=>{
+    const b=document.createElement('button');
+    b.className="chip"+(d===activeDeck?" active":""); b.textContent=d;
+    b.onclick=()=>{ activeDeck=d; persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } renderDecks(); if(playing) playCard(); };
+    wrap.appendChild(b);
+  });
+}
+function render(){
+  const pool = workingList();
+  const stage = document.querySelector('.stage');
+  if(cur==null || !pool.length){
+    stage.innerHTML='<div class="empty">この条件のカードが<b>ありません</b><br>デッキか「未習のみ」を切り替えてください。</div>';
+    document.getElementById('count').textContent="0 / 0";
+    document.getElementById('barfill').style.width="0%";
+    document.getElementById('knownCount').textContent="覚えた "+known.size;
+    paintToday(); return;
+  }
+  setFlipped(false);
+  const c=CARDS[cur];
+  document.getElementById('frontDeck').textContent=c.d + (dir==='ja'?' ／ 日→英':'');
+  if(dir==='ja'){
+    document.getElementById('frontEn').innerHTML =
+      '<div class="recall">'+c.ja+'</div><div class="recall-hint">英語で言ってからめくる</div>';
+    document.getElementById('backJa').textContent=c.en;
+  }else{
+    document.getElementById('frontEn').innerHTML =
+      '<div>'+esc(headOf(c.en))+'</div>'
+      + (c.ex ? '<div class="fex" id="frontEx">'+esc(c.ex)+'</div>' : '');
+    document.getElementById('backJa').textContent=c.ja;
+  }
+  document.getElementById('backEx').textContent=c.ex||"";
+  document.getElementById('backExJa').textContent=c.exja||"";
+  document.getElementById('backNote').textContent=c.note||"";
+  card.classList.toggle('known', known.has(c.en));
+
+  if(mode==='browse'){
+    lsSet('spot', c.en);                      // 次に開いたとき、この語から再開する
+    document.getElementById('count').textContent=(pos+1)+" / "+order.length;
+    document.getElementById('barfill').style.width=((pos+1)/order.length*100)+"%";
+    document.getElementById('prevBtn').disabled = pos===0;
+    document.getElementById('nextBtn').disabled = pos===order.length-1;
+  } else {
+    const done = pool.filter(i=>known.has(CARDS[i].en)).length;
+    document.getElementById('count').textContent="卒業 "+done+" / "+pool.length;
+    document.getElementById('barfill').style.width=(done/pool.length*100)+"%";
+  }
+  document.getElementById('knownCount').textContent="要再挑戦 "+Object.keys(sched).length;
+
+  const kb=document.getElementById('knowBtn');
+  kb.classList.toggle('on', known.has(c.en));
+  kb.textContent = known.has(c.en) ? "✓ 覚えた（解除）" : "この語を「覚えた」";
+  document.getElementById('filterBtn').classList.toggle('on', onlyUnknown);
+  paintToday();
+}
+function paintToday(){
+  const rate = cnt? Math.round(okCnt/cnt*100)+"%" : "-";
+  document.getElementById('today').textContent = (extras.length? "＋"+extras.length+"枚 ／ ":"")+"今日 "+cnt+"枚 ／ 正答 "+rate+" ／ 覚えた "+known.size+"語";
+}
+function paintMode(){
+  const b=document.getElementById('modeBtn');
+  const drill = mode==='drill';
+  b.textContent = drill ? "🎯 ドリル" : "📖 通し";
+  b.classList.toggle('on', drill);
+  document.getElementById('browseRow').style.display = drill?'none':'flex';
+  paintDrillRows();
+  document.getElementById('knowBtn').style.display = drill?'none':'';
+}
+function toggleIL(e){
+  if(e) e.stopPropagation();
+  interleaveOn=!interleaveOn; persist(); paintIL();
+}
+function paintIL(){
+  const b=document.getElementById('ilBtn');
+  if(b){ b.classList.toggle('on', interleaveOn); b.textContent = interleaveOn?'⇄ 交互 ON':'⇄ 交互 OFF'; }
+}
+function toggleDir(e){
+  if(e) e.stopPropagation();
+  dir = dir==='en' ? 'ja' : 'en';
+  persist(); paintDir(); paintHints(); render();
+}
+function paintDir(){
+  const b=document.getElementById('dirBtn');
+  if(!b) return;
+  b.textContent = dir==='ja' ? 'JA→EN' : 'EN→JA';
+  b.classList.toggle('on', dir==='ja');
+}
+function toggleMode(e){
+  if(e) e.stopPropagation();
+  mode = mode==='browse' ? 'drill' : 'browse';
+  persist(); paintMode();
+  if(mode==='drill') nextDrill(); else { setBrowse(true); render(); }
+}
+
+
+// ============ タップで読み上げ／フリックでめくる ============
+function setFlipped(v){
+  isFlipped=v; card.classList.toggle('flipped',v);
+  paintDrillRows(); paintHints();
+}
+function paintDrillRows(){
+  const drill = mode==='drill';
+  const fr=document.getElementById('flipRow'), jr=document.getElementById('judgeRow');
+  if(fr) fr.classList.toggle('on', drill && !isFlipped);   // 表：めくるボタン
+  if(jr) jr.classList.toggle('on', drill && isFlipped);    // 裏：判定ボタン
+}
+function paintHints(){
+  const fh=document.getElementById('frontHint'), bh=document.getElementById('backHint');
+  if(fh) fh.textContent = dir==='ja' ? '英語で言ってから「めくる」／ 右フリックで次・左フリックで前'
+                                     : 'タップで発音（例文の枠は例文）／ めくると語義';
+  if(bh) bh.textContent = 'タップで発音（例文の枠は例文）／ 右フリックで次・左フリックで前';
+}
+function inRect(el,x,y){
+  if(!el) return false;
+  const r=el.getBoundingClientRect();
+  return x>=r.left && x<=r.right && y>=r.top && y<=r.bottom;
+}
+// 見出し語の（ ）は語義の区別用。表には出さず、裏でだけ見せる。
+function headOf(en){ return en.replace(/（[^）]*）/g,'').trim(); }
+function tapSpeak(x,y){
+  if(cur==null) return;
+  const c=CARDS[cur];
+  card.classList.remove('tapflash'); void card.offsetWidth; card.classList.add('tapflash');
+  if(isFlipped){
+    if(inRect(document.querySelector('.back .ex'),x,y)) speak(c.ex);   // 例文の枠
+    else speak(c.en);                                                   // それ以外は見出し語
+    return;
+  }
+  if(dir==='ja') return;      // 表が日本語のときは読まない（英語を読むと答えになる）
+  if(inRect(document.getElementById('frontEx'),x,y)) speak(c.ex);
+  else speak(headOf(c.en));
+}
+
+let tStart=null, lastSwipe=0;
+card.addEventListener('touchstart',e=>{
+  if(e.touches.length!==1){ tStart=null; return; }
+  const t=e.touches[0]; tStart={x:t.clientX,y:t.clientY,at:Date.now()};
+},{passive:true});
+card.addEventListener('touchend',e=>{
+  if(!tStart) return;
+  const t=e.changedTouches[0];
+  const dx=t.clientX-tStart.x, dy=t.clientY-tStart.y;
+  const adx=Math.abs(dx), ady=Math.abs(dy);
+  if(adx>45 && adx>ady*1.4 && Date.now()-tStart.at<800){      // 横フリック
+    lastSwipe=Date.now();
+    card.classList.remove('nudge-l','nudge-r'); void card.offsetWidth;
+    card.classList.add(dx<0?'nudge-l':'nudge-r');
+    if(dx>0) next(); else prev();
+  }
+  tStart=null;
+},{passive:true});
+card.addEventListener('click',e=>{
+  if(Date.now()-lastSwipe<450) return;              // フリック直後の誤タップを無視
+  if(e.target.closest('button')) return;            // 🔊ボタンは自前で処理
+  tapSpeak(e.clientX,e.clientY);
+});
+
+// ============ 操作 ============
+function flip(e){ if(e) e.stopPropagation(); if(cur==null) return; setFlipped(!isFlipped); }
+function next(e){ if(e) e.stopPropagation(); if(mode==='drill'){ nextDrill(); } else if(pos<order.length-1){ pos++; setBrowse(false); render(); } if(playing) playCard(); }
+function prev(e){ if(e) e.stopPropagation(); if(mode==='browse' && pos>0){ pos--; setBrowse(false); render(); if(playing) playCard(); } }
+function shuffle(e){
+  if(e) e.stopPropagation();
+  if(mode==='drill'){ nextDrill(); }
+  else { for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];} pos=0; cur=order[0]; render(); }
+  if(playing) playCard();
+}
+function toggleKnown(e){
+  if(e) e.stopPropagation(); if(cur==null) return;
+  const w=CARDS[cur].en;
+  if(known.has(w)){ known.delete(w); } else { known.add(w); delete sched[w]; delete streak[w]; }
+  persist();
+  if(onlyUnknown){ setBrowse(false); } render();
+}
+function toggleFilter(e){ if(e) e.stopPropagation(); onlyUnknown=!onlyUnknown; pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); } }
+function resetProgress(e){
+  if(e) e.stopPropagation();
+  if(!confirm('覚えた語・要再挑戦・今日の記録をすべて消します。よろしいですか？')) return;
+  known=new Set(); sched={}; streak={}; seen=new Set(); total=0; cnt=0; okCnt=0;
+  persist(); pos=0; if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ============ 自動再生 ============
+function playCard(){
+  if(!playing || cur==null) return;
+  const my = ++playToken;
+  const c = CARDS[cur];
+  setFlipped(false);
+  speakSeq(dir==='ja' ? '' : c.en, ()=>{
+    if(!playing || my!==playToken) return;
+    setFlipped(true);
+    if(dir==='ja') speak(c.en);
+    speakSeq(c.ex, ()=>{
+      if(!playing || my!==playToken) return;
+      setTimeout(()=>{ if(playing && my===playToken) afterCard(); },1000);
+    });
+  });
+}
+function afterCard(){
+  if(repeatMode===2){ playCard(); return; }
+  if(mode==='drill'){ nextDrill(); playCard(); return; }
+  if(pos < order.length-1){ pos++; setBrowse(false); render(); playCard(); }
+  else if(repeatMode===1){ pos=0; setBrowse(false); render(); playCard(); }
+  else stopPlay();
+}
+function startPlay(){ if(cur==null) return; playing=true; const b=document.getElementById('playBtn'); b.classList.add('on'); b.textContent="⏸ 停止"; playCard(); }
+function stopPlay(){ playing=false; playToken++; try{speechSynthesis.cancel();}catch(e){} const b=document.getElementById('playBtn'); b.classList.remove('on'); b.textContent="▶ 自動再生"; }
+function togglePlay(e){ if(e) e.stopPropagation(); playing?stopPlay():startPlay(); }
+function cycleRepeat(e){
+  if(e) e.stopPropagation(); repeatMode=(repeatMode+1)%3;
+  const b=document.getElementById('repeatBtn');
+  b.textContent="🔁 リピート:"+["なし","全体","1枚"][repeatMode];
+  b.classList.toggle('on', repeatMode!==0);
+}
+
+document.addEventListener('keydown',(e)=>{
+  const tg=e.target.tagName;
+  if(tg==='SELECT'||tg==='INPUT'||tg==='TEXTAREA') return;
+  if(e.code==='Space'||e.code==='Enter'){ e.preventDefault(); flip(); }
+  else if(e.code==='ArrowRight'){ next(); }
+  else if(e.code==='ArrowLeft'){ prev(); }
+  else if(e.key==='k'||e.key==='K'){ toggleKnown(); }
+  else if(e.key==='s'||e.key==='S'){ speakCurrent(); }
+  else if(e.key==='p'||e.key==='P'){ togglePlay(); }
+  else if(e.key==='d'||e.key==='D'){ toggleMode(); }
+});
+
+
+// ---- Service Worker（オフライン動作）----
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{ navigator.serviceWorker.register('./sw.js').catch(()=>{}); });
+}
+
+// ---- カードの追加読み込み ----
+function importCards(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        const incoming = Array.isArray(d) ? d : (d.cards||[]);
+        if(!incoming.length){ alert('カードが入っていないファイルです'); return; }
+        const before = CARDS.length;
+        const seenEn = new Set(extras.map(c=>c.en));
+        for(const c of incoming){ if(c&&c.en&&!seenEn.has(c.en)){ seenEn.add(c.en); extras.push(c); } }
+        mergeExtras(); lsSet('extra',extras); recomputeDecks(); renderDecks();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('取り込みました（+'+(CARDS.length-before)+'枚 ／ 合計'+CARDS.length+'枚）\n学習履歴はそのまま残っています。');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+function clearExtras(e){
+  if(e) e.stopPropagation();
+  if(!extras.length){ alert('追加カードはありません'); return; }
+  if(!confirm('あとから取り込んだ '+extras.length+'枚を削除します。内蔵カードと学習履歴は残ります。')) return;
+  extras=[]; lsSet('extra',extras); mergeExtras(); recomputeDecks(); renderDecks();
+  if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+}
+
+// ---- 進捗の書き出し／読み込み（端末を変えても引き継げるように）----
+function exportProgress(e){
+  if(e) e.stopPropagation();
+  const dump={ns:NS, saved:new Date().toISOString(),
+    known:[...known], sched, streak, seen:[...seen], total, cnt, okCnt, day, rec, hist};
+  const blob=new Blob([JSON.stringify(dump,null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=NS+'-progress-'+jstDay()+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+}
+function importProgress(e){
+  if(e) e.stopPropagation();
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.json,application/json';
+  inp.onchange=()=>{
+    const f=inp.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        const d=JSON.parse(rd.result);
+        if(d.ns && d.ns!==NS && !confirm('別のアプリの進捗ファイルに見えます。読み込みますか？')) return;
+        known=new Set(d.known||[]); sched=d.sched||{}; streak=d.streak||{};
+        seen=new Set(d.seen||[]); total=d.total||0;
+        if(d.rec) rec=d.rec;
+        if(d.hist) hist=Object.assign({}, hist, d.hist);
+        if(d.day===jstDay()){ cnt=d.cnt||0; okCnt=d.okCnt||0; }
+        persist();
+        if(mode==='drill') nextDrill(); else { setBrowse(false); render(); }
+        alert('読み込みました（覚えた '+known.size+'語）');
+      }catch(err){ alert('ファイルを読めませんでした'); }
+    };
+    rd.readAsText(f);
+  };
+  inp.click();
+}
+
+function restoreSpot(){                     // 前回いた語まで戻す
+  const w = lsGet('spot','');
+  if(!w) return;
+  const i = order.findIndex(k=>CARDS[k] && CARDS[k].en===w);
+  if(i>=0){ pos=i; cur=order[pos]; }
+}
+renderDecks(); paintSpeed(); paintMode(); paintDir(); paintIL(); paintHints();
+if(mode==='drill') nextDrill(); else { setBrowse(false); restoreSpot(); render(); }
+</script>
+</body>
+</html>

@@ -121,9 +121,13 @@
   #q{width:100%;font-family:inherit;font-size:.88rem;padding:11px 36px 11px 14px;border-radius:11px;
     border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.07);color:var(--paper);}
   #q::placeholder{color:#8892a4;}
+  /* iOS/Chrome が type=search に足す消去ボタンを消す（自前の ✕ と二重になるため） */
+  #q::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;}
   #qclear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;
     color:#8892a4;font-size:1.1rem;cursor:pointer;display:none;}
-  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;
+  /* body が縦フレックスで高さ固定のため、overflow を持つこの枠は
+     放っておくと高さ 2px まで縮められて検索結果が見えなくなる。flex:none で止める。 */
+  .hits{width:100%;max-width:620px;margin-top:8px;max-height:210px;overflow-y:auto;flex:none;
     border-radius:11px;border:1px solid rgba(255,255,255,.12);display:none;}
   .hits.on{display:block;}
   .hit{padding:9px 13px;border-bottom:1px solid rgba(255,255,255,.07);cursor:pointer;}
@@ -173,8 +177,11 @@
   .flipRow{width:100%;max-width:620px;display:none;margin-top:18px;}
   .flipRow.on{display:flex;}
   .flipRow .btn{flex:1;}
-  .tapflash{animation:tapf .35s ease;}
-  @keyframes tapf{0%{filter:brightness(1)}40%{filter:brightness(1.08)}100%{filter:brightness(1)}}
+  /* タップの手ごたえ。filter を使うとカードの立体が潰れて裏の面が透けるので、
+     カード本体ではなく表示中の面の背景色だけを一瞬明るくする。 */
+  .tapflash .face{animation:tapf .35s ease;}
+  @keyframes tapf{0%,100%{background-image:linear-gradient(180deg,var(--paper),var(--paper-edge));}
+                  40%{background-image:linear-gradient(180deg,#fffcf2,#f7eeda);}}
 
   .vertag{margin-top:16px;font-size:.68rem;color:#6d7686;letter-spacing:.04em;text-align:center;}
 </style>
@@ -278,7 +285,7 @@
 
   <button class="reset" onclick="resetProgress(event)">学習データを消去</button>
 
-  <div class="vertag">更新 v14 ・ 2026-09-21</div>
+  <div class="vertag">更新 v22 ・ 2026-09-22</div>
 <script>
 const BUILTIN = [
   // ===== プレゼン導入 =====

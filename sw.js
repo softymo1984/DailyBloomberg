@@ -1,12 +1,13 @@
 // 更新するときは必ずこの VERSION の数字を上げてからアップロードする。
 // 上げ忘れると、端末に古い画面がキャッシュされたままになる。
-const VERSION = 'flashcards-v20';
+const VERSION = 'flashcards-v22';
 
 const ASSETS = [
   './',
   './index.html',
   './bloomberg.html',
   './bep.html',
+  './juken.html',
   './repeat.html',
   './speak.html',
   './manifest.json',

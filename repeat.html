@@ -123,7 +123,7 @@ h1{font-size:12px;letter-spacing:5px;text-transform:uppercase;color:#66d9a0;
 </div>
 <p class="foot">音声は1回のみ再生 ・ 言い直しなし<br>本番は6秒以内に開始、15秒以内に解答</p>
 </div>
-  <div class="vertag">更新 v14 ・ 2026-09-21</div>
+  <div class="vertag">更新 v22 ・ 2026-09-22</div>
 <script>
 const S=[
 {e:"The meeting starts at nine sharp.",j:"会議は9時ちょうどに始まります。",s:"daily",w:6,t:1,g:false,r:"d"},
@@ -647,11 +647,20 @@ function loadVoices(){const v=speechSynthesis.getVoices().filter(x=>x.lang.start
  if(v.length){voices=v;if(voIdx>=v.length)voIdx=0;renderSet();}}
 loadVoices(); speechSynthesis.onvoiceschanged=loadVoices;
 
-let warmed=false;
-function speak(t){speechSynthesis.cancel();
+let warmed=false, speakToken=0;
+// 第2引数は「読み終わったあとにやること」。iOSでは読み上げ中にマイクを掴むと
+// 音声の出力先が録音側に切り替わって読み上げが途切れるため、終わるまで待つ。
+function speak(t,cb){speechSynthesis.cancel();
  if(!warmed){const w=new SpeechSynthesisUtterance(" ");w.volume=0;speechSynthesis.speak(w);warmed=true;}
  const u=new SpeechSynthesisUtterance(t);u.lang="en-US";u.rate=SPEEDS[spIdx].r;
- if(voices[voIdx])u.voice=voices[voIdx];speechSynthesis.speak(u);}
+ if(voices[voIdx])u.voice=voices[voIdx];
+ const my=++speakToken; let fired=false;
+ const finish=()=>{ if(fired||my!==speakToken)return; fired=true; clearTimeout(wd); if(cb)cb(); };
+ // onend が届かない端末があるので、語数から見積もった保険も置く
+ const words=(t.match(/\S+/g)||[]).length;
+ const wd=setTimeout(finish, words/2.6/(SPEEDS[spIdx].r||1)*1000 + 2000);
+ u.onend=finish; u.onerror=finish;
+ speechSynthesis.speak(u);}
 
 function pool(){return S.filter(s=>(tier===0||s.t===tier)&&(reg==="a"||s.r===reg));}
 
@@ -773,11 +782,17 @@ function dlMine(){
   a.download='repeat-'+jstDay()+'-'+cur.e.slice(0,24).replace(/[^A-Za-z0-9]+/g,'_')+'.m4a';
   a.click();
 }
+let mineToken=0;
 async function loadMine(){                 // 裏面を開いたとき、過去の録音があれば出す
   if(!cur) return;
   const k=keyOf(cur.e);
+  const my=++mineToken;
   if(curKey===k && curBlobURL){ recState='has'; paintRec(); return; }
   const row=await idbGet(k);
+  // 保存を待っている間に、いま録り終えた音声が入ってくることがある。
+  // それを消さないよう、待ち明けにもう一度確かめる。
+  if(my!==mineToken) return;
+  if(curKey===k && curBlobURL){ recState='has'; paintRec(); return; }
   if(curBlobURL){ URL.revokeObjectURL(curBlobURL); curBlobURL=null; }
   if(row&&row.blob){ curKey=k; curBlobURL=URL.createObjectURL(row.blob); recState='has'; }
   else { curKey=null; recState='idle'; }
@@ -846,8 +861,9 @@ function render(){
  }
  st.innerHTML=h;
  if(phase==="ready"){
-   $("play").onclick=()=>{if(played)return;speak(cur.e);played=true;startTimer();render();
-     if(autoRec) setTimeout(startRec,1200);};
+   $("play").onclick=()=>{if(played)return;
+     played=true;startTimer();render();
+     speak(cur.e, ()=>{ if(autoRec && phase==="ready" && recState!=='rec') setTimeout(startRec,300); });};
    const sb=$("showBtn"); if(sb)sb.onclick=()=>{stopTimer();phase="reveal";render();};
  }else{
    if(recState==='rec') stopRec();
